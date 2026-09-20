@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<link rel="manifest" href="/admin/manifest.json"><meta name="theme-color" content="#07111f"><link rel="apple-touch-icon" href="/admin/admin-icon.svg"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="/admin/manifest.json"><meta name="theme-color" content="#07111f"><link rel="apple-touch-icon" href="/admin/admin-icon-192.png"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Quizy Expedition Command Center</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#07111f;color:#eef6ff;font:15px system-ui,-apple-system,Segoe UI,Arial,sans-serif}
@@ -16,7 +16,7 @@
 </style>
 </head>
 <body>
-<div id="app"><div class="wrap" style="max-width:520px;margin-top:12vh"><div class="card center"><div style="font-size:58px">🧭</div><div class="brand">Quizy Expedition Command Center</div><p class="muted">Owner station</p><div id="status">Preparing secure access…</div></div></div></div>
+<div id="app"><div class="wrap" style="max-width:520px;margin-top:12vh"><div class="card center"><img src="/admin/admin-icon-192.png" alt="Quizy Command Center" style="width:96px;height:96px;border-radius:22px;object-fit:cover"><div class="brand">Quizy Expedition Command Center</div><p class="muted">Owner station</p><div id="status">Preparing secure access…</div></div></div></div>
 <script>
 const SUPA='https://snxehcpichoskvdtuveh.supabase.co';
 const KEY='sb_publishable_54n8FEVRWSq1A17OeO-lxw_E_74g9Gh';
@@ -25,7 +25,7 @@ let token='',users=[],settings={},summary={},tab='home';
 const app=document.getElementById('app');
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function login(){
- app.innerHTML='<div class="wrap" style="max-width:520px;margin-top:10vh"><div class="card center"><div style="font-size:58px">🧭</div><div class="brand">Quizy Expedition Command Center</div><p class="muted">Private owner station</p><input id="em" class="input" type="email" placeholder="Owner email" autocomplete="username"><input id="pw" class="input" type="password" placeholder="Password" autocomplete="current-password"><button class="btn primary" style="width:100%;margin-top:8px" onclick="signin()">Enter Command Center</button><div id="err"></div></div></div>';
+ app.innerHTML='<div class="wrap" style="max-width:520px;margin-top:10vh"><div class="card center"><img src="/admin/admin-icon-192.png" alt="Quizy Command Center" style="width:96px;height:96px;border-radius:22px;object-fit:cover"><div class="brand">Quizy Expedition Command Center</div><p class="muted">Private owner station</p><input id="em" class="input" type="email" placeholder="Owner email" autocomplete="username"><input id="pw" class="input" type="password" placeholder="Password" autocomplete="current-password"><button class="btn primary" style="width:100%;margin-top:8px" onclick="signin()">Enter Command Center</button><div id="err"></div></div></div>';
 }
 async function signin(){
  const e=document.getElementById('err'); e.innerHTML='<p class="muted">Authenticating…</p>';
