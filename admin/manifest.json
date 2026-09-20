@@ -11,7 +11,7 @@
   "theme_color":"#07111f",
   "description":"Private owner control station for Quizy.",
   "icons":[
-    {"src":"/admin/family-icon.svg","sizes":"192x192","type":"image/jpeg","purpose":"any"},
-    {"src":"/admin/family-icon.svg","sizes":"192x192","type":"image/jpeg","purpose":"maskable"}
+    {"src":"/admin/command-icon.png","sizes":"192x192","type":"image/jpeg","purpose":"any"},
+    {"src":"/admin/command-icon.png","sizes":"192x192","type":"image/jpeg","purpose":"maskable"}
   ]
 }
