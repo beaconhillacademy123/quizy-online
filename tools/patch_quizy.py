@@ -1,51 +1,132 @@
 from pathlib import Path
-p=Path("index.html")
-s=p.read_text()
-if "function loadQuizySettings()" in s:
-    print("already patched")
+
+p = Path("index.html")
+s = p.read_text(encoding="utf-8")
+
+if "QUIZY_COMMAND_CENTER_TELEMETRY_V1" in s:
+    print("telemetry already installed")
     raise SystemExit(0)
-needle="async function currentUser(){"
-inject=r"""let quizySettings={};
-async function loadQuizySettings(){
-  try{const {data,error}=await supabase.from('quizy_settings').select('key,value');if(error)throw error;quizySettings={};(data||[]).forEach(x=>quizySettings[x.key]=x.value)}catch(e){console.warn('Quizy settings unavailable:',e)}
-  return quizySettings;
-}
-function settingBool(key,fallback=true){const v=quizySettings[key];return typeof v==='boolean'?v:fallback}
-async function trackActivity(event_type,metadata={}){
-  if(!window.QuizyCloud.user)return;
-  try{await supabase.from('quizy_activity').insert({user_id:window.QuizyCloud.user.id,event_type,metadata})}catch(e){console.warn('Quizy activity unavailable:',e)}
-}
-async function recordInstallation(){
-  if(!window.QuizyCloud.user)return;
-  let k=localStorage.getItem('quizyDeviceInstallKey');
-  if(!k){k=crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random();localStorage.setItem('quizyDeviceInstallKey',k)}
-  const platform=/Android/i.test(navigator.userAgent)?'android':/iPhone|iPad/i.test(navigator.userAgent)?'ios':'web';
-  try{await supabase.from('quizy_installations').upsert({user_id:window.QuizyCloud.user.id,install_key:k,platform,last_seen_at:new Date().toISOString()},{onConflict:'user_id,install_key'})}catch(e){console.warn('Quizy installation tracking unavailable:',e)}
-}
-async function checkCloudAccess(){
-  if(!window.QuizyCloud.user)return false;
-  try{const {data,error}=await supabase.from('quizy_user_controls').select('suspended,reason').eq('user_id',window.QuizyCloud.user.id).maybeSingle();if(error)throw error;if(data?.suspended){window.QuizyCloud.blocked=true;app.innerHTML='<div style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#07111f;color:white;font-family:system-ui;text-align:center"><div><div style="font-size:64px">🔒</div><h2>Expedition Access Paused</h2><p>Your Quizy account is temporarily paused by the Expedition Command Center.</p></div></div>';return true}}catch(e){console.warn('Quizy access check unavailable:',e)}
-  return false;
-}
-async function checkQuizyMessages(){
-  if(!window.QuizyCloud.user)return;
-  try{const {data,error}=await supabase.from('quizy_messages').select('*').eq('recipient_user_id',window.QuizyCloud.user.id).is('read_at',null).order('created_at',{ascending:false}).limit(1);if(error)throw error;if(!data?.length)return;const m=data[0];const wrap=document.createElement('div');wrap.className='adventure-modal-back';wrap.innerHTML='<div class="adventure-modal card"><div class="map-symbol">📜🧭</div><div class="small">'+esc(m.sender_name||'Quizy Expedition Commander')+'</div><h2>'+esc(m.subject)+'</h2><p class="q-text">'+esc(m.message).replace(/\n/g,'<br>')+'</p><div class="adventure-actions"><button class="btn primary" id="ackMessage">⭐ Message Received</button></div></div>';document.body.appendChild(wrap);wrap.querySelector('#ackMessage').onclick=async()=>{await supabase.from('quizy_messages').update({read_at:new Date().toISOString()}).eq('id',m.id);wrap.remove()}}catch(e){console.warn('Quizy messages unavailable:',e)}
-}
-window.addEventListener('appinstalled',()=>{trackActivity('app_installed');recordInstallation()});
-"""
-if needle not in s: raise SystemExit("needle not found")
-s=s.replace(needle,inject+needle,1)
-old="wrap.querySelector('#qcSignUp').onclick=async()=>{msg('Creating account…');const {data,error}=await supabase.auth.signUp({email:email(),password:pass()});"
-new="wrap.querySelector('#qcSignUp').onclick=async()=>{if(!settingBool('registrations_enabled',true)){msg('New explorer registrations are temporarily closed by the Expedition Command Center.');return}msg('Creating account…');const {data,error}=await supabase.auth.signUp({email:email(),password:pass()});"
-if old in s:s=s.replace(old,new,1)
-old="window.startGame=function(){const chosenAge=state.age,chosenDifficulty=state.difficulty;localStartGame();state.age=chosenAge;state.difficulty=chosenDifficulty;if(window.QuizyCloud.user){pullCloudProfile().then(()=>{state.age=chosenAge;state.difficulty=chosenDifficulty;saveCloudProfile();saveProgress();render();});}};"
-new="window.startGame=function(){if(settingBool('maintenance_mode',false)){alert('Quizy is currently on an expedition maintenance break. Please check back shortly.');return}const chosenAge=state.age,chosenDifficulty=state.difficulty;localStartGame();state.age=chosenAge;state.difficulty=chosenDifficulty;if(window.QuizyCloud.user){trackActivity('expedition_start',{difficulty:state.difficulty,age_band:state.age});recordInstallation();pullCloudProfile().then(()=>{state.age=chosenAge;state.difficulty=chosenDifficulty;saveCloudProfile();saveProgress();render();});}};"
-if old in s:s=s.replace(old,new,1)
-old="window.finishLand=function(){localFinishLand();logAttempt();};"
-new="window.finishLand=function(){localFinishLand();if(window.QuizyCloud.user){const l=LANDS[state.landIndex];trackActivity('expedition_complete',{land_id:l?.id||'',correct:state.landCorrect?.[l?.id]||0,total:l?.count||0});}logAttempt();};"
-if old in s:s=s.replace(old,new,1)
-old="(async()=>{await currentUser();await pullQuestions();try{navigator.serviceWorker?.register('/sw.js')}catch(e){}decorate();})();"
-new="(async()=>{await currentUser();await loadQuizySettings();if(await checkCloudAccess())return;await trackActivity('app_open');await recordInstallation();await pullQuestions();try{navigator.serviceWorker?.register('/sw.js')}catch(e){}decorate();setTimeout(checkQuizyMessages,500);})();"
-if old in s:s=s.replace(old,new,1)
-p.write_text(s)
-print("patched",p.stat().st_size)
+
+bootstrap = r'''
+<!-- QUIZY_COMMAND_CENTER_TELEMETRY_V1 -->
+<script>
+(function(){
+  const SUPA_URL='https://snxehcpichoskvdtuveh.supabase.co';
+  const KEY='sb_publishable_54n8FEVRWSq1A17OeO-lxw_E_74g9Gh';
+  let cloud=null, user=null, sentOpen=false, installKey=null;
+
+  function esc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+  async function waitForCloud(){
+    for(let i=0;i<80;i++){
+      try{
+        cloud=window.QuizyCloud?.supabase || null;
+        user=window.QuizyCloud?.user || null;
+        if(cloud && user) return true;
+      }catch(e){}
+      await new Promise(r=>setTimeout(r,500));
+    }
+    return false;
+  }
+
+  async function activity(event_type,metadata={}){
+    if(!cloud || !user) return;
+    try{
+      await cloud.from('quizy_activity').insert({
+        user_id:user.id,
+        event_type,
+        metadata
+      });
+    }catch(e){ console.warn('Command Center activity:',e); }
+  }
+
+  async function installation(){
+    if(!cloud || !user) return;
+    installKey=localStorage.getItem('quizy_command_install_key');
+    if(!installKey){
+      installKey=(crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random());
+      localStorage.setItem('quizy_command_install_key',installKey);
+    }
+    const ua=navigator.userAgent||'';
+    const platform=/Android/i.test(ua)?'android':/iPhone|iPad/i.test(ua)?'ios':'web';
+    try{
+      await cloud.from('quizy_installations').upsert({
+        user_id:user.id,
+        install_key:installKey,
+        platform,
+        last_seen_at:new Date().toISOString()
+      },{onConflict:'user_id,install_key'});
+    }catch(e){ console.warn('Command Center installation:',e); }
+  }
+
+  async function messages(){
+    if(!cloud || !user) return;
+    try{
+      const {data,error}=await cloud.from('quizy_messages')
+        .select('id,subject,message,sender_name,created_at')
+        .eq('recipient_user_id',user.id)
+        .is('read_at',null)
+        .order('created_at',{ascending:false})
+        .limit(1);
+      if(error || !data?.length) return;
+      const m=data[0];
+      if(document.getElementById('quizy-command-message')) return;
+      const box=document.createElement('div');
+      box.id='quizy-command-message';
+      box.style.cssText='position:fixed;inset:0;background:#0009;z-index:999999;display:grid;place-items:center;padding:20px;font-family:system-ui';
+      box.innerHTML='<div style="max-width:520px;width:100%;background:#10233a;color:white;border:1px solid #315575;border-radius:20px;padding:24px;text-align:center;box-shadow:0 20px 60px #0008"><div style="font-size:48px">📜🧭</div><div style="opacity:.7">'+esc(m.sender_name||'Quizy Expedition Commander')+'</div><h2>'+esc(m.subject)+'</h2><p style="line-height:1.6">'+esc(m.message).replace(/\n/g,'<br>')+'</p><button id="qcm-ack" style="background:#e8bf50;border:0;border-radius:10px;padding:12px 18px;font-weight:800">⭐ Message Received</button></div>';
+      document.body.appendChild(box);
+      document.getElementById('qcm-ack').onclick=async()=>{
+        await cloud.from('quizy_messages').update({read_at:new Date().toISOString()}).eq('id',m.id);
+        box.remove();
+      };
+    }catch(e){console.warn('Command Center messages:',e);}
+  }
+
+  function wrapFunction(name,event){
+    const fn=window[name];
+    if(typeof fn!=='function' || fn.__quizyCCWrapped) return;
+    const wrapped=function(){
+      const result=fn.apply(this,arguments);
+      try{ activity(event,{}); installation(); }catch(e){}
+      return result;
+    };
+    wrapped.__quizyCCWrapped=true;
+    window[name]=wrapped;
+  }
+
+  async function boot(){
+    const ok=await waitForCloud();
+    if(!ok) return;
+    if(!sentOpen){
+      sentOpen=true;
+      await activity('app_open',{path:location.pathname});
+      await installation();
+    }
+    wrapFunction('startGame','expedition_start');
+    wrapFunction('finishLand','expedition_complete');
+    setInterval(()=>{
+      user=window.QuizyCloud?.user || user;
+      wrapFunction('startGame','expedition_start');
+      wrapFunction('finishLand','expedition_complete');
+      if(user) installation();
+      messages();
+    },10000);
+    messages();
+  }
+
+  window.addEventListener('appinstalled',()=>activity('app_installed',{}));
+  boot();
+})();
+</script>
+'''
+
+marker="<!-- QUIZY_COMMAND_CENTER_TELEMETRY_V1 -->"
+if marker not in s:
+    if "</body>" in s:
+        s=s.replace("</body>", bootstrap + "\n</body>", 1)
+    else:
+        s += bootstrap
+
+p.write_text(s,encoding="utf-8")
+print("patched", p.stat().st_size)
