@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="/admin/manifest.json"><meta name="theme-color" content="#07111f"><link rel="apple-touch-icon" href="/admin/admin-icon.svg"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Quizy Expedition Command Center</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#07111f;color:#eef6ff;font:15px system-ui,-apple-system,Segoe UI,Arial,sans-serif}
@@ -65,4 +65,4 @@ function ctrlView(){const b=k=>settings[k]===true;view.innerHTML='<div class="ca
 async function saveCtrl(){const o={};document.querySelectorAll('[data-s]').forEach(x=>o[x.dataset.s]=x.checked);o.min_app_version=document.getElementById('ver').value.trim();o.announcement=document.getElementById('ann').value.trim()||null;await call('save_settings',{settings:o});alert('Command settings saved.');await load()}
 login();
 </script>
-</body></html>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/admin/sw.js",{scope:"/admin/"}).catch(()=>{}));}</script></body></html>
