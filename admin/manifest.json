@@ -12,6 +12,6 @@
   "description":"Private owner control station for Quizy.",
   "icons":[
     {"src":"/admin/admin-icon-v2-192.jpg","sizes":"192x192","type":"image/jpeg","purpose":"any"},
-    {"src":"/admin/admin-icon-v2.jpg","sizes":"512x512","type":"image/jpeg","purpose":"any maskable"}
+    {"src":"/admin/admin-icon-v2-192.jpg","sizes":"192x192","type":"image/jpeg","purpose":"maskable"}
   ]
 }
