@@ -1,6 +1,7 @@
 {
   "name":"Quizy Expedition Command Center",
   "short_name":"Quizy Command",
+  "id":"/admin/?app=command-center",
   "start_url":"/admin/?source=homescreen",
   "scope":"/admin/",
   "display":"standalone",
@@ -10,7 +11,7 @@
   "theme_color":"#07111f",
   "description":"Private owner control station for Quizy.",
   "icons":[
-    {"src":"/admin/admin-icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"/admin/admin-icon-512.jpg","sizes":"512x512","type":"image/jpeg","purpose":"any maskable"}
+    {"src":"/admin/admin-icon-v2-192.jpg","sizes":"192x192","type":"image/jpeg","purpose":"any"},
+    {"src":"/admin/admin-icon-v2.jpg","sizes":"512x512","type":"image/jpeg","purpose":"any maskable"}
   ]
 }
