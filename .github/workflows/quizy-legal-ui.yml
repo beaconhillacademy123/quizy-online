@@ -1,64 +1,42 @@
-name: Add Quizy legal UI
-
+name: One-time Quizy legal UI updater
 on:
   push:
     branches: [main]
-    paths:
-      - ".github/workflows/quizy-legal-ui.yml"
-
+    paths: [".quizy-legal-trigger"]
 permissions:
   contents: write
-
 jobs:
   apply:
-    if: contains(github.event.head_commit.message, 'Install one-time legal UI updater')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch settings screen
+      - name: Patch index
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-          if 'function showQuizyLegal()' in s:
-              raise SystemExit('Legal UI already present; aborting.')
-          pattern = r"if\(state\.screen==='settings'\)\{.*?bindTop\(\);return\}"
-          replacement = '''if(state.screen==='settings'){app.innerHTML='<div class="screen card complete">'+topbar()+'<h2>⚙️ Game Settings</h2><p>Everything is stored on this device for offline play.</p><div class="row"><button class="btn" id="resetProg">Reset saved progress</button><button class="btn" id="legalBtn">📜 Legal &amp; Ownership</button><button class="btn ghost" id="back">Back</button></div></div>';document.getElementById('resetProg').onclick=()=>{if(confirm('Reset saved progress?')){localStorage.removeItem('triviaTrailProgress');localStorage.removeItem('quizyProfiles');localStorage.removeItem('quizyResume');localStorage.removeItem('quizyCoinBonusDate');localStorage.removeItem('quizyBreakCoinDate');location.reload()}};document.getElementById('legalBtn').onclick=showQuizyLegal;document.getElementById('back').onclick=dashboard;bindTop();return}'''
-          s2, n = re.subn(pattern, replacement, s, count=1, flags=re.S)
-          if n != 1:
-              raise SystemExit('Settings screen target not found; aborting.')
-          legal = '''function showQuizyLegal(){
-  document.getElementById('quizyLegalModal')?.remove();
-  const wrap=document.createElement('div');
-  wrap.id='quizyLegalModal';
-  wrap.className='cloud-modal-back';
-  wrap.innerHTML='<div class="cloud-modal card" style="max-height:88vh;overflow:auto;text-align:left"><div style="text-align:center;font-size:42px">🧭</div><h2 style="text-align:center;margin-bottom:4px">Quizy — Adventure Quiz</h2><p style="text-align:center;font-weight:800">Original educational game</p><div style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#f7f8fb;margin:14px 0"><strong>© 2026 Uche Promise Egbe</strong><br>Owner / Creator: Uche Promise Egbe / Promise U. Egbe<br>Contact: <a href="tel:07064242015">0706 424 2015</a></div><h3>Copyright &amp; Ownership</h3><p>Quizy, its original game experience, original source code, question-bank work, written content and other original materials are owned by Uche Promise Egbe, subject to any applicable third-party rights and licences.</p><h3>Terms of Use</h3><p>Quizy is provided for testing and educational use. Do not copy, reproduce, publish, redistribute, resell, rebrand, modify or commercially exploit Quizy or its protected materials without permission from the owner.</p><h3>Third-Party Licences</h3><p>Some software, media, fonts or other components may be subject to separate third-party licences. Those rights remain with their respective owners.</p><h3>Brand / Trademark</h3><p>The Quizy name and branding are part of the project identity. Trademark rights, where applicable, are separate from copyright ownership.</p><p class="cloud-note">This in-app notice is an ownership and usage notice. It does not replace applicable copyright or trademark law, registration, or third-party licence terms.</p><div class="cloud-actions" style="justify-content:center"><button class="btn primary" id="quizyLegalClose">Close</button></div></div>';
-  document.body.appendChild(wrap);
-  document.getElementById('quizyLegalClose').onclick=()=>wrap.remove();
-  wrap.onclick=e=>{if(e.target===wrap)wrap.remove()};
-}
-'''
-          marker = "function accountLabel(){return window.QuizyCloud.user?"
-          if marker not in s2:
-              raise SystemExit('Legal insertion marker not found; aborting.')
-          s2 = s2.replace(marker, legal + marker, 1)
-          p.write_text(s2, encoding='utf-8')
-          print('Patched index.html successfully.')
+          p=Path('index.html'); s=p.read_text(encoding='utf-8')
+          if 'function showQuizyLegal()' in s: raise SystemExit('already patched')
+          pattern=r"if\(state\.screen==='settings'\)\{.*?bindTop\(\);return\}"
+          repl='''if(state.screen==='settings'){app.innerHTML='<div class="screen card complete">'+topbar()+'<h2>⚙️ Game Settings</h2><p>Everything is stored on this device for offline play.</p><div class="row"><button class="btn" id="resetProg">Reset saved progress</button><button class="btn" id="legalBtn">📜 Legal &amp; Ownership</button><button class="btn ghost" id="back">Back</button></div></div>';document.getElementById('resetProg').onclick=()=>{if(confirm('Reset saved progress?')){localStorage.removeItem('triviaTrailProgress');localStorage.removeItem('quizyProfiles');localStorage.removeItem('quizyResume');localStorage.removeItem('quizyCoinBonusDate');localStorage.removeItem('quizyBreakCoinDate');location.reload()}};document.getElementById('legalBtn').onclick=showQuizyLegal;document.getElementById('back').onclick=dashboard;bindTop();return}'''
+          s,n=re.subn(pattern,repl,s,count=1,flags=re.S)
+          if n!=1: raise SystemExit('settings target not found')
+          marker="function accountLabel(){return window.QuizyCloud.user?"
+          legal='''function showQuizyLegal(){const w=document.createElement('div');w.id='quizyLegalModal';w.className='cloud-modal-back';w.innerHTML='<div class="cloud-modal card" style="max-height:88vh;overflow:auto;text-align:left"><h2 style="text-align:center">🧭 Quizy — Adventure Quiz</h2><p style="text-align:center;font-weight:800">Original educational game</p><div style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#f7f8fb"><strong>© 2026 Uche Promise Egbe</strong><br>Owner / Creator: Uche Promise Egbe / Promise U. Egbe<br>Contact: <a href="tel:07064242015">0706 424 2015</a></div><h3>Copyright &amp; Ownership</h3><p>Quizy and its original game experience, source code, question-bank work and original content are owned by Uche Promise Egbe, subject to applicable third-party rights and licences.</p><h3>Terms of Use</h3><p>For testing and educational use. Do not copy, reproduce, publish, redistribute, resell, rebrand, modify or commercially exploit Quizy or its protected materials without permission.</p><h3>Third-Party Licences</h3><p>Some software, media, fonts or other components may have separate third-party licence terms.</p><h3>Brand / Trademark</h3><p>Quizy name and branding are part of the project identity; trademark rights are separate from copyright ownership.</p><p class="cloud-note">This notice does not replace applicable copyright or trademark law, registration, or third-party licence terms.</p><div class="cloud-actions" style="justify-content:center"><button class="btn primary" id="quizyLegalClose">Close</button></div></div>';document.body.appendChild(w);document.getElementById('quizyLegalClose').onclick=()=>w.remove();w.onclick=e=>{if(e.target===w)w.remove()}}\n'''
+          if marker not in s: raise SystemExit('marker not found')
+          s=s.replace(marker,legal+marker,1)
+          p.write_text(s,encoding='utf-8')
           PY
-      - name: Commit app UI
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           git commit -m "Add in-app legal and ownership information"
           git push
-      - name: Remove one-time updater
+      - name: Remove updater
         run: |
-          rm -f .github/workflows/quizy-legal-ui.yml
+          rm -f .github/workflows/quizy-legal-ui.yml .quizy-legal-trigger
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/workflows/quizy-legal-ui.yml
+          git add -A
           git commit -m "Remove one-time legal UI updater"
           git push
