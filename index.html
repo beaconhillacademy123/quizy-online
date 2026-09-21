@@ -353,10 +353,10 @@ const localRender=window.render||render;
 window.render=function(){localRender();decorate();};
 
 supabase.auth.onAuthStateChange((_event,session)=>{window.QuizyCloud.user=session?.user||null;refreshAccountUI();});
-(async()=>{await currentUser();await pullQuestions();try{navigator.serviceWorker?.register('/sw.js')}catch(e){}decorate();})();
+(async()=>{await currentUser();await pullQuestions();try{navigator.serviceWorker?.register('/sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{})}catch(e){}decorate();})();
 });
 
-try{loadProgress();render()}catch(e){document.getElementById('app').innerHTML='<div style="padding:28px;font-family:Arial;text-align:center"><h2>Quizy</h2><p>We hit a startup problem. Please reload this page.</p></div>';console.error(e)}
+try{loadProgress();render()}catch(e){console.error('Quizy startup error:',e);const key='quizy_startup_recovery_v1';if(!sessionStorage.getItem(key)){sessionStorage.setItem(key,'1');Promise.all([navigator.serviceWorker?.getRegistrations?.().then(rs=>Promise.all(rs.map(r=>r.unregister()))).catch(()=>{}),caches?.keys?.().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).catch(()=>{})]).finally(()=>location.reload());}else{document.getElementById('app').innerHTML='<div style="padding:28px;font-family:Arial;text-align:center"><h2>Quizy</h2><p>We hit a startup problem. Please reload this page.</p></div>';}}
 </script>
 <!-- QUIZY_COMMAND_CENTER_TELEMETRY_V1 -->
 <script>
