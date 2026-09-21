@@ -1,7 +1,8 @@
 name: Fix About Quizy Robustly
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   fix:
@@ -49,4 +50,6 @@ window.openQuizyAbout=function(){
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           git commit -m "Make About Quizy open independently"
+          git rm .github/workflows/fix-about-robust.yml
+          git commit -m "Remove temporary About fix workflow"
           git push
