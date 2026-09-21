@@ -1,0 +1,38 @@
+name: Fix About Quizy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix About button
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          s = p.read_text(encoding="utf-8")
+          old1 = '<button class="btn ghost" id="aboutQuizy">ⓘ About Quizy</button>'
+          new1 = '<button class="btn ghost" id="aboutQuizy" type="button" onclick="showQuizyLegal()">ⓘ About Quizy</button>'
+          old2 = "document.getElementById('aboutQuizy')?.addEventListener('click',()=>{if(typeof showQuizyLegal==='function')showQuizyLegal();});"
+          new2 = "/* About Quizy uses its inline action above. */"
+          if old1 not in s:
+              raise SystemExit("About button text not found")
+          if old2 not in s:
+              raise SystemExit("About binding not found")
+          s = s.replace(old1, new1, 1).replace(old2, new2, 1)
+          p.write_text(s, encoding="utf-8")
+          PY
+      - name: Commit and clean up
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix About Quizy button action"
+          git rm .github/workflows/fix-about.yml
+          git commit -m "Remove temporary About fix workflow"
+          git push
