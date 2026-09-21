@@ -5,7 +5,7 @@ s = p.read_text(encoding="utf-8")
 
 if "QUIZY_COMMAND_CENTER_TELEMETRY_V1" in s:
     print("telemetry already installed")
-    raise SystemExit(0)
+    pass
 
 bootstrap = r'''
 <!-- QUIZY_COMMAND_CENTER_TELEMETRY_V1 -->
