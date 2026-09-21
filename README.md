@@ -11,6 +11,17 @@ Independent Quizy PWA foundation. No Beacon Hill / school functionality is inclu
 - RLS policies for Quizy tables
 - Offline-capable shell with online sync architecture
 
+## Intellectual property
+
+Quizy is proprietary unless a component is expressly identified as third-party material.
+
+- [PROPRIETARY_LICENSE.md](./PROPRIETARY_LICENSE.md) — ownership and permission terms
+- [TERMS_OF_USE.md](./TERMS_OF_USE.md) — product-use restrictions
+- [IP_RECORD.md](./IP_RECORD.md) — creation/evidence preservation record
+- [THIRD_PARTY_ASSETS.md](./THIRD_PARTY_ASSETS.md) — third-party asset and licence register
+
+Do not assume that a copyright notice alone replaces copyright registration, trademark registration, licensing records, or other evidence of ownership.
+
 ## Setup
 1. Run `quizy_schema.sql` in the Quizy Supabase project.
 2. Deploy this folder to HTTPS hosting (Vercel is suitable).
