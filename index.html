@@ -38,7 +38,7 @@
         window.caches ? caches.keys().then(function(keys){return Promise.all(keys.map(function(k){return caches.delete(k);}));}) : Promise.resolve()
       ]).finally(function(){ location.replace(location.pathname+'?recovery='+Date.now()); });
     } else {
-      app.innerHTML='<div style="min-height:70vh;display:grid;place-items:center;padding:24px;font-family:system-ui;text-align:center"><div><div style="font-size:64px">🦊</div><h2 style="margin:8px 0">Quizy is waking up…</h2><p style="color:#64748b">Please tap below to reload the adventure.</p><button onclick="sessionStorage.removeItem('quizy_boot_recovery_v1');location.reload()" style="border:0;border-radius:14px;padding:14px 22px;background:#635bff;color:#fff;font-weight:800;font-size:16px">Reload Quizy</button></div></div>';
+      app.innerHTML='<div style="min-height:70vh;display:grid;place-items:center;padding:24px;font-family:system-ui;text-align:center"><div><div style="font-size:64px">🦊</div><h2 style="margin:8px 0">Quizy is waking up…</h2><p style="color:#64748b">Please tap below to reload the adventure.</p><button id="quizyReloadBtn" style="border:0;border-radius:14px;padding:14px 22px;background:#635bff;color:#fff;font-weight:800;font-size:16px">Reload Quizy</button></div></div>';document.getElementById('quizyReloadBtn').onclick=function(){sessionStorage.removeItem('quizy_boot_recovery_v1');location.reload()};
     }
   },5000);
 })();
@@ -376,7 +376,6 @@ window.render=function(){localRender();decorate();};
 
 supabase.auth.onAuthStateChange((_event,session)=>{window.QuizyCloud.user=session?.user||null;refreshAccountUI();});
 (async()=>{await currentUser();await pullQuestions();try{navigator.serviceWorker?.register('/sw.js')}catch(e){}decorate();})();
-});
 
 try{loadProgress();showLaunchSplash();setTimeout(()=>render(),2100)}catch(e){document.getElementById('app').innerHTML='<div style="padding:28px;font-family:Arial;text-align:center"><h2>Quizy</h2><p>We hit a startup problem. Please reload this page.</p></div>';console.error(e)}
 </script>
