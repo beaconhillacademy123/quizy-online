@@ -65,21 +65,65 @@ function bankSize(l){return (l.both||l.easy||[]).length || 0}
 function poolFor(l,a){const local=l.both||[];const remote=window.QuizyCloud?.remoteQuestions?.[l.id]||[];if(!remote.length)return local;const m=new Map(local.map(q=>[q._id,q]));remote.forEach(q=>m.set(q._id,q));return [...m.values()]}
 function difficultyPool(l,d){return poolFor(l,state.age).filter(q=>q.difficulty===d && (state.age==='old' ? q.age8===true : !q.age8 && !q._replaceFor8) && (!l.sportCategories || !state.sportCategory || q.sport===state.sportCategory || q.sport_category===state.sportCategory || q.sport==='all'))}
 function selectFreshQuestions(l){
- const d=state.difficulty||'easy'; const pool=difficultyPool(l,d).slice(); if(!pool.length)return [];
+ const d=state.difficulty||'easy';
+ let pool=difficultyPool(l,d).slice();
+
+ // Some lands have fewer than 10 questions at one exact difficulty/age.
+ // Never block an expedition just because that combination is under-filled:
+ // keep the selected difficulty first, then backfill from the nearest difficulties.
+ if(pool.length<l.count){
+   const agePool=poolFor(l,state.age).filter(q=>state.age==='old'
+     ? q.age8===true
+     : !q.age8 && !q._replaceFor8);
+   const order=d==='difficult'?['difficult','medium','easy']
+     :d==='medium'?['medium','easy','difficult']
+     :['easy','medium','difficult'];
+   const merged=[];
+   for(const level of order){
+     for(const q of agePool){
+       if(q.difficulty===level && !merged.some(x=>x._id===q._id))merged.push(q);
+     }
+   }
+   if(merged.length)pool=merged;
+ }
+ if(!pool.length)return [];
+
  if(!state.questionHistory)state.questionHistory={};
  const key=(state.name||'Explorer')+'|'+l.id+'|'+d;
  let used=Array.isArray(state.questionHistory[key])?state.questionHistory[key]:[];
  let available=pool.filter(q=>!used.includes(q._id));
+
  if(available.length<l.count){
    const recent=used.slice(-Math.min(8,used.length));
-   used=[]; available=pool.filter(q=>!recent.includes(q._id));
+   used=[];
+   available=pool.filter(q=>!recent.includes(q._id));
    if(available.length<l.count)available=pool.slice();
  }
+
+ // Guarantee a full expedition even when the available bank is smaller than 10.
+ if(available.length<l.count && pool.length){
+   const base=shuffle(available.length?available:pool);
+   available=[];
+   for(let i=0;i<l.count;i++)available.push(base[i%base.length]);
+ }
+
  // When the online vault has fresh/current questions, deliberately mix them in instead of letting them dominate.
  const current=shuffle(available.filter(q=>q.kind==='current' || q.question_kind==='current')).slice(0,Math.min(2,l.count-1));
  const evergreen=shuffle(available.filter(q=>!(q.kind==='current' || q.question_kind==='current')));
  const need=Math.max(0,l.count-current.length);
- const chosen=shuffle(current.concat(evergreen.slice(0,need))).slice(0,l.count).map(prepareItem);
+ let chosenPool=current.concat(evergreen.slice(0,need));
+
+ // If current/evergreen separation leaves us short, fill from the available bank.
+ if(chosenPool.length<l.count){
+   const usedIds=new Set(chosenPool.map(q=>q._id));
+   for(const q of shuffle(available)){
+     if(chosenPool.length>=l.count)break;
+     if(!usedIds.has(q._id)){chosenPool.push(q);usedIds.add(q._id);}
+   }
+ }
+ while(chosenPool.length<l.count && available.length)chosenPool.push(available[chosenPool.length%available.length]);
+
+ const chosen=shuffle(chosenPool).slice(0,l.count).map(prepareItem);
  state.questionHistory[key]=used.concat(chosen.map(q=>q._id)).slice(-Math.max(pool.length,500));
  return chosen;
 }
