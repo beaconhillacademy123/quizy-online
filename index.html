@@ -569,7 +569,7 @@ new MutationObserver(attach).observe(document.getElementById('app')||document.bo
       <div class="qhm-water"></div><div class="qhm-land one"></div><div class="qhm-land two"></div><div class="qhm-land three"></div><div class="qhm-path"></div>
       <div class="qhm-explorer">🧭</div>
       <button class="qhm-pin camp" type="button" onclick="window.openQuizyHelpDestination('play')">🏕️ Explorer's Camp<small>How to Play</small></button>
-      <button class="qhm-pin library qhm-lock" type="button" onclick="window.helpMapComingSoon()">📚 Knowledge Library<small>Coming soon</small></button>
+      <button class="qhm-pin library" type="button" onclick="window.openQuizyHelpDestination('library')">📚 Knowledge Library<small>Learning Guide</small></button>
       <button class="qhm-pin workshop qhm-lock" type="button" onclick="window.helpMapComingSoon()">🛠️ Fix-It Workshop<small>Coming soon</small></button>
       <button class="qhm-pin idea qhm-lock" type="button" onclick="window.helpMapComingSoon()">💡 Idea Island<small>Coming soon</small></button>
       <button class="qhm-pin family qhm-lock" type="button" onclick="window.helpMapComingSoon()">🏡 Family Village<small>Coming soon</small></button>
@@ -603,6 +603,34 @@ new MutationObserver(attach).observe(document.getElementById('app')||document.bo
         </div>
       </div>
     </div>
+    <div class="qhm-content" id="quizyHelpLibrary">
+      <div class="qhm-card">
+        <button class="qhm-back" type="button" onclick="window.helpMapBack()">← Back to Help Map</button>
+        <div style="text-align:center;margin-top:16px;font-size:48px">📚</div>
+        <div style="text-align:center"><span class="qhm-badge">Knowledge Library</span><h3>Learning Guide</h3></div>
+        <p>Welcome to the Knowledge Library, Explorer! Quizy is designed to make learning feel like an adventure. Every question is a chance to discover something new.</p>
+        <h4>🧭 Learn by exploring</h4>
+        <p>Choose an adventure land and work through its questions. Different lands give you opportunities to explore different areas of knowledge.</p>
+        <h4>🎯 Choose the right challenge</h4>
+        <p>Quizy lets you play with age groups and difficulty settings. Choose the setting that matches the learner and the challenge you want.</p>
+        <h4>🧠 A wrong answer can still teach you</h4>
+        <p>When an answer is wrong, don't just move on. Read the feedback carefully. The explanation is part of the lesson.</p>
+        <h4>🔎 Use your Explorer's tools</h4>
+        <ul>
+          <li><strong>Explorer's Lens</strong> helps with hints when you need a little guidance.</li>
+          <li><strong>Read Challenge</strong> can read questions aloud.</li>
+          <li><strong>Discover More</strong> takes a question further with an extra learning extension.</li>
+        </ul>
+        <h4>🌟 Make curiosity your superpower</h4>
+        <p>If a question makes you curious, explore the explanation and Discover More section. The goal is not only to collect correct answers, but to understand what you are learning.</p>
+        <h4>🏆 Progress comes with practice</h4>
+        <p>Keep exploring, learn from mistakes, and return to topics you want to understand better. Your Quizy journey grows one question at a time.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px">
+          <button class="qhm-back" type="button" onclick="window.helpMapBack()">🗺️ Help Map</button>
+          <button class="qhm-back" type="button" onclick="window.closeQuizyHelpMap()">🏠 Quizy</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -611,6 +639,7 @@ window.openQuizyHelpMap=function(){
   if(!o)return;
   document.getElementById('quizyHelpMapHome').style.display='block';
   document.getElementById('quizyHelpPlay').style.display='none';
+  document.getElementById('quizyHelpLibrary').style.display='none';
   o.style.display='flex'; o.setAttribute('aria-hidden','false');
 };
 window.closeQuizyHelpMap=function(){
@@ -618,9 +647,11 @@ window.closeQuizyHelpMap=function(){
   if(o){o.style.display='none';o.setAttribute('aria-hidden','true');}
 };
 window.openQuizyHelpDestination=function(dest){
-  if(dest!=='play')return;
   document.getElementById('quizyHelpMapHome').style.display='none';
-  document.getElementById('quizyHelpPlay').style.display='block';
+  document.getElementById('quizyHelpPlay').style.display='none';
+  document.getElementById('quizyHelpLibrary').style.display='none';
+  if(dest==='play')document.getElementById('quizyHelpPlay').style.display='block';
+  if(dest==='library')document.getElementById('quizyHelpLibrary').style.display='block';
 };
 window.helpMapBack=function(){window.openQuizyHelpMap();};
 window.helpMapComingSoon=function(){
