@@ -167,3 +167,4 @@ window.openQuizyAbout=function(){
 
 p.write_text(s,encoding="utf-8")
 print("about source persisted", p.stat().st_size)
+
