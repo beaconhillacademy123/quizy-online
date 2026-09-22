@@ -29,3 +29,5 @@ Do not assume that a copyright notice alone replaces copyright registration, tra
 4. The next phase adds the polished Quizy account UI and admin content dashboard.
 
 Do not put a Supabase service-role key in the browser. The browser should use only the publishable/anon key with RLS enabled.
+
+<!-- Production redeploy trigger: restore known-good Quizy build. -->
