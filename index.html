@@ -570,7 +570,7 @@ new MutationObserver(attach).observe(document.getElementById('app')||document.bo
       <div class="qhm-explorer">🧭</div>
       <button class="qhm-pin camp" type="button" onclick="window.openQuizyHelpDestination('play')">🏕️ Explorer's Camp<small>How to Play</small></button>
       <button class="qhm-pin library" type="button" onclick="window.openQuizyHelpDestination('library')">📚 Knowledge Library<small>Learning Guide</small></button>
-      <button class="qhm-pin workshop qhm-lock" type="button" onclick="window.helpMapComingSoon()">🛠️ Fix-It Workshop<small>Coming soon</small></button>
+      <button class="qhm-pin workshop" type="button" onclick="window.openQuizyHelpDestination('problem')">🛠️ Fix-It Workshop<small>Report a Problem</small></button>
       <button class="qhm-pin idea qhm-lock" type="button" onclick="window.helpMapComingSoon()">💡 Idea Island<small>Coming soon</small></button>
       <button class="qhm-pin family qhm-lock" type="button" onclick="window.helpMapComingSoon()">🏡 Family Village<small>Coming soon</small></button>
       <button class="qhm-pin whatsnew qhm-lock" type="button" onclick="window.helpMapComingSoon()">✨ Discovery Observatory<small>Coming soon</small></button>
@@ -601,6 +601,21 @@ new MutationObserver(attach).observe(document.getElementById('app')||document.bo
           <button class="qhm-back" type="button" onclick="window.helpMapBack()">🗺️ Help Map</button>
           <button class="qhm-back" type="button" onclick="window.closeQuizyHelpMap()">🏠 Quizy</button>
         </div>
+      </div>
+    </div>
+    <div class="qhm-content" id="quizyHelpProblem">
+      <div class="qhm-card">
+        <button class="qhm-back" type="button" onclick="window.helpMapBack()">← Back to Help Map</button>
+        <div style="text-align:center;margin-top:16px;font-size:48px">🛠️</div>
+        <div style="text-align:center"><span class="qhm-badge">Fix-It Workshop</span><h3>Report a Problem</h3></div>
+        <p>Found something that doesn't work properly? Tell the Quizy team what happened so we can investigate it.</p>
+        <h4>🔧 What should you report?</h4>
+        <ul><li>A button or screen that does not respond.</li><li>A question, answer, image, or explanation that looks incorrect.</li><li>A game problem such as progress, lives, coins, or another feature behaving unexpectedly.</li><li>Anything that makes Quizy confusing or difficult to use.</li></ul>
+        <h4>📝 What to include</h4>
+        <p>Describe what you were trying to do, what happened, and what you expected to happen instead. If you know the land or question involved, include that too.</p>
+        <div style="margin-top:18px;padding:16px;border-radius:16px;background:rgba(15,46,64,.08);text-align:center"><strong>📧 Quizy Support</strong><p style="margin:7px 0 0">Send your report to <strong>uchep1990@gmail.com</strong></p></div>
+        <p style="font-size:13px;opacity:.8;text-align:center;margin-top:14px">Please don't include passwords or other private information in a problem report.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px"><button class="qhm-back" type="button" onclick="window.helpMapBack()">🗺️ Help Map</button><button class="qhm-back" type="button" onclick="window.closeQuizyHelpMap()">🏠 Quizy</button></div>
       </div>
     </div>
     <div class="qhm-content" id="quizyHelpLibrary">
@@ -640,6 +655,7 @@ window.openQuizyHelpMap=function(){
   document.getElementById('quizyHelpMapHome').style.display='block';
   document.getElementById('quizyHelpPlay').style.display='none';
   document.getElementById('quizyHelpLibrary').style.display='none';
+  document.getElementById('quizyHelpProblem').style.display='none';
   o.style.display='flex'; o.setAttribute('aria-hidden','false');
 };
 window.closeQuizyHelpMap=function(){
@@ -652,6 +668,7 @@ window.openQuizyHelpDestination=function(dest){
   document.getElementById('quizyHelpLibrary').style.display='none';
   if(dest==='play')document.getElementById('quizyHelpPlay').style.display='block';
   if(dest==='library')document.getElementById('quizyHelpLibrary').style.display='block';
+  if(dest==='problem')document.getElementById('quizyHelpProblem').style.display='block';
 };
 window.helpMapBack=function(){window.openQuizyHelpMap();};
 window.helpMapComingSoon=function(){
