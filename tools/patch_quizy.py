@@ -131,13 +131,14 @@ if marker not in s:
 p.write_text(s,encoding="utf-8")
 print("patched", p.stat().st_size)
 
+
 # --- About Quizy robust action ---
-about_old = '<button class="btn ghost" id="aboutQuizy" type="button" onclick="showQuizyLegal()">ⓘ About Quizy</button>'
-about_new = '<button class="btn ghost" id="aboutQuizy" type="button" onclick="window.openQuizyAbout()">ⓘ About Quizy</button>'
-if about_old in s:
-    s = s.replace(about_old, about_new, 1)
-elif '<button class="btn ghost" id="aboutQuizy">ⓘ About Quizy</button>' in s:
-    s = s.replace('<button class="btn ghost" id="aboutQuizy">ⓘ About Quizy</button>', about_new, 1)
+import re
+s = re.sub(
+    r'<button class="btn ghost" id="aboutQuizy"[^>]*>ⓘ About Quizy</button>',
+    '<button class="btn ghost" id="aboutQuizy" type="button" onclick="window.openQuizyAbout()">ⓘ About Quizy</button>',
+    s, count=1
+)
 
 if 'window.openQuizyAbout=function(){' not in s:
     about_bootstrap = r'''
@@ -155,7 +156,4 @@ window.openQuizyAbout=function(){
 };
 </script>
 '''
-    if "</body>" in s:
-        s=s.replace("</body>", about_bootstrap + "\n</body>", 1)
-    else:
-        s += about_bootstrap
+    s=s.replace("</body>", about_bootstrap + "\n</body>", 1)
