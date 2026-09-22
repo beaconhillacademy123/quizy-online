@@ -131,6 +131,10 @@ if marker not in s:
 p.write_text(s,encoding="utf-8")
 print("patched", p.stat().st_size)
 
+# Persist any subsequent patches made to the in-memory source, including About Quizy.
+p.write_text(s,encoding="utf-8")
+print("final source written", p.stat().st_size)
+
 
 # --- About Quizy robust action ---
 import re
