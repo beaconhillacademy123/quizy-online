@@ -775,7 +775,7 @@ window.helpMapComingSoon=function(){
 
 <script src="/advanced.js"></script>
 <script>
-/* QUIZY_ADVANCED_HOOK_V1 */
+/* QUIZY_ADVANCED_HOOK_V2 */
 (function(){
   const ADV=window.QUIZY_ADVANCED_BANK||{};
   const MODES=window.QUIZY_ADVANCED_MODES||[];
@@ -788,18 +788,26 @@ window.helpMapComingSoon=function(){
     }
   });
 
-  const baseDifficultyPool=difficultyPool;window.difficultyPool=function(land,d){if(state.age==='advanced')return (ADV[land.id]||[]).slice();return baseDifficultyPool(land,d);};difficultyPool=window.difficultyPool;
+  const baseDifficultyPool=difficultyPool;
+  window.difficultyPool=function(land,d){
+    if(state.age==='advanced') return (ADV[land.id]||[]).slice();
+    return baseDifficultyPool(land,d);
+  };
+  difficultyPool=window.difficultyPool;
+
   const baseSelect=selectFreshQuestions;
   window.selectFreshQuestions=function(land){
     if(state.age!=="advanced") return baseSelect(land);
     const pool=(ADV[land.id]||[]).slice();
-    if(!pool.length) return [];
+    if(!pool.length)return [];
     if(!state.questionHistory)state.questionHistory={};
     const key=(state.name||"Explorer")+"|"+land.id+"|advanced";
     let used=Array.isArray(state.questionHistory[key])?state.questionHistory[key]:[];
     let available=pool.filter(function(q){return !used.includes(q._id);});
     if(available.length<land.count){used=[];available=pool.slice();}
-    const chosen=available.slice(0,land.count).map(function(q){return typeof prepareItem==="function"?prepareItem(q):q;});
+    const chosen=available.slice(0,land.count).map(function(q){
+      return typeof prepareItem==="function"?prepareItem(q):q;
+    });
     state.questionHistory[key]=used.concat(chosen.map(function(q){return q._id;}));
     return chosen;
   };
@@ -820,53 +828,103 @@ window.helpMapComingSoon=function(){
   };
   startGame=window.startGame;
 
+  function injectAdvancedStyles(){
+    if(document.getElementById('quizyAdvancedStyles'))return;
+    const st=document.createElement('style');
+    st.id='quizyAdvancedStyles';
+    st.textContent=`
+      .difficulty-select-wrap{max-width:520px;margin:0 auto}
+      .difficulty-select,.advanced-mode-select{
+        width:100%;padding:14px 16px;border:2px solid var(--line);
+        border-radius:16px;background:#fff;color:var(--ink);font:inherit;
+        font-weight:900;outline:0;cursor:pointer;text-align:center;
+        box-shadow:0 5px 14px rgba(24,35,58,.05)
+      }
+      .difficulty-select:focus,.advanced-mode-select:focus{
+        border-color:var(--primary);box-shadow:0 0 0 4px #635bff14
+      }
+      .advanced-mode-wrap{max-width:520px;margin:13px auto 0}
+      .advanced-mode-label{font-size:12px;font-weight:900;color:var(--muted);margin:0 0 7px}
+      .advanced-mode-note{font-size:12px;color:var(--muted);font-weight:800;margin-top:8px;line-height:1.45}
+    `;
+    document.head.appendChild(st);
+  }
+
   const baseRender=render;
   window.render=function(){
     baseRender();
+    injectAdvancedStyles();
+
     if(state.screen==="start"){
       const diff=document.querySelector(".difficulty-choices");
-      if(diff){
-        let btn=document.getElementById("advancedDiff");
-        if(!btn){
-          btn=document.createElement("button");
-          btn.id="advancedDiff";
-          btn.className="age";
-          btn.textContent="⚔️ Advanced";
-          diff.appendChild(btn);
-        }
-        btn.classList.toggle("active",state.age==="advanced");
-        btn.onclick=function(){state.age="advanced";state.difficulty="advanced";render();};
+      if(!diff)return;
 
-        const young=document.getElementById("young");
-        const old=document.getElementById("old");
-        if(young)young.onclick=function(){state.age="young";state.difficulty="easy";render();};
-        if(old)old.onclick=function(){state.age="old";state.difficulty="easy";render();};
+      diff.innerHTML=`
+        <div class="difficulty-select-wrap">
+          <select id="difficultySelect" class="difficulty-select" aria-label="Choose difficulty level">
+            <option value="easy">🌱 Easy</option>
+            <option value="medium">⭐ Medium</option>
+            <option value="difficult">🔥 Difficult</option>
+            <option value="advanced">⚔️ Advanced</option>
+          </select>
+        </div>
+      `;
 
-        let panel=document.getElementById("advancedModePanel");
-        if(state.age==="advanced"){
-          if(!panel){
-            panel=document.createElement("div");
-            panel.id="advancedModePanel";
-            panel.className="advanced-mode-wrap";
-            diff.parentNode.insertBefore(panel,diff.nextSibling);
-          }
-          panel.innerHTML='<div class="advanced-mode-title">CHOOSE YOUR ADVANCED CHALLENGE</div><div class="advanced-mode-grid">'+MODES.map(function(m,i){
-            return '<button type="button" class="advanced-mode '+(state.advancedMode===m?'active':'')+'" data-advanced-mode="'+i+'">'+m+'</button>';
-          }).join("")+'</div><div class="difficulty-note advanced-note">Q1–2 Challenging · Q3–4 Harder · Q5–6 Hard · Q7–8 Very Hard · Q9–10 Final-Boss Level</div>';
-          panel.querySelectorAll("[data-advanced-mode]").forEach(function(b){
-            b.onclick=function(){state.age="advanced";state.difficulty="advanced";state.advancedMode=MODES[Number(b.dataset.advancedMode)]||MODES[0];render();};
-          });
-        }else if(panel){
-          panel.remove();
+      const select=document.getElementById("difficultySelect");
+      select.value=(state.age==="advanced"?"advanced":(state.difficulty||"easy"));
+      select.onchange=function(){
+        if(select.value==="advanced"){
+          state.age="advanced";
+          state.difficulty="advanced";
+          state.advancedMode=state.advancedMode||MODES[0]||"🔥 Beast Mode";
+        }else{
+          if(state.age==="advanced")state.age="young";
+          state.difficulty=select.value;
         }
+        render();
+      };
+
+      let panel=document.getElementById("advancedModePanel");
+      if(state.age==="advanced"){
+        if(!panel){
+          panel=document.createElement("div");
+          panel.id="advancedModePanel";
+          panel.className="advanced-mode-wrap";
+          diff.parentNode.insertBefore(panel,diff.nextSibling);
+        }
+        panel.innerHTML=`
+          <div class="advanced-mode-label">CHOOSE ADVANCED CHALLENGE</div>
+          <select id="advancedModeSelect" class="advanced-mode-select" aria-label="Choose advanced challenge">
+            ${MODES.map(function(m,i){return '<option value="'+i+'">'+m+'</option>';}).join("")}
+          </select>
+          <div class="advanced-mode-note">Q1–2 Challenging · Q3–4 Harder · Q5–6 Hard · Q7–8 Very Hard · Q9–10 Final-Boss Level</div>
+        `;
+        const modeSelect=document.getElementById("advancedModeSelect");
+        const current=MODES.indexOf(state.advancedMode);
+        modeSelect.value=String(current>=0?current:0);
+        modeSelect.onchange=function(){
+          state.age="advanced";
+          state.difficulty="advanced";
+          state.advancedMode=MODES[Number(modeSelect.value)]||MODES[0];
+        };
+      }else if(panel){
+        panel.remove();
       }
-    }
-    if(state.screen==="map" && state.age==="advanced"){
-      const label=document.querySelector(".stats .stat:first-child .stat-label:last-child");
-      if(label)label.textContent=(state.advancedMode||"🔥 Beast Mode")+" · Advanced";
+
+      const young=document.getElementById("young");
+      const old=document.getElementById("old");
+      if(young)young.onclick=function(){
+        state.age="young";
+        if(state.difficulty==="advanced")state.difficulty="easy";
+        render();
+      };
+      if(old)old.onclick=function(){
+        state.age="old";
+        if(state.difficulty==="advanced")state.difficulty="easy";
+        render();
+      };
     }
   };
   render();
-})();
-</script>
+})();</script>
 </body></html>
