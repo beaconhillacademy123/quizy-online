@@ -772,4 +772,100 @@ window.helpMapComingSoon=function(){
 };
 </script>
 
+
+<script src="/advanced.js"></script>
+<script>
+/* QUIZY_ADVANCED_HOOK_V1 */
+(function(){
+  const ADV=window.QUIZY_ADVANCED_BANK||{};
+  const MODES=window.QUIZY_ADVANCED_MODES||[];
+  if(!ADV.animal)return;
+
+  Object.keys(ADV).forEach(function(id){
+    const land=LANDS.find(function(l){return l.id===id;});
+    if(land && !(land.both||[]).some(function(q){return q._id==="advanced-"+id+"-1";})){
+      land.both=(land.both||[]).concat(ADV[id]);
+    }
+  });
+
+  const baseSelect=selectFreshQuestions;
+  window.selectFreshQuestions=function(land){
+    if(state.age!=="advanced") return baseSelect(land);
+    const pool=(ADV[land.id]||[]).slice();
+    if(!pool.length) return [];
+    if(!state.questionHistory)state.questionHistory={};
+    const key=(state.name||"Explorer")+"|"+land.id+"|advanced";
+    let used=Array.isArray(state.questionHistory[key])?state.questionHistory[key]:[];
+    let available=pool.filter(function(q){return !used.includes(q._id);});
+    if(available.length<land.count){used=[];available=pool.slice();}
+    const chosen=available.slice(0,land.count).map(function(q){return typeof prepareItem==="function"?prepareItem(q):q;});
+    state.questionHistory[key]=used.concat(chosen.map(function(q){return q._id;}));
+    return chosen;
+  };
+  selectFreshQuestions=window.selectFreshQuestions;
+
+  const baseStart=startGame;
+  window.startGame=function(){
+    const advanced=state.age==="advanced";
+    const mode=state.advancedMode||MODES[0]||"🔥 Beast Mode";
+    baseStart();
+    if(advanced){
+      state.age="advanced";
+      state.difficulty="advanced";
+      state.advancedMode=mode;
+      try{saveProgress();}catch(e){}
+      render();
+    }
+  };
+  startGame=window.startGame;
+
+  const baseRender=render;
+  window.render=function(){
+    baseRender();
+    if(state.screen==="start"){
+      const diff=document.querySelector(".difficulty-choices");
+      if(diff){
+        let btn=document.getElementById("advancedDiff");
+        if(!btn){
+          btn=document.createElement("button");
+          btn.id="advancedDiff";
+          btn.className="age";
+          btn.textContent="⚔️ Advanced";
+          diff.appendChild(btn);
+        }
+        btn.classList.toggle("active",state.age==="advanced");
+        btn.onclick=function(){state.age="advanced";state.difficulty="advanced";render();};
+
+        const young=document.getElementById("young");
+        const old=document.getElementById("old");
+        if(young)young.onclick=function(){state.age="young";state.difficulty="easy";render();};
+        if(old)old.onclick=function(){state.age="old";state.difficulty="easy";render();};
+
+        let panel=document.getElementById("advancedModePanel");
+        if(state.age==="advanced"){
+          if(!panel){
+            panel=document.createElement("div");
+            panel.id="advancedModePanel";
+            panel.className="advanced-mode-wrap";
+            diff.parentNode.insertBefore(panel,diff.nextSibling);
+          }
+          panel.innerHTML='<div class="advanced-mode-title">CHOOSE YOUR ADVANCED CHALLENGE</div><div class="advanced-mode-grid">'+MODES.map(function(m,i){
+            return '<button type="button" class="advanced-mode '+(state.advancedMode===m?'active':'')+'" data-advanced-mode="'+i+'">'+m+'</button>';
+          }).join("")+'</div><div class="difficulty-note advanced-note">Q1–2 Challenging · Q3–4 Harder · Q5–6 Hard · Q7–8 Very Hard · Q9–10 Final-Boss Level</div>';
+          panel.querySelectorAll("[data-advanced-mode]").forEach(function(b){
+            b.onclick=function(){state.age="advanced";state.difficulty="advanced";state.advancedMode=MODES[Number(b.dataset.advancedMode)]||MODES[0];render();};
+          });
+        }else if(panel){
+          panel.remove();
+        }
+      }
+    }
+    if(state.screen==="map" && state.age==="advanced"){
+      const label=document.querySelector(".stats .stat:first-child .stat-label:last-child");
+      if(label)label.textContent=(state.advancedMode||"🔥 Beast Mode")+" · Advanced";
+    }
+  };
+  render();
+})();
+</script>
 </body></html>
