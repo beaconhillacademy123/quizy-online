@@ -1217,4 +1217,27 @@ window.helpMapComingSoon=function(){
   window.openQuizyInstall=openInstall;
 })();
 </script>
-</body></html>
+<
+<!-- QUIZY_RESUME_PERSISTENCE_V2 -->
+<script>
+(function(){
+  function canResume(){
+    try{return !!(state&&state.name&&['question','shop','break','dailyplay','classquiz','bonus'].includes(state.screen));}catch(e){return false;}
+  }
+  function saveCurrentPosition(){
+    if(!canResume())return;
+    try{saveProgress();}catch(e){console.warn('Quizy resume save failed',e);}
+  }
+  document.addEventListener('visibilitychange',function(){if(document.hidden)saveCurrentPosition();});
+  window.addEventListener('pagehide',saveCurrentPosition);
+  window.addEventListener('beforeunload',saveCurrentPosition);
+  function restore(){
+    try{
+      const invite=new URL(location.href).searchParams.has('invite');
+      if(!invite && state.screen==='start' && state.resumeAvailable)resumeGame();
+    }catch(e){console.warn('Quizy resume restore failed',e);}
+  }
+  window.addEventListener('pageshow',function(){setTimeout(restore,120);});
+  setTimeout(restore,500);
+})();
+</script></body></html>
