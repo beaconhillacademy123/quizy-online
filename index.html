@@ -1054,32 +1054,38 @@ window.helpMapComingSoon=function(){
   let deferredInstallPrompt=null;
   const inviteMode=new URLSearchParams(location.search).get('invite')==='1';
 
+  function isStandalone(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  }
+
   window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();
     deferredInstallPrompt=e;
     window.quizInstallReady=true;
     const btn=document.getElementById('quizyInstallNow');
-    if(btn){btn.disabled=false;btn.textContent='📲 Install Quizy';}
+    const help=document.getElementById('quizyInstallHelp');
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='📲 Install Quizy';
+      btn.style.opacity='1';
+    }
+    if(help) help.innerHTML='Quizy is ready to install. Tap the button above.';
   });
+
   window.addEventListener('appinstalled',function(){
     deferredInstallPrompt=null;
     const m=document.getElementById('quizyInstallModal');
     if(m)m.remove();
   });
 
-  function isStandalone(){
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
-  }
-
   function openInstall(){
-    if(isStandalone()) return;
-    if(document.getElementById('quizyInstallModal')) return;
+    if(isStandalone() || document.getElementById('quizyInstallModal')) return;
     const overlay=document.createElement('div');
     overlay.id='quizyInstallModal';
     overlay.style.cssText='position:fixed;inset:0;z-index:999999;background:rgba(12,18,35,.62);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px';
     overlay.innerHTML='<div style="width:min(520px,100%);background:#fff;border-radius:28px;padding:28px;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,.28)">'+
       '<div style="font-size:54px">🎮✨</div>'+
-      '<h2 style="margin:8px 0 8px;color:#18233a">Install Quizy</h2>'+
+      '<h2 style="margin:8px 0;color:#18233a">Install Quizy</h2>'+
       '<p style="margin:0 auto 18px;max-width:420px;color:#667085;line-height:1.55">Get Quizy on your phone or computer for a faster, app-like adventure. Your quizzes will open just like an app.</p>'+
       '<button id="quizyInstallNow" style="width:100%;padding:15px 18px;border:0;border-radius:16px;background:linear-gradient(135deg,#635bff,#8b5cf6);color:#fff;font-weight:800;font-size:17px;cursor:pointer">📲 Install Quizy</button>'+
       '<button id="quizyInstallLater" style="margin-top:10px;width:100%;padding:12px;border:0;background:transparent;color:#667085;font-weight:700;cursor:pointer">Continue in browser</button>'+
@@ -1089,41 +1095,67 @@ window.helpMapComingSoon=function(){
 
     const btn=document.getElementById('quizyInstallNow');
     const help=document.getElementById('quizyInstallHelp');
-    btn.onclick=async function(){
+
+    async function triggerInstall(){
       if(deferredInstallPrompt){
         const p=deferredInstallPrompt;
         deferredInstallPrompt=null;
-        try{await p.prompt(); await p.userChoice;}catch(e){}
-        overlay.remove();
+        try{
+          const result=await p.prompt();
+          await p.userChoice;
+          if(result && result.outcome==='accepted') overlay.remove();
+          else if(document.getElementById('quizyInstallModal')) help.innerHTML='No problem. You can install Quizy anytime from your browser menu.';
+        }catch(e){
+          help.innerHTML='Please use your browser menu and choose <b>Install Quizy</b> or <b>Add to Home Screen</b>.';
+        }
         return;
       }
-      const ua=navigator.userAgent||'';
-      const ios=/iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-      if(ios){
-        help.innerHTML='On iPhone/iPad: tap <b>Share</b> in Safari, then choose <b>Add to Home Screen</b>.';
-      }else{
-        help.innerHTML='If your browser supports installation, open its <b>Install</b> or <b>Add to Home Screen</b> option from the browser menu.';
-      }
-    };
+      help.innerHTML='Quizy is preparing the install option…';
+      btn.disabled=true;
+      btn.style.opacity='.7';
+      setTimeout(function(){
+        btn.disabled=false;
+        btn.style.opacity='1';
+        if(deferredInstallPrompt){
+          help.innerHTML='Quizy is ready to install. Tap <b>Install Quizy</b> again.';
+        }else{
+          const ua=navigator.userAgent||'';
+          const ios=/iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+          const isAndroid=/Android/i.test(ua);
+          const isDesktop=/Windows|Macintosh|Linux/i.test(ua) && !isAndroid;
+          help.innerHTML=ios
+            ? 'On iPhone/iPad, open Safari’s <b>Share</b> menu and choose <b>Add to Home Screen</b>.'
+            : isDesktop
+              ? 'If the install prompt is not available, use your browser’s <b>Install Quizy</b> option in the address bar or menu.'
+              : 'Open your browser menu and choose <b>Install app</b> or <b>Add to Home Screen</b>.';
+        }
+      },700);
+    }
+
+    btn.onclick=triggerInstall;
     document.getElementById('quizyInstallLater').onclick=function(){overlay.remove();};
-    if(!deferredInstallPrompt){
-      const ua=navigator.userAgent||'';
-      const ios=/iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-      help.innerHTML=ios
-        ? 'iPhone/iPad: use Safari → <b>Share</b> → <b>Add to Home Screen</b>.'
-        : 'Your browser may show its install option in the address bar or menu.';
+    if(deferredInstallPrompt){
+      help.innerHTML='Quizy is ready to install. Tap the button above.';
+    }else{
+      help.innerHTML='Checking whether this browser can show the install prompt…';
+      if('serviceWorker' in navigator){
+        navigator.serviceWorker.ready.then(function(){
+          setTimeout(function(){
+            if(!deferredInstallPrompt && help) help.innerHTML='If the install prompt does not appear, use your browser’s <b>Install</b> or <b>Add to Home Screen</b> option.';
+          },900);
+        }).catch(function(){});
+      }
     }
   }
 
   window.addEventListener('load',function(){
-    if(inviteMode && !isStandalone()) setTimeout(openInstall,700);
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('/sw.js').catch(function(err){console.warn('Quizy service worker:',err);});
+    }
+    if(inviteMode && !isStandalone()){
+      setTimeout(openInstall,900);
+    }
   });
-
-  if('serviceWorker' in navigator){
-    window.addEventListener('load',function(){
-      navigator.serviceWorker.register('/sw.js').catch(function(){});
-    });
-  }
 })();
 </script>
 </body></html>
