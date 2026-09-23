@@ -1047,4 +1047,83 @@ window.helpMapComingSoon=function(){
   render();
 })();
 </script>
+
+<script>
+/* Quizy PWA install experience */
+(function(){
+  let deferredInstallPrompt=null;
+  const inviteMode=new URLSearchParams(location.search).get('invite')==='1';
+
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();
+    deferredInstallPrompt=e;
+    window.quizInstallReady=true;
+    const btn=document.getElementById('quizyInstallNow');
+    if(btn){btn.disabled=false;btn.textContent='📲 Install Quizy';}
+  });
+  window.addEventListener('appinstalled',function(){
+    deferredInstallPrompt=null;
+    const m=document.getElementById('quizyInstallModal');
+    if(m)m.remove();
+  });
+
+  function isStandalone(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  }
+
+  function openInstall(){
+    if(isStandalone()) return;
+    if(document.getElementById('quizyInstallModal')) return;
+    const overlay=document.createElement('div');
+    overlay.id='quizyInstallModal';
+    overlay.style.cssText='position:fixed;inset:0;z-index:999999;background:rgba(12,18,35,.62);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px';
+    overlay.innerHTML='<div style="width:min(520px,100%);background:#fff;border-radius:28px;padding:28px;text-align:center;box-shadow:0 25px 80px rgba(0,0,0,.28)">'+
+      '<div style="font-size:54px">🎮✨</div>'+
+      '<h2 style="margin:8px 0 8px;color:#18233a">Install Quizy</h2>'+
+      '<p style="margin:0 auto 18px;max-width:420px;color:#667085;line-height:1.55">Get Quizy on your phone or computer for a faster, app-like adventure. Your quizzes will open just like an app.</p>'+
+      '<button id="quizyInstallNow" style="width:100%;padding:15px 18px;border:0;border-radius:16px;background:linear-gradient(135deg,#635bff,#8b5cf6);color:#fff;font-weight:800;font-size:17px;cursor:pointer">📲 Install Quizy</button>'+
+      '<button id="quizyInstallLater" style="margin-top:10px;width:100%;padding:12px;border:0;background:transparent;color:#667085;font-weight:700;cursor:pointer">Continue in browser</button>'+
+      '<div id="quizyInstallHelp" style="margin-top:15px;font-size:13px;color:#7b8496;line-height:1.5"></div>'+
+      '</div>';
+    document.body.appendChild(overlay);
+
+    const btn=document.getElementById('quizyInstallNow');
+    const help=document.getElementById('quizyInstallHelp');
+    btn.onclick=async function(){
+      if(deferredInstallPrompt){
+        const p=deferredInstallPrompt;
+        deferredInstallPrompt=null;
+        try{await p.prompt(); await p.userChoice;}catch(e){}
+        overlay.remove();
+        return;
+      }
+      const ua=navigator.userAgent||'';
+      const ios=/iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      if(ios){
+        help.innerHTML='On iPhone/iPad: tap <b>Share</b> in Safari, then choose <b>Add to Home Screen</b>.';
+      }else{
+        help.innerHTML='If your browser supports installation, open its <b>Install</b> or <b>Add to Home Screen</b> option from the browser menu.';
+      }
+    };
+    document.getElementById('quizyInstallLater').onclick=function(){overlay.remove();};
+    if(!deferredInstallPrompt){
+      const ua=navigator.userAgent||'';
+      const ios=/iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      help.innerHTML=ios
+        ? 'iPhone/iPad: use Safari → <b>Share</b> → <b>Add to Home Screen</b>.'
+        : 'Your browser may show its install option in the address bar or menu.';
+    }
+  }
+
+  window.addEventListener('load',function(){
+    if(inviteMode && !isStandalone()) setTimeout(openInstall,700);
+  });
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+})();
+</script>
 </body></html>
