@@ -788,6 +788,7 @@ window.helpMapComingSoon=function(){
     }
   });
 
+  const baseDifficultyPool=difficultyPool;window.difficultyPool=function(land,d){if(state.age==='advanced')return (ADV[land.id]||[]).slice();return baseDifficultyPool(land,d);};difficultyPool=window.difficultyPool;
   const baseSelect=selectFreshQuestions;
   window.selectFreshQuestions=function(land){
     if(state.age!=="advanced") return baseSelect(land);
