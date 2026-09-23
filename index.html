@@ -571,10 +571,10 @@ new MutationObserver(attach).observe(document.getElementById('app')||document.bo
       <button class="qhm-pin camp" type="button" onclick="window.openQuizyHelpDestination('play')">🏕️ Explorer's Camp<small>How to Play</small></button>
       <button class="qhm-pin library" type="button" onclick="window.openQuizyHelpDestination('library')">📚 Knowledge Library<small>Learning Guide</small></button>
       <button class="qhm-pin workshop" type="button" onclick="window.openQuizyHelpDestination('problem')">🛠️ Fix-It Workshop<small>Report a Problem</small></button>
-      <button class="qhm-pin idea qhm-lock" type="button" onclick="window.helpMapComingSoon()">💡 Idea Island<small>Coming soon</small></button>
-      <button class="qhm-pin family qhm-lock" type="button" onclick="window.helpMapComingSoon()">🏡 Family Village<small>Coming soon</small></button>
-      <button class="qhm-pin whatsnew qhm-lock" type="button" onclick="window.helpMapComingSoon()">✨ Discovery Observatory<small>Coming soon</small></button>
-      <button class="qhm-pin terms qhm-lock" type="button" onclick="window.helpMapComingSoon()">📜 Scroll Temple<small>Coming soon</small></button>
+      <button class="qhm-pin idea" type="button" onclick="window.openQuizyHelpDestination('idea')">💡 Idea Island<small>Send Feedback</small></button>
+      <button class="qhm-pin family" type="button" onclick="window.openQuizyHelpDestination('family')">🏡 Family Village<small>Safety & Parents</small></button>
+      <button class="qhm-pin whatsnew" type="button" onclick="window.openQuizyHelpDestination('whatsnew')">✨ Discovery Observatory<small>What's New</small></button>
+      <button class="qhm-pin terms" type="button" onclick="window.openQuizyHelpDestination('terms')">📜 Scroll Temple<small>Terms & Privacy</small></button>
       <button class="qhm-pin about" type="button" onclick="window.openQuizyAbout()">🏢 Quizy HQ<small>About Quizy</small></button>
     </div>
     <div class="qhm-content" id="quizyHelpPlay">
@@ -603,6 +603,44 @@ new MutationObserver(attach).observe(document.getElementById('app')||document.bo
         </div>
       </div>
     </div>
+    <div class="qhm-content" id="quizyHelpIdea"><div class="qhm-card">
+<button class="qhm-back" type="button" onclick="window.helpMapBack()">← Back to Help Map</button><div style="text-align:center;margin-top:16px;font-size:48px">💡</div>
+<div style="text-align:center"><span class="qhm-badge">Idea Island</span><h3>Send Feedback</h3></div>
+<p>Have an idea that could make Quizy more fun, useful, or easier to learn with? We'd love to hear it.</p>
+<h4>🌟 What can you share?</h4><ul><li>A feature you would like to see.</li><li>An idea for making an adventure more exciting.</li><li>A suggestion that could help children learn better.</li><li>Something Quizy could make simpler or clearer.</li></ul>
+<h4>📝 Tell us about your idea</h4><p>Explain the idea in your own words and, if possible, tell us why you think it would help.</p>
+<div style="margin-top:18px;padding:16px;border-radius:16px;background:rgba(15,46,64,.08);text-align:center"><strong>📧 Quizy Team</strong><p style="margin:7px 0 0">Send feedback to <strong>uchep1990@gmail.com</strong></p></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px"><button class="qhm-back" type="button" onclick="window.helpMapBack()">🗺️ Help Map</button><button class="qhm-back" type="button" onclick="window.closeQuizyHelpMap()">🏠 Quizy</button></div>
+</div></div>
+<div class="qhm-content" id="quizyHelpFamily"><div class="qhm-card">
+<button class="qhm-back" type="button" onclick="window.helpMapBack()">← Back to Help Map</button><div style="text-align:center;margin-top:16px;font-size:48px">🏡</div>
+<div style="text-align:center"><span class="qhm-badge">Family Village</span><h3>Safety & Parents</h3></div>
+<p>Quizy is designed as a child-friendly learning adventure. Families can help make the experience safe, balanced, and useful.</p>
+<h4>👨‍👩‍👧 Explore together</h4><p>Parents and guardians can encourage children to talk about what they learned and explore questions together.</p>
+<h4>🔒 Protect private information</h4><p>Children should not share passwords, private contact details, or other sensitive personal information through Quizy feedback or reports.</p>
+<h4>⏰ Keep learning balanced</h4><p>Quizy is one learning activity among many. Encourage children to take breaks, read, play, rest, and enjoy offline activities too.</p>
+<h4>🛠️ Need help?</h4><p>Use the Fix-It Workshop to report a technical problem, or contact the Quizy team when you have a question or concern.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px"><button class="qhm-back" type="button" onclick="window.helpMapBack()">🗺️ Help Map</button><button class="qhm-back" type="button" onclick="window.closeQuizyHelpMap()">🏠 Quizy</button></div>
+</div></div>
+<div class="qhm-content" id="quizyHelpWhatsNew"><div class="qhm-card">
+<button class="qhm-back" type="button" onclick="window.helpMapBack()">← Back to Help Map</button><div style="text-align:center;margin-top:16px;font-size:48px">✨</div>
+<div style="text-align:center"><span class="qhm-badge">Discovery Observatory</span><h3>What's New</h3></div>
+<p>Welcome to the Discovery Observatory — the place to discover new features, improvements, and fresh adventures in Quizy.</p>
+<h4>🔭 Keep watching the horizon</h4><p>Quizy continues to grow. New learning tools, adventures, improvements, and discoveries can be introduced as the journey develops.</p>
+<h4>🧭 Explore what is already here</h4><p>Try Discover More, Explorer's Lens, Read Challenge, Daily Challenge, achievements, and the different adventure lands available in Quizy.</p>
+<p style="text-align:center;margin-top:18px;font-weight:700">✨ More discoveries will appear here as Quizy grows.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px"><button class="qhm-back" type="button" onclick="window.helpMapBack()">🗺️ Help Map</button><button class="qhm-back" type="button" onclick="window.closeQuizyHelpMap()">🏠 Quizy</button></div>
+</div></div>
+<div class="qhm-content" id="quizyHelpTerms"><div class="qhm-card">
+<button class="qhm-back" type="button" onclick="window.helpMapBack()">← Back to Help Map</button><div style="text-align:center;margin-top:16px;font-size:48px">📜</div>
+<div style="text-align:center"><span class="qhm-badge">Scroll Temple</span><h3>Terms & Privacy</h3></div>
+<h4>📜 Use of Quizy</h4><p>Quizy is an educational game intended to support learning through interactive questions and exploration. Please use the service responsibly and respectfully.</p>
+<h4>🔒 Privacy</h4><p>Do not enter passwords, financial information, or other sensitive personal information into Quizy feedback or support messages. Only provide information needed to help with your request.</p>
+<h4>🧭 Educational content</h4><p>Quizy provides educational material and explanations for learning purposes. Children and families should use appropriate judgment and seek trusted adult guidance where needed.</p>
+<h4>🛠️ Problems & feedback</h4><p>Reports and suggestions help improve Quizy. Please describe problems accurately and do not submit someone else's private information.</p>
+<p style="font-size:13px;opacity:.8;text-align:center;margin-top:18px">For questions about Quizy, use the contact information provided in Quizy HQ.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px"><button class="qhm-back" type="button" onclick="window.helpMapBack()">🗺️ Help Map</button><button class="qhm-back" type="button" onclick="window.closeQuizyHelpMap()">🏠 Quizy</button></div>
+</div></div>
     <div class="qhm-content" id="quizyHelpProblem">
       <div class="qhm-card">
         <button class="qhm-back" type="button" onclick="window.helpMapBack()">← Back to Help Map</button>
@@ -656,6 +694,10 @@ window.openQuizyHelpMap=function(){
   document.getElementById('quizyHelpPlay').style.display='none';
   document.getElementById('quizyHelpLibrary').style.display='none';
   document.getElementById('quizyHelpProblem').style.display='none';
+  document.getElementById('quizyHelpIdea').style.display='none';
+  document.getElementById('quizyHelpFamily').style.display='none';
+  document.getElementById('quizyHelpWhatsNew').style.display='none';
+  document.getElementById('quizyHelpTerms').style.display='none';
   o.style.display='flex'; o.setAttribute('aria-hidden','false');
 };
 window.closeQuizyHelpMap=function(){
@@ -669,6 +711,10 @@ window.openQuizyHelpDestination=function(dest){
   if(dest==='play')document.getElementById('quizyHelpPlay').style.display='block';
   if(dest==='library')document.getElementById('quizyHelpLibrary').style.display='block';
   if(dest==='problem')document.getElementById('quizyHelpProblem').style.display='block';
+  if(dest==='idea')document.getElementById('quizyHelpIdea').style.display='block';
+  if(dest==='family')document.getElementById('quizyHelpFamily').style.display='block';
+  if(dest==='whatsnew')document.getElementById('quizyHelpWhatsNew').style.display='block';
+  if(dest==='terms')document.getElementById('quizyHelpTerms').style.display='block';
 };
 window.helpMapBack=function(){window.openQuizyHelpMap();};
 window.helpMapComingSoon=function(){
