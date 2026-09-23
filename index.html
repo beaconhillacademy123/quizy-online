@@ -955,4 +955,101 @@ window.helpMapComingSoon=function(){
   };
   render();
 })();</script>
+<script>
+/* QUIZY UPDATE CENTRE V1 */
+(function(){
+  const UPDATE_VERSION='2.5';
+  const UPDATE_KEY='quizyLastSeenUpdate';
+  const UPDATES=[
+    {icon:'⚔️',title:'Advanced Mode is here',tag:'NEW',text:'A new high-level challenge tier has been added for players who want questions that can challenge even adults.'},
+    {icon:'🧠',title:'8 Advanced Challenges',tag:'NEW',text:'Choose from Beast Mode, Mastermind, Quiz Master, Dragon Mode, Ultimate Challenge, Legend Mode, Elite Mode and Volcano Mode.'},
+    {icon:'📚',title:'120 Advanced Questions',tag:'NEW',text:'All 12 Quizy lands now have a dedicated set of 10 advanced questions, with difficulty increasing as you progress.'},
+    {icon:'🎯',title:'Cleaner Difficulty Selection',tag:'NEW',text:'Easy, Medium, Difficult and Advanced are now grouped into one compact dropdown.'},
+    {icon:'🦊',title:'Simpler Explorer Selection',tag:'NEW',text:'Your Explorer choices are now inside a compact dropdown, keeping the welcome screen cleaner.'},
+    {icon:'🗺️',title:'Help Map upgraded',tag:'NEW',text:'The Help Map now brings Quizy guides, support, family safety, terms, feedback and other useful destinations together.'},
+    {icon:'✨',title:'Floating Help Map',tag:'NEW',text:'The Help Map is now easier to find from the dashboard and can be opened without scrolling through the page.'}
+  ];
+
+  function seen(){return store.get(UPDATE_KEY)===UPDATE_VERSION}
+  function markSeen(){
+    store.set(UPDATE_KEY,UPDATE_VERSION);
+    try{if('clearAppBadge'in navigator)navigator.clearAppBadge()}catch(e){}
+  }
+  function badge(){
+    try{
+      if('setAppBadge'in navigator && !seen()) navigator.setAppBadge(1);
+      else if('clearAppBadge'in navigator && seen()) navigator.clearAppBadge();
+    }catch(e){}
+  }
+  function styles(){
+    if(document.getElementById('quizyUpdateStyles'))return;
+    const st=document.createElement('style');st.id='quizyUpdateStyles';
+    st.textContent=`
+      .quizy-updates-btn{position:relative;display:inline-flex;align-items:center;gap:7px}
+      .quizy-update-dot{width:9px;height:9px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 3px #fee2e2;display:inline-block;animation:quizyDotPulse 1.5s infinite}
+      @keyframes quizyDotPulse{50%{transform:scale(1.2);opacity:.65}}
+      .quizy-update-overlay{position:fixed;inset:0;z-index:2147483000;background:rgba(8,18,34,.68);backdrop-filter:blur(6px);display:grid;place-items:center;padding:18px}
+      .quizy-update-card{width:min(560px,100%);max-height:min(88vh,760px);overflow:auto;background:#fff;border-radius:26px;padding:25px;box-shadow:0 25px 80px rgba(0,0,0,.35);text-align:left}
+      .quizy-update-head{text-align:center}.quizy-update-icon{font-size:52px}.quizy-update-head h2{margin:5px 0 4px;font-size:28px}.quizy-update-head p{margin:0;color:var(--muted);font-weight:700}
+      .quizy-update-list{display:grid;gap:10px;margin:18px 0}
+      .quizy-update-item{display:flex;gap:12px;align-items:flex-start;padding:13px;border:1px solid var(--line);border-radius:17px;background:#fafbff}
+      .quizy-update-item-icon{font-size:27px;line-height:1}.quizy-update-item-body{flex:1}.quizy-update-item-title{font-weight:900}.quizy-update-tag{display:inline-block;margin-left:7px;padding:3px 7px;border-radius:999px;background:#ede9fe;color:#5b21b6;font-size:9px;font-weight:900;vertical-align:middle}.quizy-update-item-text{font-size:13px;color:var(--muted);font-weight:650;line-height:1.45;margin-top:4px}
+      .quizy-update-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:18px}.quizy-update-actions .btn{min-width:150px}
+      .quizy-update-floating{position:fixed;left:14px;top:76px;z-index:4999;border:0;border-radius:999px;padding:10px 14px;background:#fff;color:var(--ink);font-weight:900;box-shadow:0 10px 25px rgba(24,35,58,.18);cursor:pointer;display:flex;align-items:center;gap:7px;animation:quizyFloat 2.6s ease-in-out infinite}
+      @keyframes quizyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+      @media(max-width:700px){.quizy-update-floating{left:10px;top:68px;font-size:12px;padding:9px 11px}.quizy-update-card{padding:20px;border-radius:22px}.quizy-update-head h2{font-size:24px}}
+    `;
+    document.head.appendChild(st);
+  }
+
+  function close(){
+    const o=document.getElementById('quizyUpdateOverlay');if(o)o.remove();
+  }
+  function open(){
+    styles();close();
+    const o=document.createElement('div');o.id='quizyUpdateOverlay';o.className='quizy-update-overlay';
+    o.innerHTML=`
+      <div class="quizy-update-card" role="dialog" aria-modal="true" aria-label="What's New in Quizy">
+        <div class="quizy-update-head">
+          <div class="quizy-update-icon">✨</div>
+          <h2>What's New in Quizy?</h2>
+          <p>Quizy has been updated. Here's what has changed recently.</p>
+        </div>
+        <div class="quizy-update-list">
+          ${UPDATES.map(function(u){return '<div class="quizy-update-item"><div class="quizy-update-item-icon">'+u.icon+'</div><div class="quizy-update-item-body"><div class="quizy-update-item-title">'+u.title+'<span class="quizy-update-tag">'+u.tag+'</span></div><div class="quizy-update-item-text">'+u.text+'</div></div></div>';}).join('')}
+        </div>
+        <div class="quizy-update-actions">
+          <button type="button" class="btn primary" id="quizyUpdatesContinue">🚀 Continue to Quizy</button>
+        </div>
+        <div style="text-align:center;margin-top:10px;font-size:11px;color:#98a1b3;font-weight:800">Quizy Update v${UPDATE_VERSION}</div>
+      </div>`;
+    document.body.appendChild(o);
+    document.getElementById('quizyUpdatesContinue').onclick=function(){markSeen();close();badge();};
+  }
+
+  function addFloatingButton(){
+    if(state.screen!=='start' && state.screen!=='map')return;
+    styles();
+    if(document.getElementById('quizyUpdateFloating'))return;
+    const b=document.createElement('button');b.id='quizyUpdateFloating';b.className='quizy-update-floating quizy-updates-btn';b.type='button';
+    b.innerHTML='✨ <span>What\'s New</span>'+(seen()?'':'<span class="quizy-update-dot" aria-label="New updates"></span>');
+    b.onclick=open;document.body.appendChild(b);
+  }
+
+  const baseRender=render;
+  window.render=function(){
+    baseRender();
+    styles();
+    addFloatingButton();
+    badge();
+    if(state.screen==='start' && !seen() && !document.getElementById('quizyUpdateOverlay')){
+      setTimeout(open,250);
+    }
+  };
+  window.openQuizyUpdates=open;
+  window.closeQuizyUpdates=close;
+  window.markQuizyUpdatesSeen=markSeen;
+  render();
+})();
+</script>
 </body></html>
