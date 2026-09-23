@@ -154,7 +154,7 @@ window.QuizyBluetoothEvent=function(raw){let e;try{e=JSON.parse(raw)}catch{retur
 function reset(){if(state.name)saveProfile();clearInterval(breakTimer);if('speechSynthesis'in window)speechSynthesis.cancel();store.remove('quizyResume');state={...state,name:'',screen:'start',landIndex:null,qIndex:0,totalStars:0,landStars:{},landCorrect:{},landDone:{},landSession:{},answers:{},boardEntries:null,currentBreak:null,pendingAfterBreak:null,breakSecondsLeft:0,breakRevealed:false,saved:false,coins:0,streak:0,lives:3,hints:3,daily:null,dailyDone:false,challengeScore:0,players:[],currentPlayer:0,host:true,shopReturnScreen:null,bonusMode:null,resumeAvailable:false,profileId:''};render()}
 function inviteFriend(){onlineBattleLaunch()}function shareInviteFriend(){
  const url='https://quizy-online-rho.vercel.app/';
- const message='🎮 Come explore Quizy — Adventure Quiz! Learn, answer questions, earn rewards and explore amazing lands. Join me here: '+url;
+ const message='🎮 COME PLAY QUIZY WITH ME! 🔥\n\nThink you can beat me? 😏🏆\nExplore amazing worlds, answer challenging questions, earn stars and see who really knows their stuff! 🧠⭐\n\n🌍 Your Quizy adventure is waiting!\n👉 '+url+'\n\nLet the challenge begin! ⚔️🔥';
  if(navigator.share){
    navigator.share({title:'Quizy — Adventure Quiz',text:message,url}).catch(()=>{});
    return;
