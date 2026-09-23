@@ -1,5 +1,5 @@
-const CACHE='quizy-shell-v4';
-const CORE=['/','/index.html','/manifest.json','/icon-192.png','/icon-512.png'];
+const CACHE='quizy-shell-v5';
+const CORE=['/','/index.html','/manifest.json','/icon-192.svg','/icon-512.svg'];
 
 self.addEventListener('install',e=>{
   e.waitUntil(
