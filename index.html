@@ -864,6 +864,12 @@ window.helpMapComingSoon=function(){
     injectAdvancedStyles();
 
     if(state.screen==="start"){
+      const oldFloat=document.getElementById("startHelpFloat");
+      if(oldFloat)oldFloat.remove();
+      const help=document.createElement("button");
+      help.id="startHelpFloat"; help.className="help-map-float"; help.type="button";
+      help.setAttribute("aria-label","Open Help Map"); help.innerHTML="🗺️ <span>Help Map</span>";
+      help.onclick=()=>window.openQuizyHelpMap(); document.body.appendChild(help);
       const avatars=document.querySelector(".avatars");
       if(avatars){
         avatars.innerHTML=`
