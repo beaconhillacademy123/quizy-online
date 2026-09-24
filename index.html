@@ -1653,11 +1653,41 @@ body{
 </script><script id="quizy-cinematic-transition-v2">
 (function(){
  var layer=document.getElementById('quizy-transition-layer');
- function animateScreen(){var x=document.querySelector('.screen');if(!x)return;x.classList.remove('quizy-transition-enter','quizy-transition-stagger');void x.offsetWidth;x.classList.add('quizy-transition-enter','quizy-transition-stagger');Array.prototype.forEach.call(x.children||[],function(e,i){e.style.setProperty('--qt-i',Math.min(i,7))})}
- function transition(){if(!layer){animateScreen();return}layer.classList.remove('active');void layer.offsetWidth;layer.classList.add('active');setTimeout(function(){layer.classList.remove('active');animateScreen()},120)}
- function hook(){if(typeof window.render!=='function')return false;if(window.render.__qt2)return true;var r=window.render;var w=function(){try{transition()}catch(e){}return r.apply(this,arguments)};w.__qt2=true;window.render=w;return true}
- hook();setTimeout(hook,50);setTimeout(hook,300);setTimeout(animateScreen,500);
- document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.btn.primary,.help-map-hero');if(a&&!a.disabled){a.classList.remove('qt-celebrate');void a.offsetWidth;a.classList.add('qt-celebrate')}},true);
+ function animateScreen(){
+  var x=document.querySelector('.screen'); if(!x)return;
+  x.classList.remove('quizy-transition-enter','quizy-transition-stagger');
+  void x.offsetWidth;
+  x.classList.add('quizy-transition-enter','quizy-transition-stagger');
+  Array.prototype.forEach.call(x.children||[],function(e,i){e.style.setProperty('--qt-i',Math.min(i,7))});
+ }
+ function transition(){
+  if(!layer){animateScreen();return}
+  layer.classList.remove('active'); void layer.offsetWidth; layer.classList.add('active');
+  setTimeout(function(){layer.classList.remove('active');animateScreen()},120);
+ }
+ function hook(){
+  if(!window.__quizyInitialRenderDone || typeof window.render!=='function')return false;
+  if(window.render.__qt2)return true;
+  var base=window.render;
+  function wrapped(){
+   var result=base.apply(this,arguments);
+   setTimeout(transition,0);
+   return result;
+  }
+  wrapped.__qt2=true;
+  window.render=wrapped;
+  return true;
+ }
+ window.addEventListener('quizy:initial-render',function(){setTimeout(hook,150)},{once:true});
+ setTimeout(hook,700);
+ setTimeout(hook,1500);
+ setTimeout(animateScreen,900);
+ document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('.btn.primary,.help-map-hero');
+  if(a&&!a.disabled){
+   a.classList.remove('qt-celebrate'); void a.offsetWidth; a.classList.add('qt-celebrate');
+  }
+ },true);
 })();
 </script></body></html>
 <style id="quizy-help-map-overlap-fix-v3">
