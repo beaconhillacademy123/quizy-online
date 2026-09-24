@@ -1685,7 +1685,35 @@ body{
   },true);
   setTimeout(animateScreen,80);
 })();
-</script></body></html>
+</script>
+<script id="quizy-emergency-boot-v3">(function(){
+function safeBoot(){
+  try{
+    var app=document.getElementById('app'); if(!app)return;
+    var ready=!!app.querySelector('.screen');
+    if(ready)return;
+    if(typeof state!=='undefined'){
+      state.screen='start';
+      state.name=state.name||'';
+      state.age=(state.age==='old'||state.age==='young')?state.age:'young';
+      state.difficulty=(state.difficulty==='easy'||state.difficulty==='medium'||state.difficulty==='difficult'||state.difficulty==='advanced')?state.difficulty:'easy';
+      state.avatar=state.avatar||'🦊';
+    }
+    if(typeof window.render==='function'){try{window.render()}catch(err){console.error('Quizy emergency render failed:',err)}}
+    if(app.querySelector('.screen')){
+      var splash=document.getElementById('quizyWelcomeSplash');
+      if(splash){splash.classList.add('hide');setTimeout(function(){splash.remove()},450)}
+      return;
+    }
+    app.innerHTML='<div class="screen card start" style="min-height:80vh;display:grid;place-items:center;text-align:center;padding:30px"><div><div style="font-size:72px">🦊</div><h1 style="margin:10px 0;color:#14213d">Welcome to Quizy</h1><p style="color:#667085">Your adventure is ready.</p><button id="quizyEmergencyStart" class="btn primary" style="font-size:18px;padding:15px 24px">🚀 Start Quizy</button></div></div>';
+    var b=document.getElementById('quizyEmergencyStart');
+    if(b)b.onclick=function(){try{if(typeof window.startGame==='function')window.startGame();else if(typeof window.render==='function')window.render()}catch(e){console.error(e)}};
+  }catch(e){console.error('Quizy emergency boot:',e)}
+}
+setTimeout(safeBoot,1000);setTimeout(safeBoot,3000);setTimeout(safeBoot,7000);
+window.addEventListener('pageshow',function(){setTimeout(safeBoot,300)});
+})();</script>
+</body></html>
 <style id="quizy-help-map-overlap-fix-v3">
 /* Help Map sits in normal flow so it can never cover the Quizy title. */
 .start>.help-map-hero{
