@@ -1731,6 +1731,25 @@ window.addEventListener('pageshow',function(){setTimeout(safeBoot,300)});
  document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('button');if(b&&/^(start quizy|open quizy|start quiz|open quiz)$/.test((b.textContent||'').trim().toLowerCase())){e.preventDefault();e.stopPropagation();forceOpen()}},true);
  setTimeout(forceOpen,900);setTimeout(forceOpen,2500);setTimeout(forceOpen,5000);
 })();
+</script><script id="quizy-emergency-startup-guard-v2">
+(function(){
+  function ready(){var a=document.getElementById('app');return !!(a&&a.querySelector('.screen'))}
+  function clean(){
+    var a=document.getElementById('app'); if(a)a.style.visibility='visible';
+    var splash=document.getElementById('quizyWelcomeSplash'); if(splash)splash.remove();
+    document.querySelectorAll('body *').forEach(function(el){
+      if(el.id==='app'||el.id==='quizy-transition-layer')return;
+      var c=getComputedStyle(el),t=(el.textContent||'').trim().replace(/\s+/g,' ');
+      if(c.position==='fixed'&&Number(c.zIndex)>=999999&&(/Start Quizy|Open Quizy|adventure is ready|waking up/i.test(t)))el.remove();
+    });
+    try{if(typeof window.render==='function')window.render()}catch(e){console.error('Quizy emergency render:',e)}
+  }
+  function boot(){if(!ready()){clean();}else{var s=document.getElementById('quizyWelcomeSplash');if(s)s.remove()}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,300)});else setTimeout(boot,300);
+  window.addEventListener('pageshow',function(){setTimeout(boot,200)});
+  setTimeout(function(){if(!ready())boot()},1500);
+  setTimeout(function(){if(!ready())boot()},3500);
+})();
 </script></body></html>
 <style id="quizy-help-map-overlap-fix-v3">
 /* Help Map sits in normal flow so it can never cover the Quizy title. */
