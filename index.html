@@ -1718,7 +1718,20 @@ function safeBoot(){
 setTimeout(safeBoot,1000);setTimeout(safeBoot,3000);setTimeout(safeBoot,7000);
 window.addEventListener('pageshow',function(){setTimeout(safeBoot,300)});
 })();</script>
-</body></html>
+<script>/* QUIZY_EMERGENCY_STARTUP_BRIDGE_V3 */
+(function(){
+ function forceOpen(){
+  try{
+   var app=document.getElementById('app');
+   if(app){app.style.visibility='visible';app.removeAttribute('aria-hidden');if(typeof window.render==='function'){try{window.render()}catch(e){console.error(e)}}}
+   document.querySelectorAll('#quizyWelcomeSplash,#quizyStartupSplash,#quizyStartupOverlay,#quizySplash').forEach(function(x){x.style.setProperty('display','none','important');x.style.setProperty('pointer-events','none','important');x.classList.add('hide')});
+   document.querySelectorAll('button').forEach(function(b){var t=(b.textContent||'').trim().toLowerCase();if(/^(start quizy|open quizy|start quiz|open quiz)$/.test(t)){b.onclick=function(e){e.preventDefault();e.stopPropagation();forceOpen()}}});
+  }catch(e){console.error('Quizy startup bridge',e)}
+ }
+ document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('button');if(b&&/^(start quizy|open quizy|start quiz|open quiz)$/.test((b.textContent||'').trim().toLowerCase())){e.preventDefault();e.stopPropagation();forceOpen()}},true);
+ setTimeout(forceOpen,900);setTimeout(forceOpen,2500);setTimeout(forceOpen,5000);
+})();
+</script></body></html>
 <style id="quizy-help-map-overlap-fix-v3">
 /* Help Map sits in normal flow so it can never cover the Quizy title. */
 .start>.help-map-hero{
