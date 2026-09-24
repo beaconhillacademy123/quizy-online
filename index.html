@@ -1750,7 +1750,11 @@ window.addEventListener('pageshow',function(){setTimeout(safeBoot,300)});
   setTimeout(function(){if(!ready())boot()},1500);
   setTimeout(function(){if(!ready())boot()},3500);
 })();
-</script></body></html>
+</script>
+<script><!-- QUIZY_STARTUP_RESCUE_V2 -->
+(function(){function openAdventure(){try{var app=document.getElementById('app'),splash=document.getElementById('quizyWelcomeSplash');if(splash){splash.classList.add('hide');setTimeout(function(){splash.remove()},300)}if(app){app.style.visibility='visible';app.removeAttribute('aria-hidden')}if(typeof window.loadProgress==='function'){try{window.loadProgress()}catch(e){}}if(typeof window.render==='function'){try{window.render()}catch(e){console.error('Quizy rescue render:',e)}}}catch(e){console.error('Quizy startup rescue:',e)}}document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('button'):null;if(!b)return;var t=(b.innerText||b.textContent||'').trim();if(/^(🚀\s*)?(Open Quizy|Start Quizy)$/i.test(t)){e.preventDefault();e.stopImmediatePropagation();openAdventure()}},true);setTimeout(function(){var app=document.getElementById('app');if(app&&!app.querySelector('.screen'))openAdventure()},2200);window.quizyOpenAdventure=openAdventure})();
+</script>
+</body></html>
 <style id="quizy-help-map-overlap-fix-v3">
 /* Help Map sits in normal flow so it can never cover the Quizy title. */
 .start>.help-map-hero{
