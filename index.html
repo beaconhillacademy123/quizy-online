@@ -575,7 +575,7 @@ supabase.auth.onAuthStateChange((_event,session)=>{window.QuizyCloud.user=sessio
 (async()=>{await currentUser();await pullQuestions();try{navigator.serviceWorker?.register('/sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{})}catch(e){}decorate();})();
 });
 
-try{loadProgress();render()}catch(e){console.error('Quizy startup error:',e);const key='quizy_startup_recovery_v1';if(!sessionStorage.getItem(key)){sessionStorage.setItem(key,'1');Promise.all([navigator.serviceWorker?.getRegistrations?.().then(rs=>Promise.all(rs.map(r=>r.unregister()))).catch(()=>{}),caches?.keys?.().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).catch(()=>{})]).finally(()=>location.reload());}else{document.getElementById('app').innerHTML='<div style="padding:28px;font-family:Arial;text-align:center"><h2>Quizy</h2><p>We hit a startup problem. Please reload this page.</p></div>';}}
+try{loadProgress();render();window.__quizyInitialRenderDone=true;window.dispatchEvent(new Event('quizy:initial-render'));}catch(e){console.error('Quizy startup error:',e);var startupApp=document.getElementById('app');if(startupApp){startupApp.style.visibility='visible';startupApp.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🧭</div><h2>Quizy could not start</h2><p>Please reload Quizy and try again.</p><button class="btn primary" onclick="location.reload()">🔄 Reload Quizy</button></div>';}}
 </script>
 <!-- QUIZY_COMMAND_CENTER_TELEMETRY_V1 -->
 <script>
@@ -1659,75 +1659,7 @@ body{
  hook();setTimeout(hook,50);setTimeout(hook,300);setTimeout(animateScreen,500);
  document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.btn.primary,.help-map-hero');if(a&&!a.disabled){a.classList.remove('qt-celebrate');void a.offsetWidth;a.classList.add('qt-celebrate')}},true);
 })();
-</script><script id="quizy-emergency-boot-v3">(function(){
-function safeBoot(){
-  try{
-    var app=document.getElementById('app'); if(!app)return;
-    var emergency=document.getElementById('quizyEmergencyStart');
-    var ready=!!app.querySelector('.screen') && !emergency;
-    if(ready)return;
-    if(emergency){
-      emergency.onclick=function(e){e.preventDefault();try{if(typeof loadProgress==='function')loadProgress()}catch(_){}try{app.innerHTML='';if(typeof window.render==='function')window.render()}catch(err){console.error('Quizy emergency handoff failed:',err)}var sp=document.getElementById('quizyWelcomeSplash');if(sp){sp.classList.add('hide');setTimeout(function(){try{sp.remove()}catch(_){}},450)}};
-      return;
-    }
-    if(typeof state!=='undefined'){
-      state.screen='start';
-      state.name=state.name||'';
-      state.age=(state.age==='old'||state.age==='young')?state.age:'young';
-      state.difficulty=(state.difficulty==='easy'||state.difficulty==='medium'||state.difficulty==='difficult'||state.difficulty==='advanced')?state.difficulty:'easy';
-      state.avatar=state.avatar||'🦊';
-    }
-    if(typeof window.render==='function'){try{window.render()}catch(err){console.error('Quizy emergency render failed:',err)}}
-    if(app.querySelector('.screen')){
-      var splash=document.getElementById('quizyWelcomeSplash');
-      if(splash){splash.classList.add('hide');setTimeout(function(){splash.remove()},450)}
-      return;
-    }
-    app.innerHTML='<div class="screen card start" style="min-height:80vh;display:grid;place-items:center;text-align:center;padding:30px"><div><div style="font-size:72px">🦊</div><h1 style="margin:10px 0;color:#14213d">Welcome to Quizy</h1><p style="color:#667085">Your adventure is ready.</p><button id="quizyEmergencyStart" class="btn primary" style="font-size:18px;padding:15px 24px">🚀 Start Quizy</button></div></div>';
-    var b=document.getElementById('quizyEmergencyStart');
-    if(b)b.onclick=function(){try{if(typeof window.startGame==='function')window.startGame();else if(typeof window.render==='function')window.render()}catch(e){console.error(e)}};
-  }catch(e){console.error('Quizy emergency boot:',e)}
-}
-setTimeout(safeBoot,1000);setTimeout(safeBoot,3000);setTimeout(safeBoot,7000);
-window.addEventListener('pageshow',function(){setTimeout(safeBoot,300)});
-})();</script>
-<script>/* QUIZY_EMERGENCY_STARTUP_BRIDGE_V3 */
-(function(){
- function forceOpen(){
-  try{
-   var app=document.getElementById('app');
-   if(app){app.style.visibility='visible';app.removeAttribute('aria-hidden');if(typeof window.render==='function'){try{window.render()}catch(e){console.error(e)}}}
-   document.querySelectorAll('#quizyWelcomeSplash,#quizyStartupSplash,#quizyStartupOverlay,#quizySplash').forEach(function(x){x.style.setProperty('display','none','important');x.style.setProperty('pointer-events','none','important');x.classList.add('hide')});
-   document.querySelectorAll('button').forEach(function(b){var t=(b.textContent||'').trim().toLowerCase();if(/^(start quizy|open quizy|start quiz|open quiz)$/.test(t)){b.onclick=function(e){e.preventDefault();e.stopPropagation();forceOpen()}}});
-  }catch(e){console.error('Quizy startup bridge',e)}
- }
- document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('button');if(b&&/^(start quizy|open quizy|start quiz|open quiz)$/.test((b.textContent||'').trim().toLowerCase())){e.preventDefault();e.stopPropagation();forceOpen()}},true);
- setTimeout(forceOpen,900);setTimeout(forceOpen,2500);setTimeout(forceOpen,5000);
-})();
-</script><script id="quizy-emergency-startup-guard-v2">
-(function(){
-  function ready(){var a=document.getElementById('app');return !!(a&&a.querySelector('.screen'))}
-  function clean(){
-    var a=document.getElementById('app'); if(a)a.style.visibility='visible';
-    var splash=document.getElementById('quizyWelcomeSplash'); if(splash)splash.remove();
-    document.querySelectorAll('body *').forEach(function(el){
-      if(el.id==='app'||el.id==='quizy-transition-layer')return;
-      var c=getComputedStyle(el),t=(el.textContent||'').trim().replace(/\s+/g,' ');
-      if(c.position==='fixed'&&Number(c.zIndex)>=999999&&(/Start Quizy|Open Quizy|adventure is ready|waking up/i.test(t)))el.remove();
-    });
-    try{if(typeof window.render==='function')window.render()}catch(e){console.error('Quizy emergency render:',e)}
-  }
-  function boot(){if(!ready()){clean();}else{var s=document.getElementById('quizyWelcomeSplash');if(s)s.remove()}}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,300)});else setTimeout(boot,300);
-  window.addEventListener('pageshow',function(){setTimeout(boot,200)});
-  setTimeout(function(){if(!ready())boot()},1500);
-  setTimeout(function(){if(!ready())boot()},3500);
-})();
-</script>
-<script><!-- QUIZY_STARTUP_RESCUE_V2 -->
-(function(){function openAdventure(){try{var app=document.getElementById('app'),splash=document.getElementById('quizyWelcomeSplash');if(splash){splash.classList.add('hide');setTimeout(function(){splash.remove()},300)}if(app){app.style.visibility='visible';app.removeAttribute('aria-hidden')}if(typeof window.loadProgress==='function'){try{window.loadProgress()}catch(e){}}if(typeof window.render==='function'){try{window.render()}catch(e){console.error('Quizy rescue render:',e)}}}catch(e){console.error('Quizy startup rescue:',e)}}document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('button'):null;if(!b)return;var t=(b.innerText||b.textContent||'').trim();if(/^(🚀\s*)?(Open Quizy|Start Quizy)$/i.test(t)){e.preventDefault();e.stopImmediatePropagation();openAdventure()}},true);setTimeout(function(){var app=document.getElementById('app');if(app&&!app.querySelector('.screen'))openAdventure()},2200);window.quizyOpenAdventure=openAdventure})();
-</script>
-<script id="quizy-startup-rescue-v2">(function(){function openAdventure(){try{var app=document.getElementById('app'),splash=document.getElementById('quizyWelcomeSplash');if(splash){splash.classList.add('hide');setTimeout(function(){if(splash.parentNode)splash.remove()},300)}if(app){app.style.visibility='visible';app.removeAttribute('aria-hidden')}if(typeof window.loadProgress==='function'){try{window.loadProgress()}catch(e){}}if(typeof window.render==='function'){try{window.render()}catch(e){console.error('Quizy rescue render:',e)}}}catch(e){console.error('Quizy startup rescue:',e)}}document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('button'):null;if(!b)return;var t=(b.innerText||b.textContent||'').trim();if(/^🚀?\s*(Open Quizy|Start Quizy)$/i.test(t)){e.preventDefault();e.stopImmediatePropagation();openAdventure()}},true);setTimeout(function(){var app=document.getElementById('app');if(app&&!app.querySelector('.screen'))openAdventure()},1800);window.quizyOpenAdventure=openAdventure})();</script></body></html>
+</script></body></html>
 <style id="quizy-help-map-overlap-fix-v3">
 /* Help Map sits in normal flow so it can never cover the Quizy title. */
 .start>.help-map-hero{
