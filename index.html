@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Quizy — Adventure Quiz</title><link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#0b1220"><style>#app{visibility:hidden}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Quizy — Adventure Quiz</title><link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#0b1220"><style>#app{visibility:visible}
 :root{--bg:#f4f7ff;--ink:#18233a;--muted:#6b758b;--card:#fff;--line:#e2e8f2;--primary:#635bff;--primary2:#8b5cf6;--good:#16a34a;--bad:#ef4444;--gold:#f5a623;--shadow:0 18px 45px rgba(24,35,58,.10);--radius:24px}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(circle at 0 0,#e8e9ff 0,transparent 32%),radial-gradient(circle at 100% 100%,#dff8f0 0,transparent 30%),var(--bg)}body{padding:18px}button,input{font:inherit}.app-shell{width:min(980px,100%);margin:auto}.screen{animation:in .28s ease}@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes float{50%{transform:translateY(-8px) rotate(2deg)}}
 .card{background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.85);box-shadow:var(--shadow);border-radius:var(--radius)}
@@ -1397,4 +1397,21 @@ document.addEventListener('click',function(e){var btn=e.target.closest&&e.target
 var baseRender=window.render;if(typeof baseRender==='function'){window.render=function(){baseRender();setTimeout(applyMotion,0)}}var observer=new MutationObserver(function(){ensureAmbient();document.querySelectorAll('.cloud-modal,.adventure-modal,.quizy-update-card').forEach(function(n){n.classList.add('quizy-motion-modal')})});observer.observe(document.body,{childList:true,subtree:true});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyMotion);else applyMotion();
 })();
 </script>
-</body></html>
+<!-- QUIZY_STARTUP_VISIBILITY_GUARD_V1 --><script>
+(function(){
+  function reveal(){
+    try{
+      var app=document.getElementById('app');
+      if(!app)return;
+      app.style.visibility='visible';
+      app.removeAttribute('aria-hidden');
+      if(!app.innerHTML.trim() && typeof window.render==='function'){
+        try{window.render()}catch(e){console.error('Quizy render watchdog:',e)}
+      }
+    }catch(e){console.error('Quizy visibility guard:',e)}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(reveal,2500)});
+  else setTimeout(reveal,2500);
+  window.addEventListener('pageshow',function(){setTimeout(reveal,500)});
+})();
+</script></body></html>
