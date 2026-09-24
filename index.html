@@ -91,7 +91,30 @@ body{padding:12px;background:radial-gradient(circle at 8% 8%,rgba(108,77,246,.18
  .stats{gap:9px!important}
  .stat{padding:12px 8px!important}
 }
-</style></style><style id="quizy-visible-redesign">
+<style id="quizy-transition-system">
+/* QUIZY CINEMATIC TRANSITIONS V1 */
+:root{--qt-blue:#2d72ff;--qt-purple:#7657ff;--qt-cyan:#22c7e8;--qt-yellow:#ffc83d;--qt-green:#27c281}
+#quizy-transition-layer{position:fixed;inset:0;z-index:99999;pointer-events:none;overflow:hidden;opacity:0}
+#quizy-transition-layer.active{opacity:1}
+.qt-wash{position:absolute;inset:-15%;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.96),rgba(229,238,255,.88) 38%,rgba(118,87,255,.20) 72%,transparent 100%);transform:scale(.55);opacity:0}
+#quizy-transition-layer.active .qt-wash{animation:qtWash .58s cubic-bezier(.2,.8,.2,1) forwards}
+.qt-star{position:absolute;width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.95);opacity:0}
+#quizy-transition-layer.active .qt-star{animation:qtStar .72s cubic-bezier(.15,.75,.2,1) forwards}
+.qt-star:nth-child(2){left:12%;top:25%;--dx:90px;--dy:-70px}.qt-star:nth-child(3){left:26%;top:72%;--dx:-80px;--dy:55px}.qt-star:nth-child(4){left:50%;top:48%;--dx:0px;--dy:-110px}.qt-star:nth-child(5){left:74%;top:70%;--dx:85px;--dy:45px}.qt-star:nth-child(6){left:88%;top:28%;--dx:-95px;--dy:-65px}.qt-star:nth-child(7){left:42%;top:18%;--dx:-50px;--dy:-90px}.qt-star:nth-child(8){left:62%;top:82%;--dx:55px;--dy:75px}
+.quizy-transition-enter{animation:qtEnter .55s cubic-bezier(.18,.82,.22,1) both}
+.quizy-transition-exit{animation:qtExit .22s ease both}
+.quizy-transition-stagger>*{animation:qtChild .46s cubic-bezier(.18,.82,.22,1) both;animation-delay:calc(var(--qt-i,0)*55ms)}
+.btn,.answer,.land,.theme-card,.feature-pill,.device-btn,.profile-chip{transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s ease,filter .18s ease}
+.btn:active,.answer:active,.land:active,.theme-card:active{transform:scale(.965)!important}
+.qt-celebrate{animation:qtCelebrate .65s cubic-bezier(.2,.9,.25,1) both!important}
+@keyframes qtWash{0%{transform:scale(.55);opacity:0}35%{opacity:1}100%{transform:scale(1.55);opacity:0}}
+@keyframes qtStar{0%{opacity:0;transform:translate(0,0) scale(.3)}18%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.7)}}
+@keyframes qtEnter{0%{opacity:0;transform:translateY(18px) scale(.985)}100%{opacity:1;transform:none}}
+@keyframes qtExit{to{opacity:.55;transform:scale(.985)}}
+@keyframes qtChild{0%{opacity:0;transform:translateY(16px) scale(.97)}100%{opacity:1;transform:none}}
+@keyframes qtCelebrate{0%{transform:scale(.94);filter:brightness(1)}45%{transform:scale(1.035);filter:brightness(1.08)}100%{transform:scale(1);filter:none}}
+@media (prefers-reduced-motion:reduce){#quizy-transition-layer,.quizy-transition-enter,.quizy-transition-stagger>*{animation:none!important}.qt-wash,.qt-star{display:none!important}}
+</style></style></style><style id="quizy-visible-redesign">
 /* QUIZY 2026 VISUAL REDESIGN — bold, playful, highly visible */
 :root{--q-purple:#6d4aff;--q-pink:#ff5ca8;--q-blue:#39a7ff;--q-yellow:#ffc83d;--q-green:#36d399}
 body{background:#eef2ff!important;background-image:radial-gradient(circle at 8% 12%,rgba(109,74,255,.20),transparent 25%),radial-gradient(circle at 92% 18%,rgba(255,92,168,.16),transparent 22%),radial-gradient(circle at 50% 100%,rgba(57,167,255,.14),transparent 28%)!important}
@@ -1625,6 +1648,41 @@ body{
   }
   var s=document.createElement('style');s.textContent='@keyframes quizySparkFloat{0%,100%{transform:translateY(0) rotate(0deg);opacity:.18}50%{transform:translateY(-13px) rotate(18deg);opacity:.55}}';document.head.appendChild(s);
   var r=window.render;if(typeof r==='function'){window.render=function(){r();setTimeout(decorate,0)}};document.addEventListener('DOMContentLoaded',function(){setTimeout(decorate,50)});
+})();
+</script><script id="quizy-cinematic-transition-v1">
+(function(){
+  var layer=document.getElementById('quizy-transition-layer');
+  if(!layer){
+    layer=document.createElement('div'); layer.id='quizy-transition-layer';
+    layer.innerHTML='<div class="qt-wash"></div><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i>';
+    document.body.appendChild(layer);
+  }
+  function animateScreen(){
+    var screen=document.querySelector('.screen');
+    if(!screen)return;
+    screen.classList.remove('quizy-transition-enter','quizy-transition-stagger');
+    void screen.offsetWidth;
+    screen.classList.add('quizy-transition-enter','quizy-transition-stagger');
+    Array.prototype.forEach.call(screen.children||[],function(el,i){el.style.setProperty('--qt-i',Math.min(i,7));});
+  }
+  function transition(){
+    layer.classList.remove('active'); void layer.offsetWidth; layer.classList.add('active');
+    setTimeout(function(){layer.classList.remove('active');animateScreen()},120);
+  }
+  var previous=window.render;
+  if(typeof previous==='function'){
+    window.render=function(){
+      transition();
+      return previous.apply(this,arguments);
+    };
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('.btn.primary,.help-map-hero');
+    if(a&&!a.disabled){
+      a.classList.remove('qt-celebrate'); void a.offsetWidth; a.classList.add('qt-celebrate');
+    }
+  },true);
+  setTimeout(animateScreen,80);
 })();
 </script></body></html>
 <style id="quizy-help-map-overlap-fix-v3">
