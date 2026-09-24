@@ -1735,31 +1735,38 @@ body{
 </style>
 <style id="quizy-dashboard-design-v5">
 .start{isolation:isolate}.start:before{background:radial-gradient(circle at 50% 45%,rgba(118,87,255,.10),transparent 52%),radial-gradient(circle,#2d72ff22,transparent 68%)!important}.start:after{content:'✦   ★   ✧   ★   ✦   ✧   ★';font-size:32px!important;letter-spacing:14px!important;animation:qDashStars 7s ease-in-out infinite!important}.start .hero-icon{font-size:84px!important;filter:drop-shadow(0 15px 16px rgba(45,114,255,.16))}.start h1{position:relative!important;z-index:3!important;text-shadow:0 8px 25px rgba(45,114,255,.10)!important}.start-sub{max-width:680px!important}.start .name-input{margin-top:4px!important}.start .ages{max-width:760px!important;margin-left:auto!important;margin-right:auto!important}.start .difficulty-note{max-width:680px!important;margin:8px auto 0!important;padding:10px 14px!important;border-radius:14px!important;background:rgba(255,255,255,.56)!important;border:1px solid rgba(220,227,241,.8)!important;color:#7a8599!important}.start-actions{position:relative!important}.start-actions:before{content:'READY TO EXPLORE?';display:block;margin:0 auto 8px;font-size:10px;font-weight:950;letter-spacing:2px;color:#8792aa}.start-actions .primary{position:relative!important;overflow:hidden!important}.start-actions .primary:after{content:'→';position:absolute;right:20px;font-size:25px;opacity:.75;animation:qArrow 1.4s ease-in-out infinite}.resume-card{position:relative!important;overflow:hidden!important}.resume-card:before{content:'⭐';position:absolute;right:20px;top:14px;font-size:30px;animation:qResumeStar 2s ease-in-out infinite}.start .label:before{content:'';display:inline-block;width:28px;height:2px;margin:0 8px 4px 0;border-radius:99px;background:linear-gradient(90deg,#2d72ff,#7657ff)}.start .label:after{content:'';display:inline-block;width:28px;height:2px;margin:0 0 4px 8px;border-radius:99px;background:linear-gradient(90deg,#7657ff,#22c7e8)}.start .avatar{position:relative!important}.start .avatar.active:after{content:'✓';position:absolute;right:-5px;top:-6px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#27c281;color:#fff;font-size:12px;font-weight:950;box-shadow:0 5px 12px rgba(39,194,129,.25)}@keyframes qDashStars{0%,100%{transform:translateX(0);opacity:.6}50%{transform:translateX(18px);opacity:1}}@keyframes qArrow{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}@keyframes qResumeStar{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(8deg) scale(1.12)}}@media(max-width:700px){.start .hero-icon{font-size:70px!important}.start h1{letter-spacing:-2px!important}.start .label:before,.start .label:after{width:18px}.start-actions .primary:after{right:14px}}
-</style><script id="quizy-hard-startup-fix-v4">
+</style><script id="quizy-startup-coordinator-v5">
 (function(){
-  var booted=false;
-  function hideSplash(){var x=document.getElementById('quizyWelcomeSplash');if(x){x.classList.add('hide');setTimeout(function(){if(x.parentNode)x.parentNode.removeChild(x)},320)}}
-  function boot(){
-    if(booted)return true;
-    var app=document.getElementById('app');if(!app)return false;
-    app.style.visibility='visible';
-    try{if(typeof window.loadProgress==='function')window.loadProgress()}catch(e){}
-    try{if(typeof window.render==='function')window.render();else if(typeof render==='function')render()}catch(e){console.error('Quizy startup render failed:',e)}
-    var ready=!!app.querySelector('.screen,.start,.map');
-    if(ready){booted=true;hideSplash();return true}
-    return false;
-  }
-  function retry(n){
-    if(boot())return;
-    if(n<80){setTimeout(function(){retry(n+1)},125);return}
-    var app=document.getElementById('app');
-    if(app&&!app.querySelector('.screen')){
-      app.innerHTML='<div class="screen card start" style="min-height:70vh;display:grid;place-items:center;padding:28px;text-align:center"><div><div style="font-size:72px">🧭</div><h1 style="margin:8px 0">Quizy</h1><p>Let’s get your adventure ready.</p><button class="btn primary" id="hardQuizyOpen">🚀 Open Adventure</button></div></div>';
-      var b=document.getElementById('hardQuizyOpen');if(b)b.onclick=function(){boot()};
+  // Startup is intentionally one-shot. The real app render owns readiness.
+  // Do not retry, reload, clear caches, or inject a replacement dashboard.
+  if(window.__quizyStartupCoordinatorInstalled) return;
+  window.__quizyStartupCoordinatorInstalled=true;
+  function hideSplash(){
+    var splash=document.getElementById('quizyWelcomeSplash');
+    if(splash){
+      splash.classList.add('qs-hide');
+      setTimeout(function(){if(splash&&splash.parentNode)splash.remove()},380);
     }
-    hideSplash();
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){retry(0)});else retry(0);
-  window.addEventListener('pageshow',function(){setTimeout(function(){retry(0)},80)});
+  function start(){
+    if(window.__quizyStartupCoordinatorRan) return;
+    window.__quizyStartupCoordinatorRan=true;
+    var app=document.getElementById('app');
+    if(!app) return;
+    app.style.visibility='visible';
+    try{
+      if(typeof window.loadProgress==='function') window.loadProgress();
+      if(typeof window.render==='function') window.render();
+      window.__quizyInitialRenderDone=true;
+      window.dispatchEvent(new Event('quizy:initial-render'));
+      setTimeout(hideSplash,180);
+    }catch(e){
+      console.error('Quizy startup error:',e);
+      app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🧭</div><h2>Quizy could not start</h2><p>Please reload Quizy and try again.</p><button class="btn primary" onclick="location.reload()">🔄 Reload Quizy</button></div>';
+      hideSplash();
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
 })();
 </script>
