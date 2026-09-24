@@ -1650,43 +1650,16 @@ body{
   var s=document.createElement('style');s.textContent='@keyframes quizySparkFloat{0%,100%{transform:translateY(0) rotate(0deg);opacity:.18}50%{transform:translateY(-13px) rotate(18deg);opacity:.55}}';document.head.appendChild(s);
   var r=window.render;if(typeof r==='function'){window.render=function(){r();setTimeout(decorate,0)}};document.addEventListener('DOMContentLoaded',function(){setTimeout(decorate,50)});
 })();
-</script><script id="quizy-cinematic-transition-v1">
+</script><script id="quizy-cinematic-transition-v2">
 (function(){
-  var layer=document.getElementById('quizy-transition-layer');
-  if(!layer){
-    layer=document.createElement('div'); layer.id='quizy-transition-layer';
-    layer.innerHTML='<div class="qt-wash"></div><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i><i class="qt-star"></i>';
-    document.body.appendChild(layer);
-  }
-  function animateScreen(){
-    var screen=document.querySelector('.screen');
-    if(!screen)return;
-    screen.classList.remove('quizy-transition-enter','quizy-transition-stagger');
-    void screen.offsetWidth;
-    screen.classList.add('quizy-transition-enter','quizy-transition-stagger');
-    Array.prototype.forEach.call(screen.children||[],function(el,i){el.style.setProperty('--qt-i',Math.min(i,7));});
-  }
-  function transition(){
-    layer.classList.remove('active'); void layer.offsetWidth; layer.classList.add('active');
-    setTimeout(function(){layer.classList.remove('active');animateScreen()},120);
-  }
-  var previous=window.render;
-  if(typeof previous==='function'){
-    window.render=function(){
-      transition();
-      return previous.apply(this,arguments);
-    };
-  }
-  document.addEventListener('click',function(e){
-    var a=e.target.closest&&e.target.closest('.btn.primary,.help-map-hero');
-    if(a&&!a.disabled){
-      a.classList.remove('qt-celebrate'); void a.offsetWidth; a.classList.add('qt-celebrate');
-    }
-  },true);
-  setTimeout(animateScreen,80);
+ var layer=document.getElementById('quizy-transition-layer');
+ function animateScreen(){var x=document.querySelector('.screen');if(!x)return;x.classList.remove('quizy-transition-enter','quizy-transition-stagger');void x.offsetWidth;x.classList.add('quizy-transition-enter','quizy-transition-stagger');Array.prototype.forEach.call(x.children||[],function(e,i){e.style.setProperty('--qt-i',Math.min(i,7))})}
+ function transition(){if(!layer){animateScreen();return}layer.classList.remove('active');void layer.offsetWidth;layer.classList.add('active');setTimeout(function(){layer.classList.remove('active');animateScreen()},120)}
+ function hook(){if(typeof window.render!=='function')return false;if(window.render.__qt2)return true;var r=window.render;var w=function(){try{transition()}catch(e){}return r.apply(this,arguments)};w.__qt2=true;window.render=w;return true}
+ hook();setTimeout(hook,50);setTimeout(hook,300);setTimeout(animateScreen,500);
+ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.btn.primary,.help-map-hero');if(a&&!a.disabled){a.classList.remove('qt-celebrate');void a.offsetWidth;a.classList.add('qt-celebrate')}},true);
 })();
-</script>
-<script id="quizy-emergency-boot-v3">(function(){
+</script><script id="quizy-emergency-boot-v3">(function(){
 function safeBoot(){
   try{
     var app=document.getElementById('app'); if(!app)return;
