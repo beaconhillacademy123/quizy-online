@@ -1,4 +1,4 @@
-const CACHE='quizy-shell-v10';
+const CACHE='quizy-shell-v11';
 const CORE=['/','/index.html','/manifest.json','/icon-192.svg','/icon-512.svg'];
 
 
