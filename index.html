@@ -1396,3 +1396,31 @@ var baseRender=window.render;if(typeof baseRender==='function'){window.render=fu
 })();
 </script>
 <!-- QUIZY_STARTUP_VISIBILITY_GUARD_V2 --><script>(function(){function reveal(){try{var app=document.getElementById('app');if(!app)return;app.style.visibility='visible';app.removeAttribute('aria-hidden');if(!app.querySelector('.screen')&&typeof window.render==='function'){try{window.render()}catch(e){console.error('Quizy visibility recovery:',e)}}}catch(e){console.error('Quizy visibility guard:',e)}}setTimeout(reveal,1200);window.addEventListener('pageshow',function(){setTimeout(reveal,250)})})();</script></body></html>
+<style id="quizy-help-map-overlap-fix-v3">
+/* Help Map sits in normal flow so it can never cover the Quizy title. */
+.start>.help-map-hero{
+  position:relative!important;
+  top:auto!important;
+  right:auto!important;
+  left:auto!important;
+  float:none!important;
+  display:flex!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin:0 0 18px auto!important;
+  transform:none;
+}
+.start>.help-map-hero .map-icon{font-size:30px!important}
+@media(max-width:700px){
+  .start{padding-top:22px!important}
+  .start>.help-map-hero{
+    position:relative!important;
+    top:auto!important;
+    right:auto!important;
+    margin:0 0 16px auto!important;
+    font-size:15px!important;
+    padding:8px 13px!important;
+  }
+  .start>.help-map-hero .map-icon{font-size:27px!important}
+}
+</style>
