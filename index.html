@@ -33,7 +33,65 @@ body{padding:12px;background:radial-gradient(circle at 8% 8%,rgba(108,77,246,.18
 .btn{border-radius:17px;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s,filter .2s}.btn:hover{transform:translateY(-3px);filter:saturate(1.08)}.btn.primary{box-shadow:0 12px 25px rgba(108,77,246,.22)}.btn.primary:hover{box-shadow:0 17px 32px rgba(108,77,246,.30)}
 @keyframes quizyLogoBounce{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(2deg)}}@keyframes quizyTwinkle{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.18);opacity:1}}
 @media(max-width:700px){body{padding:8px}.start{min-height:calc(100vh - 20px);padding:70px 15px 25px;border-radius:27px}.start h1{font-size:62px}.start-sub{font-size:16px}.ages{display:grid;grid-template-columns:1fr 1fr}.age{min-width:0}.avatar{width:55px;height:55px}.stats{grid-template-columns:1fr 1fr}.trail{grid-template-columns:1fr}.actions .btn{padding:9px 11px;min-height:40px}}@media(prefers-reduced-motion:reduce){.brand-mark,.resume-card:before{animation:none}}
-</style><style id="quizy-visible-redesign">
+<style id="quizy-visual-pass-4">
+/* QUIZY ADVENTURE UI PASS 4 */
+.start{isolation:isolate!important;overflow:hidden!important}
+.start:before,.start:after{content:"";position:absolute;pointer-events:none;z-index:0;border-radius:999px;filter:blur(2px);animation:quizyOrbFloat 7s ease-in-out infinite}
+.start:before{width:180px;height:180px;right:-70px;top:85px;background:radial-gradient(circle,rgba(45,114,255,.20),transparent 68%)}
+.start:after{width:220px;height:220px;left:-100px;bottom:-80px;background:radial-gradient(circle,rgba(39,194,129,.18),transparent 68%);animation-delay:-3s}
+.start>*{position:relative;z-index:1}
+.start h1{animation:quizyTitleIn .7s cubic-bezier(.2,.9,.25,1.2) both}
+.start .start-sub{max-width:700px;margin-left:auto!important;margin-right:auto!important}
+.help-map-hero{z-index:3!important;box-shadow:0 10px 24px rgba(45,114,255,.14)!important;transition:transform .2s ease,box-shadow .2s ease!important}
+.help-map-hero:hover{transform:translateY(-3px) rotate(-1deg)!important;box-shadow:0 15px 30px rgba(45,114,255,.22)!important}
+.start .label{letter-spacing:1.4px!important;font-size:11px!important;font-weight:1000!important;color:#64708a!important}
+.start .ages,.start .avatars{position:relative}
+.start .age,.start .avatar{will-change:transform}
+.start .age:hover{transform:translateY(-3px)!important}
+.start .difficulty-note{border-radius:14px!important;background:rgba(255,255,255,.58)!important;padding:9px 12px!important}
+.start-actions .btn.primary{position:relative;overflow:hidden;letter-spacing:.2px!important}
+.start-actions .btn.primary:before{content:"";position:absolute;inset:-30%;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.38) 48%,transparent 61%);transform:translateX(-75%);animation:quizyShine 3.8s ease-in-out infinite}
+.start-actions .btn.primary>*{position:relative}
+.resume-card{animation:quizyResumeIn .55s .15s both!important}
+.resume-card .btn{transition:transform .2s ease,box-shadow .2s ease!important}
+.resume-card .btn:hover{transform:translateY(-2px) scale(1.01)!important}
+.stats{position:relative}
+.stat{transition:transform .22s ease,box-shadow .22s ease!important}
+.stat:hover{transform:translateY(-5px)!important;box-shadow:0 24px 48px rgba(36,55,115,.14)!important}
+.land{position:relative;overflow:hidden;transition:transform .24s cubic-bezier(.2,.8,.2,1),box-shadow .24s ease,border-color .24s ease!important}
+.land:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 25%,rgba(255,255,255,.45) 48%,transparent 70%);transform:translateX(-120%);transition:transform .7s ease;pointer-events:none}
+.land:hover:after{transform:translateX(120%)}
+.question-card{position:relative;overflow:hidden}
+.question-card:before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#2d72ff,#22c7e8,#7657ff,#27c281);background-size:200% 100%;animation:quizyGradient 4s linear infinite}
+.answer{will-change:transform,box-shadow}
+.answer:hover{border-color:rgba(45,114,255,.34)!important}
+.answer:active{transform:scale(.985)!important}
+.btn{transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important}
+.btn:hover{filter:saturate(1.08)}
+.btn:active{filter:brightness(.98)}
+@keyframes quizyOrbFloat{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(0,-16px,0) scale(1.05)}}
+@keyframes quizyTitleIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes quizyShine{0%,55%{transform:translateX(-75%) rotate(8deg)}72%,100%{transform:translateX(75%) rotate(8deg)}}
+@keyframes quizyResumeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes quizyGradient{0%{background-position:0 0}100%{background-position:200% 0}}
+@media (prefers-reduced-motion:reduce){
+ .start:before,.start:after,.start h1,.start-actions .btn.primary:before,.question-card:before,.resume-card{animation:none!important}
+ *,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+@media(max-width:600px){
+ body{padding:8px!important}
+ .start{min-height:calc(100vh - 16px)!important;padding:22px 14px 26px!important;border-radius:26px!important}
+ .start h1{font-size:clamp(48px,17vw,68px)!important;letter-spacing:-2px!important}
+ .help-map-hero{font-size:12px!important;padding:9px 12px!important}
+ .start .ages{gap:8px!important}
+ .start .age{min-width:0!important;flex:1!important;padding:12px 8px!important}
+ .start .avatar{width:52px!important;height:52px!important}
+ .start-actions .btn.primary{min-height:56px!important}
+ .resume-card{padding:15px!important}
+ .stats{gap:9px!important}
+ .stat{padding:12px 8px!important}
+}
+</style></style><style id="quizy-visible-redesign">
 /* QUIZY 2026 VISUAL REDESIGN — bold, playful, highly visible */
 :root{--q-purple:#6d4aff;--q-pink:#ff5ca8;--q-blue:#39a7ff;--q-yellow:#ffc83d;--q-green:#36d399}
 body{background:#eef2ff!important;background-image:radial-gradient(circle at 8% 12%,rgba(109,74,255,.20),transparent 25%),radial-gradient(circle at 92% 18%,rgba(255,92,168,.16),transparent 22%),radial-gradient(circle at 50% 100%,rgba(57,167,255,.14),transparent 28%)!important}
@@ -1551,7 +1609,24 @@ body{
  .map-head{animation:quizyMapPulse 5s ease-in-out infinite}
  @keyframes quizyMapPulse{0%,100%{box-shadow:0 20px 45px rgba(28,61,150,.20)}50%{box-shadow:0 24px 55px rgba(45,114,255,.28)}}
 }
-</style></body></html>
+</style><script id="quizy-visual-pass-4-js">
+(function(){
+  function decorate(){
+    var start=document.querySelector('.screen.start');
+    if(start && !start.querySelector('.quizy-spark-layer')){
+      var layer=document.createElement('div'); layer.className='quizy-spark-layer'; layer.setAttribute('aria-hidden','true');
+      layer.innerHTML='<span>✦</span><span>✦</span><span>★</span><span>✦</span><span>•</span>';
+      Object.assign(layer.style,{position:'absolute',inset:'0',pointerEvents:'none',zIndex:'0',overflow:'hidden'});
+      Array.from(layer.children).forEach(function(el,i){
+        Object.assign(el.style,{position:'absolute',left:(12+i*19)+'%',top:(14+(i%3)*27)+'%',fontSize:(10+i%3*5)+'px',opacity:'.28',animation:'quizySparkFloat '+(4+i*.7)+'s ease-in-out '+(-i*.8)+'s infinite'});
+      });
+      start.prepend(layer);
+    }
+  }
+  var s=document.createElement('style');s.textContent='@keyframes quizySparkFloat{0%,100%{transform:translateY(0) rotate(0deg);opacity:.18}50%{transform:translateY(-13px) rotate(18deg);opacity:.55}}';document.head.appendChild(s);
+  var r=window.render;if(typeof r==='function'){window.render=function(){r();setTimeout(decorate,0)}};document.addEventListener('DOMContentLoaded',function(){setTimeout(decorate,50)});
+})();
+</script></body></html>
 <style id="quizy-help-map-overlap-fix-v3">
 /* Help Map sits in normal flow so it can never cover the Quizy title. */
 .start>.help-map-hero{
