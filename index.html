@@ -575,7 +575,7 @@ supabase.auth.onAuthStateChange((_event,session)=>{window.QuizyCloud.user=sessio
 (async()=>{await currentUser();await pullQuestions();try{navigator.serviceWorker?.register('/sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{})}catch(e){}decorate();})();
 });
 
-try{loadProgress();render();window.__quizyInitialRenderDone=true;window.dispatchEvent(new Event('quizy:initial-render'));}catch(e){console.error('Quizy startup error:',e);var startupApp=document.getElementById('app');if(startupApp){startupApp.style.visibility='visible';startupApp.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🧭</div><h2>Quizy could not start</h2><p>Please reload Quizy and try again.</p><button class="btn primary" onclick="location.reload()">🔄 Reload Quizy</button></div>';}}
+
 </script>
 <!-- QUIZY_COMMAND_CENTER_TELEMETRY_V1 -->
 <script>
