@@ -1690,8 +1690,13 @@ body{
 function safeBoot(){
   try{
     var app=document.getElementById('app'); if(!app)return;
-    var ready=!!app.querySelector('.screen');
+    var emergency=document.getElementById('quizyEmergencyStart');
+    var ready=!!app.querySelector('.screen') && !emergency;
     if(ready)return;
+    if(emergency){
+      emergency.onclick=function(e){e.preventDefault();try{if(typeof loadProgress==='function')loadProgress()}catch(_){}try{app.innerHTML='';if(typeof window.render==='function')window.render()}catch(err){console.error('Quizy emergency handoff failed:',err)}var sp=document.getElementById('quizyWelcomeSplash');if(sp){sp.classList.add('hide');setTimeout(function(){try{sp.remove()}catch(_){}},450)}};
+      return;
+    }
     if(typeof state!=='undefined'){
       state.screen='start';
       state.name=state.name||'';
