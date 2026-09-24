@@ -1240,4 +1240,40 @@ window.helpMapComingSoon=function(){
   window.addEventListener('pageshow',function(){setTimeout(restore,120);});
   setTimeout(restore,500);
 })();
-</script></body></html>
+</script>
+<style id="quizyMotionSystem">
+/* QUIZY MOTION SYSTEM V1 */
+:root{--motion-ease:cubic-bezier(.22,1,.36,1);--motion-fast:180ms;--motion-med:420ms}
+body{overflow-x:hidden}#app{position:relative;z-index:1}
+#quizyMotionAmbient{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;opacity:.7}
+#quizyMotionAmbient i{position:absolute;display:block;width:7px;height:7px;border-radius:50%;background:rgba(99,91,255,.16);box-shadow:0 0 18px rgba(99,91,255,.12);animation:quizyAmbientFloat var(--dur,9s) var(--delay,0s) ease-in-out infinite alternate}
+#quizyMotionAmbient i:nth-child(2n){width:11px;height:11px;background:rgba(34,211,238,.13)}#quizyMotionAmbient i:nth-child(3n){width:5px;height:5px;background:rgba(245,166,35,.18)}
+@keyframes quizyAmbientFloat{0%{transform:translate3d(0,18px,0) scale(.8);opacity:.25}50%{opacity:.8}100%{transform:translate3d(var(--dx,18px),-42px,0) scale(1.35);opacity:.55}}
+.quizy-motion-stagger{animation:quizyStaggerIn 480ms var(--motion-ease) both;animation-delay:calc(var(--motion-i,0) * 45ms)}
+@keyframes quizyStaggerIn{from{opacity:0;transform:translate3d(0,12px,0) scale(.98)}to{opacity:1;transform:none}}
+.quizy-motion-screen{animation:quizyScreenIn 420ms var(--motion-ease) both}@keyframes quizyScreenIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.quizy-motion-modal{animation:quizyModalIn 380ms var(--motion-ease) both}@keyframes quizyModalIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.quizy-motion-selected{animation:quizySelected 360ms var(--motion-ease)}@keyframes quizySelected{0%{transform:scale(1)}45%{transform:scale(1.035)}100%{transform:scale(1)}}
+.btn,.age,.avatar,.answer,.land,.feature-pill,.device-btn,.theme-card,.profile-chip,.tap-star{transition:transform var(--motion-fast) var(--motion-ease),box-shadow var(--motion-fast) ease,filter var(--motion-fast) ease,border-color var(--motion-fast) ease}
+.btn:hover,.age:hover,.avatar:hover,.answer:hover:not(:disabled),.land:hover,.feature-pill:hover,.device-btn:hover,.theme-card:hover,.profile-chip:hover{transform:translateY(-3px);filter:saturate(1.06)}
+.btn:active,.age:active,.avatar:active,.answer:active,.land:active,.feature-pill:active,.device-btn:active,.theme-card:active,.profile-chip:active{transform:scale(.97)}
+.btn{position:relative;overflow:hidden}.quizy-ripple{position:absolute;border-radius:50%;pointer-events:none;background:rgba(255,255,255,.42);transform:scale(0);animation:quizyRipple 520ms ease-out forwards}@keyframes quizyRipple{to{transform:scale(1);opacity:0}}
+.progress>i,.q-progress i{transform-origin:left center;animation:quizyProgressGlow 1.8s ease-in-out infinite}@keyframes quizyProgressGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.16)}}
+.stat,.land,.battle-card,.badge-item,.theme-card,.result-box,.earn-item,.challenge,.resume-card{position:relative;overflow:hidden}
+.stat:after,.land:after,.battle-card:after,.badge-item:after,.theme-card:after,.result-box:after,.earn-item:after,.challenge:after,.resume-card:after{content:'';position:absolute;inset:-80% auto auto -35%;width:42%;height:240%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);transform:rotate(18deg) translateX(-160%);pointer-events:none;animation:quizySheen 7s ease-in-out infinite}@keyframes quizySheen{0%,65%{transform:rotate(18deg) translateX(-160%)}78%,100%{transform:rotate(18deg) translateX(430%)}}
+.stars{display:inline-block;animation:quizyStars 2.2s ease-in-out infinite;transform-origin:center}@keyframes quizyStars{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(245,166,35,0))}50%{transform:scale(1.07);filter:drop-shadow(0 0 10px rgba(245,166,35,.32))}}
+.q-counter,.cloud-status,.kicker,.feature-pill.danger{animation:quizyBadgeFloat 2.8s ease-in-out infinite}@keyframes quizyBadgeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.help-map-hero,.quizy-update-floating{animation:quizyHelpFloat 2.7s ease-in-out infinite}@keyframes quizyHelpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.quizy-motion-ready .hero-icon,.quizy-motion-ready .q-icon{animation:quizyHeroFloat 3.2s ease-in-out infinite}@keyframes quizyHeroFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(1deg)}}
+@media(max-width:700px){.quizy-motion-stagger{animation-delay:calc(var(--motion-i,0) * 28ms)}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}#quizyMotionAmbient{display:none}}
+</style>
+<script>
+(function(){var AMBIENT_ID='quizyMotionAmbient';
+function ensureAmbient(){if(document.getElementById(AMBIENT_ID))return;var layer=document.createElement('div');layer.id=AMBIENT_ID;layer.setAttribute('aria-hidden','true');for(var i=0;i<18;i++){var dot=document.createElement('i');dot.style.left=(4+((i*37)%92))+'%';dot.style.top=(8+((i*53)%86))+'%';dot.style.setProperty('--dur',(7+(i%5)*1.2)+'s');dot.style.setProperty('--delay',(-i*.55)+'s');dot.style.setProperty('--dx',((i%2?1:-1)*(10+(i%6)*7))+'px');layer.appendChild(dot)}document.body.appendChild(layer)}
+function applyMotion(){ensureAmbient();var screen=document.querySelector('.screen');if(screen){screen.classList.remove('quizy-motion-screen');void screen.offsetWidth;screen.classList.add('quizy-motion-screen')}var groups=['.screen > .card, .screen > .start, .screen > .stats, .screen > .trail, .screen > .feature-bar','.land,.stat,.battle-card,.badge-item,.theme-card,.result-box,.earn-item,.profile-chip,.device-btn,.challenge,.resume-card','.question-card,.answer,.feature-pill'];groups.forEach(function(sel){document.querySelectorAll(sel).forEach(function(n,i){n.classList.add('quizy-motion-stagger');n.style.setProperty('--motion-i',String(Math.min(i,8)))})});document.querySelectorAll('.cloud-modal,.adventure-modal,.quizy-update-card').forEach(function(n){n.classList.add('quizy-motion-modal')})}
+function pulse(el){if(!el)return;el.classList.remove('quizy-motion-selected');void el.offsetWidth;el.classList.add('quizy-motion-selected');setTimeout(function(){el.classList.remove('quizy-motion-selected')},800)}
+document.addEventListener('click',function(e){var btn=e.target.closest&&e.target.closest('.btn');if(btn&&!btn.disabled){var rect=btn.getBoundingClientRect(),size=Math.max(rect.width,rect.height)*1.7,r=document.createElement('span');r.className='quizy-ripple';r.style.width=size+'px';r.style.height=size+'px';r.style.left=(e.clientX-rect.left-size/2)+'px';r.style.top=(e.clientY-rect.top-size/2)+'px';btn.appendChild(r);setTimeout(function(){r.remove()},560)}var action=e.target.closest&&e.target.closest('.answer,.feature-pill,.land,.theme-card,.device-btn,.profile-chip');if(action)pulse(action)});
+var baseRender=window.render;if(typeof baseRender==='function'){window.render=function(){baseRender();setTimeout(applyMotion,0)}}var observer=new MutationObserver(function(){ensureAmbient();document.querySelectorAll('.cloud-modal,.adventure-modal,.quizy-update-card').forEach(function(n){n.classList.add('quizy-motion-modal')})});observer.observe(document.body,{childList:true,subtree:true});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyMotion);else applyMotion();
+})();
+</script>
+</body></html>
