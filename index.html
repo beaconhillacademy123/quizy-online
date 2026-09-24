@@ -1395,7 +1395,163 @@ document.addEventListener('click',function(e){var btn=e.target.closest&&e.target
 var baseRender=window.render;if(typeof baseRender==='function'){window.render=function(){baseRender();setTimeout(applyMotion,0)}}var observer=new MutationObserver(function(){ensureAmbient();document.querySelectorAll('.cloud-modal,.adventure-modal,.quizy-update-card').forEach(function(n){n.classList.add('quizy-motion-modal')})});observer.observe(document.body,{childList:true,subtree:true});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyMotion);else applyMotion();
 })();
 </script>
-<!-- QUIZY_STARTUP_VISIBILITY_GUARD_V2 --><script>(function(){function reveal(){try{var app=document.getElementById('app');if(!app)return;app.style.visibility='visible';app.removeAttribute('aria-hidden');if(!app.querySelector('.screen')&&typeof window.render==='function'){try{window.render()}catch(e){console.error('Quizy visibility recovery:',e)}}}catch(e){console.error('Quizy visibility guard:',e)}}setTimeout(reveal,1200);window.addEventListener('pageshow',function(){setTimeout(reveal,250)})})();</script></body></html>
+<!-- QUIZY_STARTUP_VISIBILITY_GUARD_V2 --><script>(function(){function reveal(){try{var app=document.getElementById('app');if(!app)return;app.style.visibility='visible';app.removeAttribute('aria-hidden');if(!app.querySelector('.screen')&&typeof window.render==='function'){try{window.render()}catch(e){console.error('Quizy visibility recovery:',e)}}}catch(e){console.error('Quizy visibility guard:',e)}}setTimeout(reveal,1200);window.addEventListener('pageshow',function(){setTimeout(reveal,250)})})();</script>
+<style id="quizy-visual-design-v4">
+/* QUIZY V4 — Adventure UI refresh */
+:root{
+ --q-navy:#10235f;--q-blue:#2d72ff;--q-cyan:#21c8e8;--q-purple:#7657ff;
+ --q-gold:#ffc83d;--q-green:#25c281;--q-orange:#ff7547;
+}
+body{
+ background:
+ radial-gradient(circle at 5% 5%,rgba(118,87,255,.14),transparent 25%),
+ radial-gradient(circle at 95% 15%,rgba(33,200,232,.13),transparent 24%),
+ radial-gradient(circle at 50% 100%,rgba(37,194,129,.11),transparent 30%),
+ #f5f8ff!important;
+}
+.card{
+ border:1px solid rgba(255,255,255,.9)!important;
+ box-shadow:0 22px 55px rgba(26,45,100,.10)!important;
+}
+.topbar{
+ margin:0 auto 16px!important;padding:8px!important;
+ border:1px solid rgba(255,255,255,.8);
+ box-shadow:0 10px 28px rgba(26,45,100,.07);
+ background:rgba(255,255,255,.68)!important;
+ backdrop-filter:blur(18px);
+}
+.brand{gap:9px!important}.brand-mark{width:48px!important;height:48px!important;border-radius:16px!important}
+.actions{gap:6px!important}.actions .btn{border-radius:13px!important}
+.stats{gap:14px!important}.stat{padding:19px!important;border-radius:22px!important}
+.stat-value{font-size:30px!important}
+.map-head{
+ padding:20px 22px;border-radius:25px;
+ background:linear-gradient(135deg,#10235f,#2d72ff);
+ color:#fff;box-shadow:0 20px 45px rgba(28,61,150,.20);
+}
+.map-head p{color:rgba(255,255,255,.78)!important}
+.trail{gap:16px!important}
+.land{
+ min-height:112px;padding:19px!important;border-radius:22px!important;
+ border:1px solid rgba(210,220,240,.9)!important;
+ background:linear-gradient(145deg,#fff,#f7faff)!important;
+ box-shadow:0 14px 30px rgba(30,48,100,.07)!important;
+ transition:transform .25s ease,box-shadow .25s ease!important;
+}
+.land:hover{transform:translateY(-6px)!important;box-shadow:0 22px 45px rgba(30,48,100,.13)!important}
+.land-icon{width:64px!important;height:64px!important;border-radius:20px!important;font-size:34px!important}
+.land h3{font-size:21px!important;color:var(--q-navy)}
+.land.done{border-color:#b9ead3!important;background:linear-gradient(145deg,#fff,#f0fff8)!important}
+.progress{height:10px!important}
+.question-card{
+ border-radius:28px!important;padding:24px!important;
+ background:linear-gradient(145deg,#fff,#f7faff)!important;
+ box-shadow:0 25px 65px rgba(26,45,100,.13)!important;
+}
+.q-head{gap:12px!important}.q-counter{
+ padding:8px 12px!important;border-radius:999px!important;
+ background:#edf3ff!important;color:#2d5bc7!important;font-weight:900;
+}
+.q-progress{height:11px!important;border-radius:999px!important}
+.answers{gap:12px!important}
+.answer{
+ min-height:62px!important;padding:15px 17px!important;border-radius:18px!important;
+ border:1.5px solid #e1e7f2!important;background:#fff!important;
+ box-shadow:0 8px 18px rgba(30,48,100,.045)!important;
+ transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important;
+}
+.answer:hover{transform:translateY(-3px)!important;box-shadow:0 14px 26px rgba(30,48,100,.10)!important;border-color:#b9cbf5!important}
+.feature-bar{
+ border:1px solid #e4e9f4!important;border-radius:20px!important;
+ padding:9px!important;box-shadow:0 12px 28px rgba(30,48,100,.06)!important;
+}
+.feature-pill{border-radius:16px!important;padding:11px 7px!important}
+.btn.primary{
+ background:linear-gradient(135deg,#2d72ff,#7657ff)!important;
+ box-shadow:0 12px 25px rgba(73,83,220,.22)!important;
+}
+.btn.good{border:1px solid #b9ead3!important}
+.break{
+ border-radius:30px!important;
+ background:linear-gradient(145deg,#10235f,#2d72ff 58%,#21c8e8)!important;
+ color:#fff!important;box-shadow:0 28px 70px rgba(20,55,140,.25)!important;
+}
+.break .small,.break p{color:rgba(255,255,255,.82)!important}
+.result-box,.earn-item,.challenge,.battle-card,.badge-item{
+ border-radius:21px!important;border:1px solid #e3e9f4!important;
+ box-shadow:0 12px 28px rgba(30,48,100,.065)!important;background:#fff!important;
+}
+.battle-card{transition:transform .2s ease,box-shadow .2s ease!important}
+.battle-card:hover{transform:translateY(-4px)!important;box-shadow:0 20px 38px rgba(30,48,100,.12)!important}
+.battle-win{
+ border-radius:30px!important;
+ background:linear-gradient(145deg,#fff7d7,#fff,#effff8)!important;
+ box-shadow:0 25px 65px rgba(160,125,30,.12)!important;
+}
+.final{
+ border-radius:30px!important;
+ background:linear-gradient(145deg,#eef3ff,#fff 50%,#edfff7)!important;
+}
+.badge-item{min-height:120px!important;transition:transform .2s ease!important}
+.badge-item:hover{transform:translateY(-5px)!important}
+.badge-icon{font-size:40px!important}
+.leaderboard{
+ border-radius:28px!important;background:linear-gradient(145deg,#fff,#f5f8ff)!important;
+}
+.board-row{
+ border-radius:17px!important;margin:7px 0!important;padding:13px!important;
+ background:#fff!important;border:1px solid #e7ebf3!important;
+}
+.board-row .rank{font-size:20px!important;font-weight:950}
+.big-score{font-size:28px!important;color:var(--q-navy)}
+.adventure-modal-back,.cloud-modal-back{
+ backdrop-filter:blur(8px)!important;background:rgba(10,22,55,.48)!important;
+}
+.adventure-modal,.cloud-modal{
+ border-radius:28px!important;border:1px solid rgba(255,255,255,.8)!important;
+ box-shadow:0 30px 90px rgba(0,0,0,.22)!important;
+}
+.qhm-shell{
+ border-radius:30px!important;box-shadow:0 30px 90px rgba(20,40,100,.20)!important;
+}
+.qhm-top{
+ background:linear-gradient(135deg,#10235f,#2d72ff)!important;
+ color:#fff!important;border-radius:25px 25px 0 0!important;
+}
+.qhm-card{
+ border-radius:24px!important;box-shadow:0 18px 45px rgba(30,48,100,.10)!important;
+}
+.qhm-pin{
+ border-radius:18px!important;box-shadow:0 10px 24px rgba(20,40,100,.10)!important;
+ transition:transform .22s ease,box-shadow .22s ease!important;
+}
+.qhm-pin:hover{transform:translateY(-5px) scale(1.02)!important;box-shadow:0 18px 34px rgba(20,40,100,.15)!important}
+.quizy-update-card{
+ border-radius:28px!important;box-shadow:0 30px 90px rgba(20,40,100,.22)!important;
+}
+.resume-card{
+ position:relative!important;overflow:hidden!important;
+ border:1.5px solid #ffd36a!important;
+ background:linear-gradient(135deg,#fff8df,#fff)!important;
+}
+.resume-card:before{
+ content:'⭐';position:absolute;right:18px;top:12px;font-size:28px;
+ animation:quizyStarFloat 2.4s ease-in-out infinite;
+}
+@keyframes quizyStarFloat{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-7px) rotate(8deg)}}
+@media(max-width:700px){
+ .map-head{padding:17px 16px!important;border-radius:22px!important}
+ .land{min-height:100px!important}
+ .question-card{padding:18px!important;border-radius:24px!important}
+ .answer{min-height:58px!important}
+ .topbar{padding:6px!important}
+}
+@media(prefers-reduced-motion:no-preference){
+ .land,.battle-card,.badge-item,.qhm-pin,.answer{will-change:transform}
+ .map-head{animation:quizyMapPulse 5s ease-in-out infinite}
+ @keyframes quizyMapPulse{0%,100%{box-shadow:0 20px 45px rgba(28,61,150,.20)}50%{box-shadow:0 24px 55px rgba(45,114,255,.28)}}
+}
+</style></body></html>
 <style id="quizy-help-map-overlap-fix-v3">
 /* Help Map sits in normal flow so it can never cover the Quizy title. */
 .start>.help-map-hero{
