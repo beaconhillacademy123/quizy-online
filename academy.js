@@ -151,4 +151,16 @@ window.render=function(){
   }
  }
 };
+
+function ensureAcademyLaunch(){
+ try{
+  if(typeof state==='undefined'||state.screen!=='start')return;
+  const actions=document.querySelector('.start-actions');
+  if(actions&&!document.getElementById('academyLaunch')){
+   const b=document.createElement('button');b.className='btn ghost';b.id='academyLaunch';b.style.marginTop='9px';b.textContent='🎓 Quizy Academy';
+   b.onclick=function(){initState();state.screen='academy';render();};actions.appendChild(b);
+  }
+ }catch(e){console.warn('Quizy Academy launch hook:',e)}
+}
+ensureAcademyLaunch();
 })();
