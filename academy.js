@@ -24,6 +24,21 @@ const JUNIOR_SUBJECTS=['English Studies','Mathematics','Intermediate Science','S
 const SENIOR_SUBJECTS=['English Language','Mathematics','Physics','Chemistry','Biology','Economics','Geography','Government','Civic Education','Literature in English','Agricultural Science','Further Mathematics','Financial Accounting','Business Studies'];
 
 const PILOT={
+ 'Year 1|First Term|English Language':[
+  {passage:'Tunde woke up early on Saturday morning. He helped his mother sweep the compound before breakfast. After eating, he packed his books and went to the library with his sister.',q:'What did Tunde do before breakfast?',opts:['He went to school','He swept the compound','He played football','He went to the market'],a:1,exp:'The passage says Tunde helped his mother sweep the compound before breakfast.',difficulty:'easy'},
+  {passage:'Tunde woke up early on Saturday morning. He helped his mother sweep the compound before breakfast. After eating, he packed his books and went to the library with his sister.',q:'Where did Tunde go after eating?',opts:['The farm','The market','The library','The playground'],a:2,exp:'After eating, Tunde packed his books and went to the library with his sister.',difficulty:'easy'},
+  {q:'Which word is a noun?',opts:['Quickly','School','Run','Beautiful'],a:1,exp:'School is a noun because it names a place.',difficulty:'easy'},
+  {q:'Choose the word that completes the sentence: She ___ to school every day.',opts:['go','goes','going','gone'],a:1,exp:'With “she” in the simple present tense, we use “goes”.',difficulty:'easy'},
+  {q:'Which word means the opposite of “big”?',opts:['Tall','Small','Long','Wide'],a:1,exp:'Small is the opposite of big.',difficulty:'easy'}
+ ],
+ 'Year 1|First Term|Basic Science':[
+  {q:'Which of these is a living thing?',opts:['Stone','Chair','Goat','Spoon'],a:2,exp:'A goat is a living thing because it grows, breathes and needs food.',difficulty:'easy'},
+  {q:'Which part of the body helps us to see?',opts:['Ear','Eye','Nose','Hand'],a:1,exp:'We use our eyes for seeing.',difficulty:'easy'},
+  {q:'Which of these gives us light during the day?',opts:['The Sun','A shoe','A table','A book'],a:0,exp:'The Sun provides natural light during the day.',difficulty:'easy'},
+  {q:'Which of these is used for drinking water?',opts:['Cup','Shoe','Pencil','Book'],a:0,exp:'A cup is commonly used for drinking water.',difficulty:'easy'},
+  {q:'Which sense organ helps us hear sounds?',opts:['Eye','Ear','Tongue','Skin'],a:1,exp:'We use our ears to hear sounds.',difficulty:'easy'}
+ ],
+
  'Year 1|First Term|Mathematics':[
   {q:'Which number comes after 4?',opts:['3','5','6','2'],a:1,exp:'The number after 4 is 5.',difficulty:'easy'},
   {q:'How many apples are shown?',opts:['2','3','4','5'],a:1,exp:'There are three apples in the picture.',difficulty:'easy',media:{type:'diagram',label:'Count the apples',svg:'<svg viewBox="0 0 360 120" role="img" aria-label="Three apples"><rect width="360" height="120" rx="20" fill="#f8fbff"/><g transform="translate(55 25)"><circle cx="25" cy="42" r="25" fill="#ef4444"/><path d="M25 17Q20 4 9 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/><circle cx="145" cy="42" r="25" fill="#ef4444"/><path d="M145 17Q140 4 129 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/><circle cx="265" cy="42" r="25" fill="#ef4444"/><path d="M265 17Q260 4 249 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/></g></svg>'}},
@@ -72,6 +87,7 @@ function initState(){
  state.academySubject=state.academySubject||'Mathematics';
  state.academyDifficulty=state.academyDifficulty||'easy';
  state.academyMode=state.academyMode||'Solo';
+ state.academyCoverage=state.academyCoverage||'term';
  state.academyQuestions=state.academyQuestions||[];
  state.academyQIndex=state.academyQIndex||0;
  state.academyScore=state.academyScore||0;
@@ -93,25 +109,32 @@ function academyMenu(){
  '<div class="academy-field"><label>Subject</label><select id="academySubject" class="academy-select">'+subjectOptions+'</select><div class="academy-subject-note">Subjects are grouped to keep the screen clean.</div></div>'+
  '<div class="academy-field"><label>Difficulty</label><select id="academyDifficulty" class="academy-select"><option value="easy">🌱 Easy</option><option value="medium">⭐ Medium</option><option value="difficult">🔥 Difficult</option><option value="advanced">⚔️ Advanced</option></select></div>'+
  '<div class="academy-field"><label>Play Mode</label><select id="academyMode" class="academy-select"><option>Solo</option><option>Online Battle</option><option>Bluetooth Battle</option></select><div class="academy-subject-note">Battle modes remain part of the Quizy experience.</div></div>'+
- '<div class="academy-field"><label>Coverage</label><select class="academy-select" disabled><option>Selected term</option></select><div class="academy-subject-note">Full-year mixing will be added with the complete question bank.</div></div>'+
+ '<div class="academy-field"><label>Coverage</label><select id="academyCoverage" class="academy-select"><option value="term">Selected term</option><option value="year">Full Academic Year</option></select><div class="academy-subject-note">Choose one term or eventually mix questions across all three terms.</div></div>'+
  '</div>'+
  '<div class="academy-status '+(hasPilot?'ready':'info')+'" id="academyStatus">'+(hasPilot?'✅ Pilot question set ready for this selection.':'📚 This curriculum selection is registered. Its full question bank will be added from the curriculum scheme.')+'</div>'+
  '<div class="academy-actions"><button class="btn ghost" id="academyBack">🏕️ Back to Quizy</button><button class="btn primary" id="academyStart" '+(hasPilot?'':'disabled')+'>🎓 Start Academy Challenge</button></div>'+
  '<div class="academy-feature-row"><div class="academy-feature"><b>12</b><span>Year levels</span></div><div class="academy-feature"><b>3</b><span>Terms per year</span></div><div class="academy-feature"><b>⚔️</b><span>Solo + Battle ready</span></div></div></div>';
 
  document.getElementById('academyDifficulty').value=state.academyDifficulty;
+ document.getElementById('academyCoverage').value=state.academyCoverage;
  document.getElementById('academyMode').value=state.academyMode;
  document.getElementById('academyClass').onchange=function(){state.academyClass=this.value;state.academySubject='';academyMenu();};
  document.getElementById('academyTerm').onchange=function(){state.academyTerm=this.value;academyMenu();};
  document.getElementById('academySubject').onchange=function(){state.academySubject=this.value;academyMenu();};
  document.getElementById('academyDifficulty').onchange=function(){state.academyDifficulty=this.value;academyMenu();};
  document.getElementById('academyMode').onchange=function(){state.academyMode=this.value;academyMenu();};
+ document.getElementById('academyCoverage').onchange=function(){state.academyCoverage=this.value;academyMenu();};
  document.getElementById('academyBack').onclick=function(){state.screen='start';render();};
  document.getElementById('academyStart').onclick=startAcademy;
 }
 
 function startAcademy(){
- const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject,source=PILOT[key];
+ const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject;
+ let source=PILOT[key]||[];
+ if(state.academyCoverage==='year'){
+  source=[];
+  ['First Term','Second Term','Third Term'].forEach(function(t){const s=PILOT[state.academyClass+'|'+t+'|'+state.academySubject];if(s)source=source.concat(s);});
+ }
  if(state.academyMode==='Online Battle' && typeof onlineBattleLaunch==='function'){onlineBattleLaunch();return;}
  if(state.academyMode==='Bluetooth Battle' && typeof battleMenu==='function'){battleMenu();return;}
  if(!source)return;
