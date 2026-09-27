@@ -252,7 +252,7 @@ function ensureAcademyLaunch(){
  }catch(e){console.warn('Quizy Academy launch hook:',e)}
 }
 /* QUIZY ACADEMY V3 — What's New integration and curriculum metadata */
-const ACADEMY_BUILD='3.1';
+const ACADEMY_BUILD='3.2';
 const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded',tag:'NEW',text:'Quizy Academy now includes a Curriculum Map so parents and pupils can see the curriculum structure for the selected year without a crowded screen. The Academy continues to support Year 1–12 selection, term and subject filtering, comprehension passages, system read-aloud, and rich question media such as diagrams, charts, tables and images. Question banks are being populated term-by-term from the supplied 2025 curriculum schemes.'};
 function injectAcademyUpdate(){
  try{
