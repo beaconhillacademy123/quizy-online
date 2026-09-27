@@ -137,12 +137,7 @@ function academyCurriculumModal(){
 }
  
 function academySourceForSelection(){
- const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject;
- let source=PILOT[key]||[];
- if(state.academyCoverage==='year'){
-  source=[];
-  ['First Term','Second Term','Third Term'].forEach(function(t){const s=PILOT[state.academyClass+'|'+t+'|'+state.academySubject];if(s)source=source.concat(s);});
- }
+ let source=academySourceForSelection();
  const difficulty=state.academyDifficulty||'easy';
  const topic=state.academyTopic||'All Topics';
  const type=state.academyQuestionType||'All Questions';
@@ -165,7 +160,8 @@ function academyMenu(){
  const available=flatSubjects(state.academyClass);
  if(!available.includes(state.academySubject))state.academySubject=available[0];
  const subjectOptions=groups.map(g=>'<optgroup label="'+escA(g.group)+'">'+g.items.map(s=>'<option value="'+escA(s)+'" '+(s===state.academySubject?'selected':'')+'>'+escA(s)+'</option>').join('')+'</optgroup>').join('');
- const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject,hasPilot=!!PILOT[key];
+ const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject,hasPilot=academySourceForSelection().length>0;
+ const topics=academyTopics();
  const app=document.getElementById('app');
  app.innerHTML='<div class="screen card academy-wrap">'+
  '<div class="academy-hero"><div class="academy-icon">🎓📚</div><div class="academy-title">Quizy Academy</div><p class="academy-sub">School Curriculum Challenge — choose your class, term, subject and difficulty, then enter the Quizy academic adventure.</p></div>'+
@@ -173,7 +169,9 @@ function academyMenu(){
  '<div class="academy-field"><label>Class</label><select id="academyClass" class="academy-select">'+yearList.map(y=>'<option '+(y===state.academyClass?'selected':'')+'>'+y+'</option>').join('')+'</select></div>'+
  '<div class="academy-field"><label>Term</label><select id="academyTerm" class="academy-select"><option '+(state.academyTerm==='First Term'?'selected':'')+'>First Term</option><option '+(state.academyTerm==='Second Term'?'selected':'')+'>Second Term</option><option '+(state.academyTerm==='Third Term'?'selected':'')+'>Third Term</option></select></div>'+
  '<div class="academy-field"><label>Subject</label><select id="academySubject" class="academy-select">'+subjectOptions+'</select><div class="academy-subject-note">Subjects are grouped to keep the screen clean.</div></div>'+
- '<div class="academy-field"><label>Difficulty</label><select id="academyDifficulty" class="academy-select"><option value="easy">🌱 Easy</option><option value="medium">⭐ Medium</option><option value="difficult">🔥 Difficult</option><option value="advanced">⚔️ Advanced</option></select></div>'+
+ '<div class="academy-field"><label>Difficulty</label><select id="academyDifficulty" class="academy-select"><option value="easy">🌱 Easy</option><option value="medium">⭐ Medium</option><option value="difficult">🔥 Difficult</option><option value="advanced">⚔️ Advanced</option></select></div>'+\
+ '<div class="academy-field"><label>Topic</label><select id="academyTopic" class="academy-select">'+topics.map(t=>'<option '+(t===state.academyTopic?'selected':'')+'>'+escA(t)+'</option>').join('')+'</select></div>'+\
+ '<div class="academy-field"><label>Question Type</label><select id="academyQuestionType" class="academy-select"><option>All Questions</option><option>Standard</option><option>Comprehension</option><option>Visual</option></select></div>'+
  '<div class="academy-field"><label>Play Mode</label><select id="academyMode" class="academy-select"><option>Solo</option><option>Online Battle</option><option>Bluetooth Battle</option></select><div class="academy-subject-note">Battle modes remain part of the Quizy experience.</div></div>'+
  '<div class="academy-field"><label>Coverage</label><select id="academyCoverage" class="academy-select"><option value="term">Selected term</option><option value="year">Full Academic Year</option></select><div class="academy-subject-note">Choose one term or eventually mix questions across all three terms.</div></div>'+
  '</div>'+
@@ -183,6 +181,8 @@ function academyMenu(){
 
  document.getElementById('academyDifficulty').value=state.academyDifficulty;
  document.getElementById('academyCoverage').value=state.academyCoverage;
+ document.getElementById('academyTopic').value=state.academyTopic;
+ document.getElementById('academyQuestionType').value=state.academyQuestionType;
  document.getElementById('academyMode').value=state.academyMode;
  document.getElementById('academyClass').onchange=function(){state.academyClass=this.value;state.academySubject='';academyMenu();};
  document.getElementById('academyTerm').onchange=function(){state.academyTerm=this.value;academyMenu();};
@@ -190,6 +190,8 @@ function academyMenu(){
  document.getElementById('academyDifficulty').onchange=function(){state.academyDifficulty=this.value;academyMenu();};
  document.getElementById('academyMode').onchange=function(){state.academyMode=this.value;academyMenu();};
  document.getElementById('academyCoverage').onchange=function(){state.academyCoverage=this.value;academyMenu();};
+ document.getElementById('academyTopic').onchange=function(){state.academyTopic=this.value;academyMenu();};
+ document.getElementById('academyQuestionType').onchange=function(){state.academyQuestionType=this.value;academyMenu();};
  document.getElementById('academyBack').onclick=function(){state.screen='start';render();};
  document.getElementById('academyStart').onclick=startAcademy;
 }
