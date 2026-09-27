@@ -118,6 +118,22 @@ function initState(){
  state.academyScore=state.academyScore||0;
 }
 
+function academyCurriculumModal(){
+ const existing=document.getElementById('academyCurriculumOverlay');if(existing){existing.remove();return;}
+ const overlay=document.createElement('div');overlay.id='academyCurriculumOverlay';
+ overlay.style.cssText='position:fixed;inset:0;z-index:10050;background:rgba(7,18,34,.68);backdrop-filter:blur(6px);display:grid;place-items:center;padding:16px';
+ const groups=subjectsFor(state.academyClass);
+ const mapped=groups.reduce((n,g)=>n+g.items.length,0);
+ overlay.innerHTML='<div style="width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:26px;padding:22px;box-shadow:0 25px 80px rgba(0,0,0,.3)">'+
+ '<div style="text-align:center"><div style="font-size:46px">🗺️</div><h2 style="margin:4px 0">Academy Curriculum Map</h2><p style="color:var(--muted);font-weight:700;margin:0">'+escA(state.academyClass)+' · 2025 curriculum reference</p></div>'+
+ '<div style="margin:16px 0;padding:13px;border-radius:16px;background:#f5f7ff;color:#526078;font-weight:800;font-size:13px;line-height:1.5">'+mapped+' subject entries are mapped for this class. The question bank is being populated term-by-term from the supplied curriculum schemes. We will not fill missing areas with made-up curriculum content.</div>'+
+ '<div style="display:grid;gap:10px">'+groups.map(g=>'<div style="border:1px solid var(--line);border-radius:18px;padding:14px"><div style="font-weight:900;margin-bottom:8px">📚 '+escA(g.group)+'</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+g.items.map(s=>'<span style="padding:7px 10px;border-radius:999px;background:#f7f8fb;border:1px solid var(--line);font-size:12px;font-weight:800">'+escA(s)+'</span>').join('')+'</div></div>').join('')+'</div>'+
+ '<div style="display:flex;justify-content:center;gap:9px;margin-top:18px"><button class="btn primary" id="academyMapClose">Close Map</button></div></div>';
+ document.body.appendChild(overlay);
+ document.getElementById('academyMapClose').onclick=function(){overlay.remove();};
+ overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
+}
+ 
 function academyMenu(){
  initState();
  const yearList=years(),groups=subjectsFor(state.academyClass);
@@ -137,7 +153,7 @@ function academyMenu(){
  '<div class="academy-field"><label>Coverage</label><select id="academyCoverage" class="academy-select"><option value="term">Selected term</option><option value="year">Full Academic Year</option></select><div class="academy-subject-note">Choose one term or eventually mix questions across all three terms.</div></div>'+
  '</div>'+
  '<div class="academy-status '+(hasPilot?'ready':'info')+'" id="academyStatus">'+(hasPilot?'✅ Pilot question set ready for this selection.':'📚 This curriculum selection is registered. Its full question bank will be added from the curriculum scheme.')+'</div>'+
- '<div class="academy-actions"><button class="btn ghost" id="academyBack">🏕️ Back to Quizy</button><button class="btn primary" id="academyStart" '+(hasPilot?'':'disabled')+'>🎓 Start Academy Challenge</button></div>'+
+ '<div class="academy-actions"><button class="btn ghost" id="academyBack">🏕️ Back to Quizy</button><button class="btn ghost" id="academyMap">🗺️ Curriculum Map</button><button class="btn primary" id="academyStart" '+(hasPilot?'':'disabled')+'>🎓 Start Academy Challenge</button></div>'+
  '<div class="academy-feature-row"><div class="academy-feature"><b>12</b><span>Year levels</span></div><div class="academy-feature"><b>3</b><span>Terms per year</span></div><div class="academy-feature"><b>🖼️</b><span>Images · Graphs · Charts</span></div></div></div>';
 
  document.getElementById('academyDifficulty').value=state.academyDifficulty;
@@ -236,8 +252,8 @@ function ensureAcademyLaunch(){
  }catch(e){console.warn('Quizy Academy launch hook:',e)}
 }
 /* QUIZY ACADEMY V3 — What's New integration and curriculum metadata */
-const ACADEMY_BUILD='3.0';
-const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded',tag:'NEW',text:'A dedicated school-curriculum mode now covers Year 1–12 selection, term and subject filtering, curriculum-aware subject groups, comprehension passages, read-aloud support, and rich question media such as diagrams, charts, tables and images. The Academy is designed to grow from the pilot bank into the full 2025 NERDC-aligned question library.'};
+const ACADEMY_BUILD='3.1';
+const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded',tag:'NEW',text:'Quizy Academy now includes a Curriculum Map so parents and pupils can see the curriculum structure for the selected year without a crowded screen. The Academy continues to support Year 1–12 selection, term and subject filtering, comprehension passages, system read-aloud, and rich question media such as diagrams, charts, tables and images. Question banks are being populated term-by-term from the supplied 2025 curriculum schemes.'};
 function injectAcademyUpdate(){
  try{
   const list=document.querySelector('.quizy-update-list');
