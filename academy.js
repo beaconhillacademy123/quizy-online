@@ -29,6 +29,7 @@ const PILOT={
   {q:'How many apples are shown?',opts:['2','3','4','5'],a:1,exp:'There are three apples in the picture.',difficulty:'easy',media:{type:'diagram',label:'Count the apples',svg:'<svg viewBox="0 0 360 120" role="img" aria-label="Three apples"><rect width="360" height="120" rx="20" fill="#f8fbff"/><g transform="translate(55 25)"><circle cx="25" cy="42" r="25" fill="#ef4444"/><path d="M25 17Q20 4 9 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/><circle cx="145" cy="42" r="25" fill="#ef4444"/><path d="M145 17Q140 4 129 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/><circle cx="265" cy="42" r="25" fill="#ef4444"/><path d="M265 17Q260 4 249 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/></g></svg>'}},
   {q:'Which number means nothing or an empty set?',opts:['1','5','0','10'],a:2,exp:'Zero (0) represents nothing or an empty set.',difficulty:'easy'},
   {q:'Which number is the greatest: 6, 8 or 7?',opts:['6','8','7','5'],a:1,exp:'8 is greater than 6 and 7.',difficulty:'easy'},
+  {passage:'Amina visited her grandmother during the holiday. Her grandmother showed her a small garden behind the house. Amina helped to water the vegetables and picked three ripe tomatoes.',q:'How many ripe tomatoes did Amina pick?',opts:['One','Two','Three','Five'],a:2,exp:'The passage says Amina picked three ripe tomatoes.',difficulty:'easy'},
   {q:'What is 2 + 1?',opts:['2','3','4','1'],a:1,exp:'Putting 2 and 1 together gives 3.',difficulty:'easy'}
  ]
 };
@@ -42,6 +43,7 @@ function subjectsFor(year){
  return [{group:'Senior Secondary',items:SENIOR_SUBJECTS}];
 }
 function flatSubjects(year){return subjectsFor(year).flatMap(g=>g.items);}
+function speakAcademy(text){try{if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(text||''));u.rate=0.92;u.pitch=1;u.volume=1;window.speechSynthesis.speak(u);}catch(e){console.warn('Academy voice:',e)}}
 function escA(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 
 function injectStyles(){
@@ -110,8 +112,11 @@ function academyMenu(){
 
 function startAcademy(){
  const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject,source=PILOT[key];
+ if(state.academyMode==='Online Battle' && typeof onlineBattleLaunch==='function'){onlineBattleLaunch();return;}
+ if(state.academyMode==='Bluetooth Battle' && typeof battleMenu==='function'){battleMenu();return;}
  if(!source)return;
  state.academyQuestions=source.slice();state.academyQIndex=0;state.academyScore=0;state.screen='academyQuestion';render();
+ const first=state.academyQuestions[0];if(first)speakAcademy((first.passage?first.passage+' ':'')+first.q);
 }
 
 function academyMedia(q){
@@ -129,10 +134,13 @@ function academyQuestion(){
  app.innerHTML='<div class="screen card academy-question">'+
  '<div class="academy-breadcrumb">🎓 Quizy Academy · '+escA(state.academyClass)+' · '+escA(state.academyTerm)+' · '+escA(state.academySubject)+'</div>'+
  '<div class="q-progress"><i style="width:'+pct+'%"></i></div><div class="q-counter">Question '+(state.academyQIndex+1)+' of '+state.academyQuestions.length+'</div>'+
- '<div class="q-icon">🎓</div>'+academyMedia(q)+'<div class="academy-qtext">'+escA(q.q)+'</div>'+
+ '<div class="q-icon">🎓</div>'+(q.passage?'<div class="academy-passage"><div class="academy-media-label">READING COMPREHENSION</div><div>'+escA(q.passage)+'</div><button class="btn ghost" id="academyReadPassage" style="margin-top:10px">🔊 Read Passage</button></div>':'')+academyMedia(q)+'<div class="academy-qtext">'+escA(q.q)+'</div><button class="btn ghost" id="academyReadQuestion" style="margin-bottom:14px">🔊 Read Question</button>'+
  '<div class="academy-answers">'+q.opts.map((o,i)=>'<button class="academy-answer" data-a="'+i+'">'+escA(o)+'</button>').join('')+'</div>'+
  '<div class="academy-actions"><button class="btn ghost" id="academyQuit">🏕️ Exit Academy</button></div></div>';
  document.querySelectorAll('.academy-answer').forEach(b=>b.onclick=function(){academyAnswer(Number(this.dataset.a));});
+ const rp=document.getElementById('academyReadPassage');if(rp)rp.onclick=function(){speakAcademy(q.passage)};
+ const rq=document.getElementById('academyReadQuestion');if(rq)rq.onclick=function(){speakAcademy(q.q+' '+q.opts.map((x,i)=>String.fromCharCode(65+i)+'. '+x).join('. '))};
+ speakAcademy(q.passage?q.passage+' '+q.q:q.q);
  document.getElementById('academyQuit').onclick=function(){state.screen='academy';render();};
 }
 
