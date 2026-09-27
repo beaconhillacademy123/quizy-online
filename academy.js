@@ -20,9 +20,30 @@ const PRIMARY_4_6_SUBJECTS=[
  {group:'Pre-Vocational',items:['Prevocational Studies']},
  {group:'Digital & Languages',items:['Basic Digital Literacy','French Language']}
 ];
-const JUNIOR_SUBJECTS=['English Studies','Mathematics','Intermediate Science','Social and Citizenship Studies','Nigerian History','Business Studies','Digital Technologies','Cultural and Creative Arts','Physical and Health Education','French'];
-const SENIOR_SUBJECTS=['English Language','Mathematics','Physics','Chemistry','Biology','Economics','Geography','Government','Civic Education','Literature in English','Agricultural Science','Further Mathematics','Financial Accounting','Business Studies'];
+const JUNIOR_SUBJECT_GROUPS=[
+ {group:'Core',items:['English Studies','Mathematics','Intermediate Science']},
+ {group:'Society & Citizenship',items:['Social and Citizenship Studies','Nigerian History']},
+ {group:'Business & Digital',items:['Business Studies','Digital Technologies']},
+ {group:'Arts & Life Skills',items:['Cultural and Creative Arts','Physical and Health Education']},
+ {group:'Languages',items:['French']}
+];
+const SENIOR_SUBJECT_GROUPS=[
+ {group:'Core & Sciences',items:['English Language','Mathematics','Physics','Chemistry','Biology']},
+ {group:'Social Sciences',items:['Economics','Geography','Government']},
+ {group:'Business',items:['Commerce','Financial Accounting','Business Studies']},
+ {group:'Humanities & Languages',items:['Literature in English','French']},
+ {group:'Technology & Applied',items:['Digital Technologies','Agricultural Science','Further Mathematics','Technical Drawing']},
+ {group:'Religious Studies',items:['Christian Religious Studies','Islamic Religious Studies']}
+];
 
+/*
+ * Curriculum source note:
+ * The Academy catalogue is being aligned to the supplied 2025 NERDC schemes.
+ * The PDFs are the curriculum reference; question content will be populated
+ * term-by-term instead of inventing a full 12-year bank in one deployment.
+ * Visual questions support diagrams, charts, tables and images through q.media.
+ * English comprehension is represented by q.passage and can be read aloud.
+ */
 const PILOT={
  'Year 1|First Term|English Language':[
   {passage:'Tunde woke up early on Saturday morning. He helped his mother sweep the compound before breakfast. After eating, he packed his books and went to the library with his sister.',q:'What did Tunde do before breakfast?',opts:['He went to school','He swept the compound','He played football','He went to the market'],a:1,exp:'The passage says Tunde helped his mother sweep the compound before breakfast.',difficulty:'easy'},
@@ -54,8 +75,8 @@ function subjectsFor(year){
  const n=Number(String(year).replace(/\D/g,''));
  if(n<=3)return PRIMARY_1_3_SUBJECTS;
  if(n<=6)return PRIMARY_4_6_SUBJECTS;
- if(n<=9)return [{group:'Junior Secondary',items:JUNIOR_SUBJECTS}];
- return [{group:'Senior Secondary',items:SENIOR_SUBJECTS}];
+ if(n<=9)return JUNIOR_SUBJECT_GROUPS;
+ return SENIOR_SUBJECT_GROUPS;
 }
 function flatSubjects(year){return subjectsFor(year).flatMap(g=>g.items);}
 function speakAcademy(text){try{if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(text||''));u.rate=0.92;u.pitch=1;u.volume=1;window.speechSynthesis.speak(u);}catch(e){console.warn('Academy voice:',e)}}
@@ -113,7 +134,7 @@ function academyMenu(){
  '</div>'+
  '<div class="academy-status '+(hasPilot?'ready':'info')+'" id="academyStatus">'+(hasPilot?'✅ Pilot question set ready for this selection.':'📚 This curriculum selection is registered. Its full question bank will be added from the curriculum scheme.')+'</div>'+
  '<div class="academy-actions"><button class="btn ghost" id="academyBack">🏕️ Back to Quizy</button><button class="btn primary" id="academyStart" '+(hasPilot?'':'disabled')+'>🎓 Start Academy Challenge</button></div>'+
- '<div class="academy-feature-row"><div class="academy-feature"><b>12</b><span>Year levels</span></div><div class="academy-feature"><b>3</b><span>Terms per year</span></div><div class="academy-feature"><b>⚔️</b><span>Solo + Battle ready</span></div></div></div>';
+ '<div class="academy-feature-row"><div class="academy-feature"><b>12</b><span>Year levels</span></div><div class="academy-feature"><b>3</b><span>Terms per year</span></div><div class="academy-feature"><b>🖼️</b><span>Images · Graphs · Charts</span></div></div></div>';
 
  document.getElementById('academyDifficulty').value=state.academyDifficulty;
  document.getElementById('academyCoverage').value=state.academyCoverage;
