@@ -1,4 +1,4 @@
-/* QUIZY ACADEMY V1 */
+/* QUIZY ACADEMY V2 — curriculum + rich media + read-aloud foundation */
 (function(){
 'use strict';
 
@@ -21,7 +21,7 @@ const PRIMARY_4_6_SUBJECTS=[
  {group:'Digital & Languages',items:['Basic Digital Literacy','French Language']}
 ];
 const JUNIOR_SUBJECT_GROUPS=[
- {group:'Core',items:['English Studies','Mathematics','Intermediate Science']},
+ {group:'Core',items:['English Studies','Mathematics']},
  {group:'Society & Citizenship',items:['Social and Citizenship Studies','Nigerian History']},
  {group:'Business & Digital',items:['Business Studies','Digital Technologies']},
  {group:'Arts & Life Skills',items:['Cultural and Creative Arts','Physical and Health Education']},
