@@ -26,10 +26,10 @@ const SENIOR_SUBJECTS=['English Language','Mathematics','Physics','Chemistry','B
 const PILOT={
  'Year 1|First Term|Mathematics':[
   {q:'Which number comes after 4?',opts:['3','5','6','2'],a:1,exp:'The number after 4 is 5.',difficulty:'easy'},
+  {q:'How many apples are shown?',opts:['2','3','4','5'],a:1,exp:'There are three apples in the picture.',difficulty:'easy',media:{type:'diagram',label:'Count the apples',svg:'<svg viewBox="0 0 360 120" role="img" aria-label="Three apples"><rect width="360" height="120" rx="20" fill="#f8fbff"/><g transform="translate(55 25)"><circle cx="25" cy="42" r="25" fill="#ef4444"/><path d="M25 17Q20 4 9 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/><circle cx="145" cy="42" r="25" fill="#ef4444"/><path d="M145 17Q140 4 129 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/><circle cx="265" cy="42" r="25" fill="#ef4444"/><path d="M265 17Q260 4 249 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/></g></svg>'}},
   {q:'Which number means nothing or an empty set?',opts:['1','5','0','10'],a:2,exp:'Zero (0) represents nothing or an empty set.',difficulty:'easy'},
   {q:'Which number is the greatest: 6, 8 or 7?',opts:['6','8','7','5'],a:1,exp:'8 is greater than 6 and 7.',difficulty:'easy'},
-  {q:'What is 2 + 1?',opts:['2','3','4','1'],a:1,exp:'Putting 2 and 1 together gives 3.',difficulty:'easy'},
-  {q:'What is 5 − 2?',opts:['2','3','4','1'],a:1,exp:'Taking 2 away from 5 leaves 3.',difficulty:'easy'}
+  {q:'What is 2 + 1?',opts:['2','3','4','1'],a:1,exp:'Putting 2 and 1 together gives 3.',difficulty:'easy'}
  ]
 };
 
@@ -56,7 +56,7 @@ function injectStyles(){
  '.academy-select:focus{border-color:var(--primary);box-shadow:0 0 0 4px #635bff14}.academy-subject-note{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.4}',
  '.academy-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:18px}.academy-status{margin:14px auto 0;padding:12px 14px;border-radius:15px;background:#f5f7ff;color:#526078;font-weight:800;font-size:13px}.academy-status.ready{background:#ecfaf0;color:#18743a}.academy-status.info{background:#fff8df;color:#7a5711}',
  '.academy-feature-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.academy-feature{padding:13px;border:1px solid var(--line);border-radius:17px;background:#fff;text-align:center}.academy-feature b{display:block;font-size:22px}.academy-feature span{font-size:11px;color:var(--muted);font-weight:800}',
- '.academy-question{padding:28px;max-width:820px;margin:auto;text-align:center}.academy-breadcrumb{font-size:12px;color:var(--muted);font-weight:900;margin-bottom:10px}.academy-qtext{font:700 29px Fredoka,sans-serif;line-height:1.28;margin:18px auto 24px;max-width:700px}.academy-answers{display:grid;grid-template-columns:1fr 1fr;gap:11px}',
+ '.academy-question{padding:28px;max-width:820px;margin:auto;text-align:center}.academy-media{margin:16px auto 20px;max-width:720px;padding:12px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 8px 22px rgba(24,35,58,.06)}.academy-media-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:900;margin-bottom:8px}.academy-media svg{display:block;width:100%;height:auto}.academy-media img{display:block;width:100%;height:auto;max-height:320px;object-fit:contain;border-radius:12px}.academy-media table{width:100%;border-collapse:collapse;font-size:13px}.academy-media th,.academy-media td{padding:8px;border:1px solid var(--line);text-align:center}.academy-media th{background:#f5f7ff;font-weight:900}.academy-breadcrumb{font-size:12px;color:var(--muted);font-weight:900;margin-bottom:10px}.academy-qtext{font:700 29px Fredoka,sans-serif;line-height:1.28;margin:18px auto 24px;max-width:700px}.academy-answers{display:grid;grid-template-columns:1fr 1fr;gap:11px}',
  '.academy-answer{padding:16px;border:2px solid var(--line);border-radius:15px;background:#fff;text-align:left;font-weight:900;cursor:pointer}.academy-answer:hover{border-color:var(--primary);background:#f8f7ff}.academy-answer.correct{background:#eaf8ef;border-color:#55bf76;color:#137536}.academy-answer.wrong{background:#fff0f0;border-color:#f38b8b;color:#b42323}',
  '.academy-result{padding:35px;text-align:center}.academy-score{font:700 56px Fredoka,sans-serif;color:var(--primary);margin:10px}.academy-result p{color:var(--muted);font-weight:750}',
  '@media(max-width:700px){.academy-wrap{padding:16px}.academy-grid{grid-template-columns:1fr}.academy-feature-row{grid-template-columns:1fr}.academy-title{font-size:32px}.academy-qtext{font-size:23px}.academy-answers{grid-template-columns:1fr}.academy-question{padding:18px 10px}}'
@@ -114,6 +114,14 @@ function startAcademy(){
  state.academyQuestions=source.slice();state.academyQIndex=0;state.academyScore=0;state.screen='academyQuestion';render();
 }
 
+function academyMedia(q){
+ const m=q&&q.media;if(!m)return '';
+ if(m.type==='image'&&m.src)return '<div class="academy-media"><div class="academy-media-label">'+escA(m.label||'Study the image')+'</div><img src="'+escA(m.src)+'" alt="'+escA(m.alt||m.label||'Question image')+'"></div>';
+ if(m.type==='diagram'||m.type==='chart')return '<div class="academy-media"><div class="academy-media-label">'+escA(m.label||'Study the diagram')+'</div>'+String(m.svg||'')+'</div>';
+ if(m.type==='table'&&Array.isArray(m.headers)&&Array.isArray(m.rows)){const h=m.headers.map(x=>'<th>'+escA(x)+'</th>').join('');const rows=m.rows.map(r=>'<tr>'+r.map(x=>'<td>'+escA(x)+'</td>').join('')+'</tr>').join('');return '<div class="academy-media"><div class="academy-media-label">'+escA(m.label||'Study the table')+'</div><table><thead><tr>'+h+'</tr></thead><tbody>'+rows+'</tbody></table></div>';}
+ return '';
+}
+
 function academyQuestion(){
  const q=state.academyQuestions[state.academyQIndex];
  if(!q){state.screen='academyResult';render();return;}
@@ -121,7 +129,7 @@ function academyQuestion(){
  app.innerHTML='<div class="screen card academy-question">'+
  '<div class="academy-breadcrumb">🎓 Quizy Academy · '+escA(state.academyClass)+' · '+escA(state.academyTerm)+' · '+escA(state.academySubject)+'</div>'+
  '<div class="q-progress"><i style="width:'+pct+'%"></i></div><div class="q-counter">Question '+(state.academyQIndex+1)+' of '+state.academyQuestions.length+'</div>'+
- '<div class="q-icon">🎓</div><div class="academy-qtext">'+escA(q.q)+'</div>'+
+ '<div class="q-icon">🎓</div>'+academyMedia(q)+'<div class="academy-qtext">'+escA(q.q)+'</div>'+
  '<div class="academy-answers">'+q.opts.map((o,i)=>'<button class="academy-answer" data-a="'+i+'">'+escA(o)+'</button>').join('')+'</div>'+
  '<div class="academy-actions"><button class="btn ghost" id="academyQuit">🏕️ Exit Academy</button></div></div>';
  document.querySelectorAll('.academy-answer').forEach(b=>b.onclick=function(){academyAnswer(Number(this.dataset.a));});
