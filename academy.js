@@ -136,6 +136,29 @@ function academyCurriculumModal(){
  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
 }
  
+function academySourceForSelection(){
+ const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject;
+ let source=PILOT[key]||[];
+ if(state.academyCoverage==='year'){
+  source=[];
+  ['First Term','Second Term','Third Term'].forEach(function(t){const s=PILOT[state.academyClass+'|'+t+'|'+state.academySubject];if(s)source=source.concat(s);});
+ }
+ const difficulty=state.academyDifficulty||'easy';
+ const topic=state.academyTopic||'All Topics';
+ const type=state.academyQuestionType||'All Questions';
+ return source.filter(function(q){
+  if(q.difficulty&&q.difficulty!==difficulty)return false;
+  if(topic!=='All Topics'&&q.topic&&q.topic!==topic)return false;
+  if(type==='Comprehension'&&!q.passage)return false;
+  if(type==='Visual'&&!(q.media&&['image','diagram','chart','table'].includes(q.media.type)))return false;
+  if(type==='Standard'&&(q.passage||q.media))return false;
+  return true;
+ });
+}
+function academyTopics(){
+ const q=PILOT[state.academyClass+'|'+state.academyTerm+'|'+state.academySubject]||[];
+ return ['All Topics'].concat([...new Set(q.map(x=>x.topic).filter(Boolean))]);
+}
 function academyMenu(){
  initState();
  const yearList=years(),groups=subjectsFor(state.academyClass);
