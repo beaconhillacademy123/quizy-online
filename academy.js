@@ -67,6 +67,9 @@ const PILOT={
   {q:'Which number is the greatest: 6, 8 or 7?',opts:['6','8','7','5'],a:1,exp:'8 is greater than 6 and 7.',difficulty:'easy'},
   {passage:'Amina visited her grandmother during the holiday. Her grandmother showed her a small garden behind the house. Amina helped to water the vegetables and picked three ripe tomatoes.',q:'How many ripe tomatoes did Amina pick?',opts:['One','Two','Three','Five'],a:2,exp:'The passage says Amina picked three ripe tomatoes.',difficulty:'easy'},
   {q:'What is 2 + 1?',opts:['2','3','4','1'],a:1,exp:'Putting 2 and 1 together gives 3.',difficulty:'easy'}
+ ],
+ 'Year 7|Third Term|Mathematics':[
+  {q:'Study the bar chart. Which category has the highest value?',opts:['A','B','C','D'],a:2,exp:'Category C is the tallest bar, so it has the highest value.',difficulty:'medium',media:{type:'chart',label:'Bar chart — data presentation',svg:'<svg viewBox="0 0 520 300" role="img" aria-label="Bar chart with A at 4, B at 6, C at 9 and D at 5"><rect width="520" height="300" rx="18" fill="#f8fbff"/><line x1="70" y1="245" x2="480" y2="245" stroke="#64748b" stroke-width="2"/><line x1="70" y1="35" x2="70" y2="245" stroke="#64748b" stroke-width="2"/><g fill="#635bff"><rect x="105" y="151" width="65" height="94" rx="8"/><rect x="205" y="104" width="65" height="141" rx="8"/><rect x="305" y="57" width="65" height="188" rx="8"/><rect x="405" y="128" width="65" height="117" rx="8"/></g><g font-family="Arial" font-size="18" font-weight="700" fill="#18233a"><text x="130" y="272">A</text><text x="230" y="272">B</text><text x="330" y="272">C</text><text x="430" y="272">D</text><text x="128" y="142">4</text><text x="228" y="95">6</text><text x="328" y="48">9</text><text x="428" y="119">5</text></g></svg>'}}
  ]
 };
 
