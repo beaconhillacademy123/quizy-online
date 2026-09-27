@@ -152,7 +152,7 @@ function battleHost(){const bt=btNative();if(!bt){alert('📡 Bluetooth Battle r
 function battleRefreshDevices(){const bt=btNative();if(!bt){alert('📡 Bluetooth Battle requires the Quizy Android app. This button will never switch to Online Battle. Use 🌐 Online Battle separately for internet play.');return}try{state.battleDevices=JSON.parse(bt.pairedDevices()||'[]')}catch{state.battleDevices=[]}state.battleStatus=state.battleDevices.length?'Select a paired phone below.':'No paired phones found. Pair the two phones in Android Bluetooth settings, then refresh.';render()}
 function battleJoin(address){const bt=btNative();if(!bt)return;state.battle={role:'guest',questions:[],round:0,myScore:0,oppScore:0,myAnswered:false,oppAnswered:false,myCorrect:false,oppCorrect:false,oppName:'Host',connected:false};state.screen='battle';state.battleStatus='Connecting…';render();bt.connect(address)}
 function battleSend(obj){const bt=btNative();if(bt&&state.battle?.connected)bt.send(JSON.stringify(obj))}
-function battleStartHost(){const pool=LANDS.flatMap(l=>difficultyPool(l,state.difficulty||'easy')).filter(q=>q&&q.opts);state.battle.questions=shuffle(pool).slice(0,5).map(prepareItem);state.battle.round=0;state.battle.myScore=0;state.battle.oppScore=0;state.battle.myAnswered=false;state.battle.oppAnswered=false;battleSend({type:'battle_start',questions:state.battle.questions.map(q=>({q:q.q,opts:q.opts,a:q.a,exp:q.exp||'',icon:'⚔️'})),hostName:state.name});render()}
+function battleStartHost(){const academyPool=Array.isArray(state.academyBattleQuestions)&&state.academyBattleQuestions.length?state.academyBattleQuestions:null;const pool=academyPool||LANDS.flatMap(l=>difficultyPool(l,state.difficulty||'easy')).filter(q=>q&&q.opts);state.battle.questions=shuffle(pool).slice(0,5).map(prepareItem);state.battle.round=0;state.battle.myScore=0;state.battle.oppScore=0;state.battle.myAnswered=false;state.battle.oppAnswered=false;battleSend({type:'battle_start',questions:state.battle.questions.map(q=>({q:q.q,opts:q.opts,a:q.a,exp:q.exp||'',icon:'⚔️'})),hostName:state.name});render()}
 function battleAnswer(i){const b=state.battle;if(!b||b.myAnswered||!b.questions[b.round])return;const q=b.questions[b.round];b.myAnswered=true;b.myCorrect=i===q.a;if(b.myCorrect)b.myScore++;battleSend({type:'answer',round:b.round,correct:b.myCorrect});saveProgress();render();if(b.role==='host'&&b.oppAnswered)battleFinishRound()}
 function battleFinishRound(){const b=state.battle;if(!b||b.role!=='host'||!b.myAnswered||!b.oppAnswered)return;const last=b.round>=b.questions.length-1;battleSend({type:'round_result',round:b.round,hostCorrect:b.myCorrect,guestCorrect:b.oppCorrect,hostScore:b.myScore,guestScore:b.oppScore,last});setTimeout(()=>{if(!state.battle)return;if(last){state.screen='battleResult';render()}else{b.round++;b.myAnswered=false;b.oppAnswered=false;b.myCorrect=false;b.oppCorrect=false;render()}},650)}
 function handleBattleMessage(raw){let m;try{m=JSON.parse(raw)}catch{return}const b=state.battle;if(!b)return;if(m.type==='hello'){b.oppName=m.name||'Opponent';if(b.role==='host')battleStartHost();render();return}if(m.type==='battle_start'&&b.role==='guest'){b.questions=m.questions||[];b.oppName=m.hostName||'Host';b.round=0;b.myScore=0;b.oppScore=0;b.myAnswered=false;b.oppAnswered=false;render();return}if(m.type==='answer'&&b.role==='host'){if(m.round===b.round){b.oppAnswered=true;b.oppCorrect=!!m.correct;if(b.oppCorrect)b.oppScore++;render();if(b.myAnswered)battleFinishRound()}return}if(m.type==='round_result'){if(b.role==='host'){b.myCorrect=!!m.hostCorrect;b.oppCorrect=!!m.guestCorrect}else{b.myCorrect=!!m.guestCorrect;b.oppCorrect=!!m.hostCorrect}if(b.role==='guest'){b.myScore=m.guestScore||0;b.oppScore=m.hostScore||0}if(m.last){state.screen='battleResult';render();return}setTimeout(()=>{if(!state.battle)return;b.round++;b.myAnswered=false;b.oppAnswered=false;render()},650)}}
@@ -177,7 +177,7 @@ document.body.appendChild(w);
 const body=w.querySelector('#qobBody'),status=w.querySelector('#qobStatus');let channel=null,role='',code='',questions=[],round=0,qIndex=0,players=[],pid='p'+Math.random().toString(36).slice(2,9),answers={},spectator=false,tiebreak=null,onlineUsedIds=new Set();
 const close=()=>{try{channel?.send({type:'leave',pid});channel?.unsubscribe()}catch{}w.remove()};w.querySelector('#qobClose').onclick=close;
 const send=p=>channel?.send({type:'broadcast',event:'battle',payload:p});
-const onlinePool=()=>LANDS.flatMap(l=>difficultyPool(l,state.difficulty||'easy')).filter(q=>q&&q.opts&&q.opts.length>=2);
+const onlinePool=()=>{const academy=state.academyBattleQuestions;if(Array.isArray(academy)&&academy.length)return academy.filter(q=>q&&q.opts&&q.opts.length>=2);return LANDS.flatMap(l=>difficultyPool(l,state.difficulty||'easy')).filter(q=>q&&q.opts&&q.opts.length>=2);}
 const drawOnlineQuestions=(n=10)=>{
  let bank=onlinePool(),available=bank.filter(q=>!onlineUsedIds.has(q._id));
  if(available.length<n){onlineUsedIds=new Set();available=bank.slice();}
@@ -993,7 +993,7 @@ window.helpMapComingSoon=function(){
 <script>
 /* QUIZY UPDATE CENTRE V1 */
 (function(){
-  const UPDATE_VERSION='2.6';
+  const UPDATE_VERSION='2.7';
   const UPDATE_KEY='quizyLastSeenUpdate';
   const UPDATES=[
     {icon:'⚔️',title:'Advanced Mode is here',tag:'NEW',text:'A new high-level challenge tier has been added for players who want questions that can challenge even adults.'},
@@ -1005,9 +1005,9 @@ window.helpMapComingSoon=function(){
     {icon:'✨',title:'Floating Help Map',tag:'NEW',text:'The Help Map is now easier to find from the dashboard and can be opened without scrolling through the page.'},
     {icon:'🎓',title:'Quizy Academy begins',tag:'NEW',text:'A new top-level academic mode is now being introduced for Year 1 through Year 12 curriculum practice, with class, term, subject and difficulty selectors.'},
     {icon:'📚',title:'Built around the NERDC 2025 schemes',tag:'NEW',text:'Academy is being structured around the supplied 2025 Nigerian curriculum materials so questions can follow class and term coverage instead of being a random collection.'},
-    {icon:'📊',title:'Rich academic questions are coming',tag:'NEW',text:'The Academy question system is being designed to support diagrams, images, charts, graphs and other visual learning material where a topic requires them.'},
-    {icon:'🔊',title:'Read academic questions aloud',tag:'NEW',text:'English comprehension and other suitable Academy questions will support Quizy voice reading so learners can listen as well as read.'},
-    {icon:'⚔️',title:'Academy keeps Quizy battles',tag:'COMING',text:'The academic mode is being designed to use the same Quizy adventure, Online Battle and Bluetooth Battle foundations rather than creating a separate game.'}
+    {icon:'📊',title:'Rich academic questions',tag:'NEW',text:'Academy questions now have a built-in foundation for diagrams, images, charts, graphs, tables and other visual learning material where a topic requires them.'},
+    {icon:'🔊',title:'Read academic questions aloud',tag:'NEW',text:'Academy supports system voice reading for passages, comprehension questions and answer choices, giving learners the option to listen as well as read.'},
+    {icon:'⚔️',title:'Academy questions can enter battles',tag:'NEW',text:'Academy question sets can now be handed to the existing Online Battle and Bluetooth Battle engines instead of creating separate battle systems.'}
   ];
 
   function seen(){return store.get(UPDATE_KEY)===UPDATE_VERSION}
