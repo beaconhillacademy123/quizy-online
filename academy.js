@@ -2,17 +2,25 @@
 (function(){
 'use strict';
 
-const PRIMARY_SUBJECTS=[
+const PRIMARY_1_3_SUBJECTS=[
  {group:'Core',items:['English Language','Mathematics','Basic Science']},
  {group:'Social & Citizenship',items:['Social and Citizenship Studies']},
- {group:'Pre-Vocational',items:['Prevocational Studies']},
- {group:'Arts & Culture',items:['Cultural and Creative Arts']},
  {group:'History & Society',items:['Nigerian History']},
+ {group:'Arts & Culture',items:['Cultural and Creative Arts']},
+ {group:'Physical & Health',items:['Physical and Health Education']},
+ {group:'Religious Studies',items:['Christian Religious Studies','Islamic Studies']}
+];
+const PRIMARY_4_6_SUBJECTS=[
+ {group:'Core',items:['English Language','Mathematics','Basic Science & Technology']},
+ {group:'Social & Citizenship',items:['Social and Citizenship Studies']},
+ {group:'History & Society',items:['Nigerian History']},
+ {group:'Arts & Culture',items:['Cultural and Creative Arts']},
  {group:'Physical & Health',items:['Physical and Health Education']},
  {group:'Religious Studies',items:['Christian Religious Studies','Islamic Studies']},
+ {group:'Pre-Vocational',items:['Prevocational Studies']},
  {group:'Digital & Languages',items:['Basic Digital Literacy','French Language']}
 ];
-const JUNIOR_SUBJECTS=['English Studies','Mathematics','Intermediate Science','Social and Citizenship Studies','Digital Technologies','Cultural and Creative Arts','French'];
+const JUNIOR_SUBJECTS=['English Studies','Mathematics','Intermediate Science','Social and Citizenship Studies','Nigerian History','Business Studies','Digital Technologies','Cultural and Creative Arts','Physical and Health Education','French'];
 const SENIOR_SUBJECTS=['English Language','Mathematics','Physics','Chemistry','Biology','Economics','Geography','Government','Civic Education','Literature in English','Agricultural Science','Further Mathematics','Financial Accounting','Business Studies'];
 
 const PILOT={
@@ -28,7 +36,8 @@ const PILOT={
 function years(){return Array.from({length:12},(_,i)=>'Year '+(i+1));}
 function subjectsFor(year){
  const n=Number(String(year).replace(/\D/g,''));
- if(n<=6)return PRIMARY_SUBJECTS;
+ if(n<=3)return PRIMARY_1_3_SUBJECTS;
+ if(n<=6)return PRIMARY_4_6_SUBJECTS;
  if(n<=9)return [{group:'Junior Secondary',items:JUNIOR_SUBJECTS}];
  return [{group:'Senior Secondary',items:SENIOR_SUBJECTS}];
 }
