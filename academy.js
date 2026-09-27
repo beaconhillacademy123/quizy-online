@@ -156,8 +156,8 @@ function startAcademy(){
   source=[];
   ['First Term','Second Term','Third Term'].forEach(function(t){const s=PILOT[state.academyClass+'|'+t+'|'+state.academySubject];if(s)source=source.concat(s);});
  }
- if(state.academyMode==='Online Battle' && typeof onlineBattleLaunch==='function'){onlineBattleLaunch();return;}
- if(state.academyMode==='Bluetooth Battle' && typeof battleMenu==='function'){battleMenu();return;}
+ if(state.academyMode==='Online Battle' && typeof onlineBattleLaunch==='function'){state.academyBattleQuestions=source.slice();onlineBattleLaunch();return;}
+ if(state.academyMode==='Bluetooth Battle' && typeof battleMenu==='function'){state.academyBattleQuestions=source.slice();battleMenu();return;}
  if(!source)return;
  state.academyQuestions=source.slice();state.academyQIndex=0;state.academyScore=0;state.screen='academyQuestion';render();
  const first=state.academyQuestions[0];if(first)speakAcademy((first.passage?first.passage+' ':'')+first.q);
