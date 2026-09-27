@@ -280,7 +280,7 @@ function ensureAcademyLaunch(){
 }
 /* QUIZY ACADEMY V3 — What's New integration and curriculum metadata */
 const ACADEMY_BUILD='3.2';
-const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded',tag:'NEW',text:'Quizy Academy now includes a Curriculum Map so parents and pupils can see the curriculum structure for the selected year without a crowded screen. The Academy continues to support Year 1–12 selection, term and subject filtering, comprehension passages, system read-aloud, and rich question media such as diagrams, charts, tables and images. Question banks are being populated term-by-term from the supplied 2025 curriculum schemes.'};
+const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded',tag:'NEW',text:'Quizy Academy now adds topic and question-type filters while enforcing the selected difficulty. Parents and pupils can choose Standard, Comprehension or Visual questions, including passages, system read-aloud, diagrams, charts, tables and images. The Curriculum Map keeps the Year 1–12 structure visible without crowding the screen. Question banks are being populated term-by-term from the supplied 2025 curriculum schemes.'};
 function injectAcademyUpdate(){
  try{
   const list=document.querySelector('.quizy-update-list');
