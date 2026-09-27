@@ -1,4 +1,4 @@
-/* QUIZY ACADEMY V2 — curriculum + rich media + read-aloud foundation */
+/* QUIZY ACADEMY V3 — curriculum expansion + rich media + comprehension voice + update centre */
 (function(){
 'use strict';
 
@@ -21,10 +21,11 @@ const PRIMARY_4_6_SUBJECTS=[
  {group:'Digital & Languages',items:['Basic Digital Literacy','French Language']}
 ];
 const JUNIOR_SUBJECT_GROUPS=[
- {group:'Core',items:['English Studies','Mathematics']},
+ {group:'Core',items:['English Studies','Mathematics','Basic Science']},
  {group:'Society & Citizenship',items:['Social and Citizenship Studies','Nigerian History']},
  {group:'Business & Digital',items:['Business Studies','Digital Technologies']},
  {group:'Arts & Life Skills',items:['Cultural and Creative Arts','Physical and Health Education']},
+ {group:'Religious Studies',items:['Christian Religious Studies','Islamic Religious Studies']},
  {group:'Languages',items:['French']}
 ];
 const SENIOR_SUBJECT_GROUPS=[
@@ -234,5 +235,23 @@ function ensureAcademyLaunch(){
   }
  }catch(e){console.warn('Quizy Academy launch hook:',e)}
 }
+/* QUIZY ACADEMY V3 — What's New integration and curriculum metadata */
+const ACADEMY_BUILD='3.0';
+const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded',tag:'NEW',text:'A dedicated school-curriculum mode now covers Year 1–12 selection, term and subject filtering, curriculum-aware subject groups, comprehension passages, read-aloud support, and rich question media such as diagrams, charts, tables and images. The Academy is designed to grow from the pilot bank into the full 2025 NERDC-aligned question library.'};
+function injectAcademyUpdate(){
+ try{
+  const list=document.querySelector('.quizy-update-list');
+  if(!list || list.querySelector('[data-quizy-academy-update]'))return;
+  const item=document.createElement('div');item.className='quizy-update-item';item.setAttribute('data-quizy-academy-update','1');
+  item.innerHTML='<div class="quizy-update-item-icon">'+ACADEMY_UPDATE.icon+'</div><div class="quizy-update-item-body"><div class="quizy-update-item-title">'+ACADEMY_UPDATE.title+'<span class="quizy-update-tag">'+ACADEMY_UPDATE.tag+'</span></div><div class="quizy-update-item-text">'+ACADEMY_UPDATE.text+'</div></div>';
+  list.prepend(item);
+  const version=document.querySelector('.quizy-update-card [style*="text-align:center"][style*="font-size:11px"]');
+  if(version && /Quizy Update v/.test(version.textContent))version.textContent='Quizy Update v2.6 · Academy '+ACADEMY_BUILD;
+ }catch(e){console.warn('Quizy Academy update centre:',e)}
+}
+const academyUpdateObserver=new MutationObserver(injectAcademyUpdate);
+academyUpdateObserver.observe(document.body,{childList:true,subtree:true});
+setTimeout(injectAcademyUpdate,300);
+
 ensureAcademyLaunch();
 })();
