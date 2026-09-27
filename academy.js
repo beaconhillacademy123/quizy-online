@@ -113,6 +113,8 @@ function initState(){
  state.academyDifficulty=state.academyDifficulty||'easy';
  state.academyMode=state.academyMode||'Solo';
  state.academyCoverage=state.academyCoverage||'term';
+ state.academyTopic=state.academyTopic||'All Topics';
+ state.academyQuestionType=state.academyQuestionType||'All Questions';
  state.academyQuestions=state.academyQuestions||[];
  state.academyQIndex=state.academyQIndex||0;
  state.academyScore=state.academyScore||0;
