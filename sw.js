@@ -1,5 +1,5 @@
 const CACHE='quizy-shell-v11';
-const CORE=['/','/index.html','/academy.js','/academy-content.js','/academy-expansion-v2.js','/academy-expansion-v3.js','/manifest.json','/icon-192.svg','/icon-512.svg'];
+const CORE=['/','/index.html','/academy-content.js','/academy-expansion-v2.js','/academy-expansion-v3.js','/manifest.json','/icon-192.svg','/icon-512.svg'];
 
 self.addEventListener('install',e=>{
   e.waitUntil(
