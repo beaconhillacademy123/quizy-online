@@ -1039,7 +1039,7 @@ window.helpMapComingSoon=function(){
 <script>
 /* QUIZY UPDATE CENTRE V1 */
 (function(){
-  const UPDATE_VERSION='2.8';
+  const UPDATE_VERSION='2.9';
   const UPDATE_KEY='quizyLastSeenUpdate';
   const UPDATES=[
     {icon:'⚔️',title:'Advanced Mode is here',tag:'NEW',text:'A new high-level challenge tier has been added for players who want questions that can challenge even adults.'},
@@ -1053,7 +1053,10 @@ window.helpMapComingSoon=function(){
     {icon:'📚',title:'Built around the NERDC 2025 schemes',tag:'NEW',text:'Academy is being structured around the supplied 2025 Nigerian curriculum materials so questions can follow class and term coverage instead of being a random collection.'},
     {icon:'📊',title:'Rich academic questions',tag:'NEW',text:'Academy questions now have a built-in foundation for diagrams, images, charts, graphs, tables and other visual learning material where a topic requires them.'},
     {icon:'🔊',title:'Read academic questions aloud',tag:'NEW',text:'Academy supports system voice reading for passages, comprehension questions and answer choices, giving learners the option to listen as well as read.'},
-    {icon:'⚔️',title:'Academy questions can enter battles',tag:'NEW',text:'Academy question sets can now be handed to the existing Online Battle and Bluetooth Battle engines instead of creating separate battle systems.'},{icon:'🧪',title:'Academy pilot challenge is playable',tag:'NEW',text:'The first curriculum-backed Academy question sets can now be played through the Quizy question flow, with scoring, feedback and a report screen.'},{icon:'📖',title:'Comprehension mode',tag:'NEW',text:'English Academy questions can include a reading passage followed by a Read This Question control.'},{icon:'📈',title:'Visual question support',tag:'NEW',text:'Academy question data supports diagrams, images, charts, graphs and tables so subjects can use the visual material they actually require.'}
+    {icon:'⚔️',title:'Academy questions can enter battles',tag:'NEW',text:'Academy question sets can now be handed to the existing Online Battle and Bluetooth Battle engines instead of creating separate battle systems.'},{icon:'🧪',title:'Academy pilot challenge is playable',tag:'NEW',text:'The first curriculum-backed Academy question sets can now be played through the Quizy question flow, with scoring, feedback and a report screen.'},{icon:'📖',title:'Comprehension mode',tag:'NEW',text:'English Academy questions can include a reading passage followed by a Read This Question control.'},{icon:'📈',title:'Visual question support',tag:'NEW',text:'Academy question data supports diagrams, images, charts, graphs and tables so subjects can use the visual material they actually require.'},
+    {icon:'🧩',title:'Academy curriculum bank expanded',tag:'NEW',text:'The Academy now has an expandable external curriculum content pack, with additional Primary 1 and JSS1 sets plus a senior-secondary Chemistry starter set.'},
+    {icon:'📌',title:'Academy coverage indicator',tag:'NEW',text:'The Academy now tells you how many questions are currently available for the selected class, term, subject and difficulty instead of leaving an empty challenge screen.'},
+    {icon:'⚔️',title:'Academy battle handoff strengthened',tag:'IMPROVED',text:'When an Academy challenge starts, its selected questions are prepared for the existing battle engines so the same academic set can be used for competitive play.'}
   ];
 
   function seen(){return store.get(UPDATE_KEY)===UPDATE_VERSION}
