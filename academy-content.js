@@ -108,4 +108,82 @@
   ]});
 
   window.QUIZY_ACADEMY_CONTENT_PACK={version:'1.0',source:'Supplied NERDC 2025 scheme PDFs',loadedAt:new Date().toISOString()};
+/* QUIZY ACADEMY EXPANSION PACK V1 — curriculum-backed senior + comprehension coverage */
+(function(){
+  'use strict';
+  const bank=window.ACADEMY_BANK;
+  if(!bank)return;
+  const add=(key,set)=>{bank[key]=Object.assign(bank[key]||{},set);};
+  const q=(id,topic,text,opts,a,exp,extra)=>Object.assign({id,topic,q:text,opts,a,exp},extra||{});
+
+  add('jss1|term1|English Studies',{easy:[
+    q('j1engc1','Reading & Comprehension','Read the passage and answer the question. Musa woke early, packed his books and walked to school with his younger brother. Why did Musa wake early?',['To prepare for school','To go swimming','To visit the market','To watch a film'],0,'The passage says Musa packed his books and walked to school, so he woke early to prepare for school.',{passage:'Musa woke early, packed his books and walked to school with his younger brother. He wanted to arrive before the first lesson began.'}),
+    q('j1engc2','Reading & Comprehension','According to the passage, who walked to school with Musa?',['His teacher','His younger brother','His neighbour','His cousin'],1,'The passage states that Musa walked with his younger brother.',{passage:'Musa woke early, packed his books and walked to school with his younger brother. He wanted to arrive before the first lesson began.'})
+  ],medium:[
+    q('j1engc3','Reading & Comprehension','What can you infer about Musa from the passage?',['He was preparing to be punctual','He disliked school','He was going shopping','He had forgotten his books'],0,'Arriving before the first lesson suggests Musa was trying to be punctual.',{passage:'Musa woke early, packed his books and walked to school with his younger brother. He wanted to arrive before the first lesson began.'})
+  ]});
+
+  add('ss1|term1|Mathematics',{easy:[
+    q('ss1m1','Number Base System','What is 101 in base 2 written in base 10?',['3','4','5','6'],2,'101₂ = 4 + 1 = 5.'),
+    q('ss1m2','Indices','What is 2³?',['5','6','8','9'],2,'2 × 2 × 2 = 8.'),
+    q('ss1m3','Logarithms','If 10² = 100, what is log₁₀100?',['1','2','10','100'],1,'The logarithm is the exponent: 10² = 100, so log₁₀100 = 2.')
+  ],medium:[
+    q('ss1m4','Modular Arithmetic','What is the remainder when 17 is divided by 5?',['1','2','3','4'],1,'17 = 5 × 3 + 2, so the remainder is 2.'),
+    q('ss1m5','Variation','If y varies directly as x and y = 12 when x = 3, what is y when x = 5?',['15','20','24','60'],1,'The constant is 12/3 = 4, so y = 4 × 5 = 20.')
+  ]});
+
+  add('ss1|term1|Physics',{easy:[
+    q('ss1p1','Measurement','Which instrument is used to measure temperature?',['Ammeter','Thermometer','Barometer','Stopwatch'],1,'A thermometer measures temperature.'),
+    q('ss1p2','Motion','Which quantity describes how fast an object moves?',['Mass','Speed','Density','Temperature'],1,'Speed describes the rate at which distance is covered.'),
+    q('ss1p3','Energy','Which form of energy is associated with a moving object?',['Kinetic energy','Chemical energy','Nuclear energy','Sound only'],0,'A moving object possesses kinetic energy.')
+  ],medium:[
+    q('ss1p4','Measurement','A student travels 100 m in 20 s. What is the average speed?',['2 m/s','5 m/s','20 m/s','120 m/s'],1,'Average speed = distance/time = 100/20 = 5 m/s.'),
+    q('ss1p5','Forces','What happens when balanced forces act on an object at rest?',['It must accelerate','It remains at rest','Its mass doubles','It becomes hotter'],1,'Balanced forces have zero resultant force, so an object at rest remains at rest.')
+  ]});
+
+  add('ss1|term1|Chemistry',{easy:[
+    q('ss1c1','Matter','Which state of matter has a fixed volume but no fixed shape?',['Solid','Liquid','Gas','Plasma only'],1,'A liquid has a fixed volume but takes the shape of its container.'),
+    q('ss1c2','Atomic Structure','Which particle has a negative charge?',['Proton','Neutron','Electron','Nucleus'],2,'Electrons carry negative charge.'),
+    q('ss1c3','Separation Techniques','Which method can separate an insoluble solid from a liquid?',['Filtration','Distillation only','Chromatography only','Sublimation'],0,'Filtration separates an insoluble solid from a liquid.')
+  ],medium:[
+    q('ss1c4','Atomic Structure','An atom has 11 protons. What is its atomic number?',['5','10','11','22'],2,'Atomic number equals the number of protons.'),
+    q('ss1c5','Chemical Reactions','Which observation can indicate that a chemical reaction has occurred?',['Formation of a new gas','Only changing the shape of paper','Moving a book','Opening a door'],0,'Gas formation can be evidence of a chemical reaction.')
+  ]});
+
+  add('ss1|term1|Biology',{easy:[
+    q('ss1b1','Cell Biology','What is the basic unit of life?',['Tissue','Organ','Cell','System'],2,'The cell is the basic structural and functional unit of life.'),
+    q('ss1b2','Living Things','Which process do green plants use to make food?',['Respiration','Photosynthesis','Excretion','Digestion'],1,'Green plants make food by photosynthesis.'),
+    q('ss1b3','Nutrition','Which nutrient is mainly needed for growth and repair of body tissues?',['Protein','Water only','Fibre','Salt'],0,'Proteins are important for growth and repair.')
+  ],medium:[
+    q('ss1b4','Ecology','What is the role of decomposers in an ecosystem?',['They recycle nutrients from dead matter','They stop rainfall','They produce sunlight','They remove all oxygen'],0,'Decomposers break down dead material and return nutrients to the environment.'),
+    q('ss1b5','Photosynthesis','Which gas is taken in by green plants during photosynthesis?',['Oxygen','Carbon dioxide','Nitrogen only','Hydrogen'],1,'Plants use carbon dioxide during photosynthesis.')
+  ]});
+
+  add('ss1|term1|Economics',{easy:[
+    q('ss1e1','Introduction to Economics','What is scarcity?',['Unlimited resources','Limited resources relative to unlimited wants','Free goods only','A type of market'],1,'Scarcity exists because resources are limited while human wants are numerous.'),
+    q('ss1e2','Basic Economic Concepts','What is opportunity cost?',['The next best alternative forgone','The total money in a bank','A tax on imports','The price of every product'],0,'Opportunity cost is the next best alternative given up.'),
+    q('ss1e3','Factors of Production','Which is a factor of production?',['Land','Weather report','School uniform','Traffic light'],0,'Land is one of the factors of production.')
+  ],medium:[
+    q('ss1e4','Demand','If the price of a normal good falls, what generally happens to quantity demanded, other things being equal?',['It rises','It always becomes zero','It cannot change','It becomes negative'],0,'The law of demand states that quantity demanded generally rises as price falls, other things equal.')
+  ]});
+
+  add('ss1|term1|Geography',{easy:[
+    q('ss1g1','The Earth','Which line divides the Earth into the Northern and Southern Hemispheres?',['Prime Meridian','Equator','Tropic of Cancer','Arctic Circle'],1,'The Equator divides the Earth into Northern and Southern Hemispheres.'),
+    q('ss1g2','Maps','What does a map scale help a reader understand?',['The relationship between map distance and actual distance','Only the weather','The age of a map','The colour of rivers'],0,'Scale shows the relationship between distances on a map and on the ground.'),
+    q('ss1g3','Physical Geography','Which is a natural feature?',['River','Road','Bridge','Railway'],0,'A river is a natural physical feature.')
+  ],medium:[
+    q('ss1g4','Map Reading','If a map scale is 1:100,000, what ground distance does 1 cm represent?',['100 m','1 km','10 km','100 km'],1,'1 cm at 1:100,000 represents 100,000 cm, which equals 1 km.')
+  ]});
+
+  add('ss1|term1|Government',{easy:[
+    q('ss1gov1','Introduction to Government','What is government?',['The system or process through which a state is governed','Only a school club','A type of business','A weather system'],0,'Government refers to the system or process through which a state is governed.'),
+    q('ss1gov2','State','Which is an essential element of a state?',['Defined territory','A football team','A market stall','A classroom'],0,'Defined territory is one of the essential elements of a state.'),
+    q('ss1gov3','Citizenship','A citizen is best described as a person who',['has legal membership of a state','owns a shop','travels every day','works only for government'],0,'Citizenship involves legal membership of a state.')
+  ],medium:[
+    q('ss1gov4','Democracy','Which principle is associated with democracy?',['Participation of citizens','Rule by one person without limits','No elections ever','No laws'],0,'Citizen participation is a central democratic principle.')
+  ]});
+
+  window.QUIZY_ACADEMY_EXPANSION='1.0';
+})();
+
 })();
