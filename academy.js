@@ -21,12 +21,12 @@ const PRIMARY_4_6_SUBJECTS=[
  {group:'Digital & Languages',items:['Basic Digital Literacy','French Language']}
 ];
 const JUNIOR_SUBJECT_GROUPS=[
- {group:'Core',items:['English Studies','Mathematics','Basic Science']},
+ {group:'Core',items:['English Studies','Mathematics','Intermediate Science']},
  {group:'Society & Citizenship',items:['Social and Citizenship Studies','Nigerian History']},
  {group:'Business & Digital',items:['Business Studies','Digital Technologies']},
  {group:'Arts & Life Skills',items:['Cultural and Creative Arts','Physical and Health Education']},
- {group:'Religious Studies',items:['Christian Religious Studies','Islamic Religious Studies']},
- {group:'Languages',items:['French']}
+ {group:'Languages',items:['French']},
+ {group:'Religious Studies',items:['Christian Religious Studies','Islamic Religious Studies']}
 ];
 const SENIOR_SUBJECT_GROUPS=[
  {group:'Core & Sciences',items:['English Language','Mathematics','Physics','Chemistry','Biology']},
@@ -136,13 +136,48 @@ function academyCurriculumModal(){
  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
 }
  
+function academyLegacyClassKey(year){
+ const n=Number(String(year||'').replace(/\\D/g,''));
+ if(n>=1&&n<=6)return 'primary'+n;
+ if(n>=7&&n<=9)return 'jss'+(n-6);
+ if(n>=10&&n<=12)return 'ss'+(n-9);
+ return '';
+}
+function academyRawSource(){
+ const cls=state.academyClass||'Year 1';
+ const term=state.academyTerm||'First Term';
+ const subject=state.academySubject||'Mathematics';
+ const sources=[];
+ const pilotKey=cls+'|'+term+'|'+subject;
+ if(Array.isArray(PILOT[pilotKey]))sources.push(...PILOT[pilotKey].map(q=>Object.assign({},q)));
+ const legacy=academyLegacyClassKey(cls);
+ const termKey={ 'First Term':'term1','Second Term':'term2','Third Term':'term3' }[term];
+ if(legacy&&termKey&&typeof ACADEMY_BANK!=='undefined'){
+   const set=ACADEMY_BANK[legacy+'|'+termKey+'|'+subject];
+   if(set){
+     ['easy','medium','difficult','advanced'].forEach(function(level){
+       if(Array.isArray(set[level]))sources.push(...set[level].map(function(q){return Object.assign({difficulty:level},q)}));
+     });
+   }
+ }
+ return sources;
+}
 function academySourceForSelection(){
- let source=academySourceForSelection();
  const difficulty=state.academyDifficulty||'easy';
  const topic=state.academyTopic||'All Topics';
  const type=state.academyQuestionType||'All Questions';
+ let source=academyRawSource();
+ if(state.academyCoverage==='year'){
+   const originalTerm=state.academyTerm;
+   source=[];
+   ['First Term','Second Term','Third Term'].forEach(function(term){
+     state.academyTerm=term;
+     source=source.concat(academyRawSource());
+   });
+   state.academyTerm=originalTerm;
+ }
  return source.filter(function(q){
-  if(q.difficulty&&q.difficulty!==difficulty)return false;
+  if((q.difficulty||'easy')!==difficulty)return false;
   if(topic!=='All Topics'&&q.topic&&q.topic!==topic)return false;
   if(type==='Comprehension'&&!q.passage)return false;
   if(type==='Visual'&&!(q.media&&['image','diagram','chart','table'].includes(q.media.type)))return false;
@@ -151,7 +186,17 @@ function academySourceForSelection(){
  });
 }
 function academyTopics(){
- const q=PILOT[state.academyClass+'|'+state.academyTerm+'|'+state.academySubject]||[];
+ const originalTerm=state.academyTerm;
+ let q=[];
+ if(state.academyCoverage==='year'){
+   ['First Term','Second Term','Third Term'].forEach(function(term){
+     state.academyTerm=term;
+     q=q.concat(academyRawSource());
+   });
+ }else{
+   q=academyRawSource();
+ }
+ state.academyTerm=originalTerm;
  return ['All Topics'].concat([...new Set(q.map(x=>x.topic).filter(Boolean))]);
 }
 function academyMenu(){
@@ -279,7 +324,7 @@ function ensureAcademyLaunch(){
  }catch(e){console.warn('Quizy Academy launch hook:',e)}
 }
 /* QUIZY ACADEMY V3 — What's New integration and curriculum metadata */
-const ACADEMY_BUILD='3.2';
+const ACADEMY_BUILD='3.3';
 const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded',tag:'NEW',text:'Quizy Academy now adds topic and question-type filters while enforcing the selected difficulty. Parents and pupils can choose Standard, Comprehension or Visual questions, including passages, system read-aloud, diagrams, charts, tables and images. The Curriculum Map keeps the Year 1–12 structure visible without crowding the screen. Question banks are being populated term-by-term from the supplied 2025 curriculum schemes.'};
 function injectAcademyUpdate(){
  try{
@@ -289,7 +334,7 @@ function injectAcademyUpdate(){
   item.innerHTML='<div class="quizy-update-item-icon">'+ACADEMY_UPDATE.icon+'</div><div class="quizy-update-item-body"><div class="quizy-update-item-title">'+ACADEMY_UPDATE.title+'<span class="quizy-update-tag">'+ACADEMY_UPDATE.tag+'</span></div><div class="quizy-update-item-text">'+ACADEMY_UPDATE.text+'</div></div>';
   list.prepend(item);
   const version=document.querySelector('.quizy-update-card [style*="text-align:center"][style*="font-size:11px"]');
-  if(version && /Quizy Update v/.test(version.textContent))version.textContent='Quizy Update v2.6 · Academy '+ACADEMY_BUILD;
+  if(version && /Quizy Update v/.test(version.textContent))version.textContent='Quizy Update v3.0 · Academy '+ACADEMY_BUILD;
  }catch(e){console.warn('Quizy Academy update centre:',e)}
 }
 const academyUpdateObserver=new MutationObserver(injectAcademyUpdate);
