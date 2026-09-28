@@ -336,7 +336,7 @@ app.innerHTML=`<div class="screen card academy-shell">${topbar()}<section class=
 </div><div class="academy-subject-note">📚 <strong>Curriculum coverage:</strong> supplied NERDC 2025 schemes. <span id="academyCoverageNote">Checking this selection…</span><br>Questions can include <strong>comprehension passages, read-aloud questions, diagrams, images, charts, graphs and tables</strong> where the topic requires them.</div>
 <div class="academy-features"><div class="academy-feature"><span>📖</span>Curriculum Questions</div><div class="academy-feature"><span>🔊</span>Read Questions Aloud</div><div class="academy-feature"><span>📊</span>Visual Questions</div></div>
 <div class="academy-actions"><button class="btn primary" id="academyStart">🎓 Start Academic Challenge</button><button class="btn ghost" id="academyBack">🗺️ Back to Quizy</button></div>
-${state.academyReady?'<div class="academy-subject-note" style="margin-top:16px;text-align:center">🚧 <strong>Academy question bank is being connected.</strong><br>This selection screen is live first so we can build and test the curriculum bank safely without disturbing the existing Quizy adventures.</div>':''}</div>`;
+${state.academyReady?'<div class="academy-subject-note" style="margin-top:16px;text-align:center">🧩 <strong>Academy is expanding curriculum set by curriculum set.</strong><br>When a selection is not yet populated, its Start button stays disabled. Your existing Quizy adventures remain untouched.</div>':''}</div>`;
 bindTop();
 document.getElementById('academyClass').onchange=e=>{state.academyClass=e.target.value;state.academySubject=academySubjects(state.academyClass)[0];render()};
 document.getElementById('academyTerm').onchange=e=>{state.academyTerm=e.target.value};
