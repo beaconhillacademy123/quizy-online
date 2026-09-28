@@ -324,8 +324,8 @@ function ensureAcademyLaunch(){
  }catch(e){console.warn('Quizy Academy launch hook:',e)}
 }
 /* QUIZY ACADEMY V3 — What's New integration and curriculum metadata */
-const ACADEMY_BUILD='3.3';
-const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded',tag:'NEW',text:'Quizy Academy now adds topic and question-type filters while enforcing the selected difficulty. Parents and pupils can choose Standard, Comprehension or Visual questions, including passages, system read-aloud, diagrams, charts, tables and images. The Curriculum Map keeps the Year 1–12 structure visible without crowding the screen. Question banks are being populated term-by-term from the supplied 2025 curriculum schemes.'};
+const ACADEMY_BUILD='4.0';
+const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded again',tag:'NEW',text:'The Academy question bank has been expanded with curriculum-backed starter questions across English comprehension, Mathematics, Physics, Chemistry, Biology, Economics, Geography and Government, while keeping passages, system read-aloud, diagrams, charts, tables, images, topic filters and difficulty levels. The Year 1–12 structure remains ready for continued curriculum population from the supplied 2025 NERDC schemes.'};
 function injectAcademyUpdate(){
  try{
   const list=document.querySelector('.quizy-update-list');
