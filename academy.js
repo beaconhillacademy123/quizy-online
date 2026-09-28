@@ -333,7 +333,7 @@ function injectAcademyUpdate(){
   const item=document.createElement('div');item.className='quizy-update-item';item.setAttribute('data-quizy-academy-update','1');
   item.innerHTML='<div class="quizy-update-item-icon">'+ACADEMY_UPDATE.icon+'</div><div class="quizy-update-item-body"><div class="quizy-update-item-title">'+ACADEMY_UPDATE.title+'<span class="quizy-update-tag">'+ACADEMY_UPDATE.tag+'</span></div><div class="quizy-update-item-text">'+ACADEMY_UPDATE.text+'</div></div>';
   list.prepend(item);
-  const version=document.querySelector('.quizy-update-card [style*="text-align:center"][style*="font-size:11px"]');
+  const version=document.querySelector('.quizy-update-card');
   if(version && /Quizy Update v/.test(version.textContent))version.textContent='Quizy Update v3.0 · Academy '+ACADEMY_BUILD;
  }catch(e){console.warn('Quizy Academy update centre:',e)}
 }
