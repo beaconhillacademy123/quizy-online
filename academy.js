@@ -214,8 +214,8 @@ function academyMenu(){
  '<div class="academy-field"><label>Class</label><select id="academyClass" class="academy-select">'+yearList.map(y=>'<option '+(y===state.academyClass?'selected':'')+'>'+y+'</option>').join('')+'</select></div>'+
  '<div class="academy-field"><label>Term</label><select id="academyTerm" class="academy-select"><option '+(state.academyTerm==='First Term'?'selected':'')+'>First Term</option><option '+(state.academyTerm==='Second Term'?'selected':'')+'>Second Term</option><option '+(state.academyTerm==='Third Term'?'selected':'')+'>Third Term</option></select></div>'+
  '<div class="academy-field"><label>Subject</label><select id="academySubject" class="academy-select">'+subjectOptions+'</select><div class="academy-subject-note">Subjects are grouped to keep the screen clean.</div></div>'+
- '<div class="academy-field"><label>Difficulty</label><select id="academyDifficulty" class="academy-select"><option value="easy">🌱 Easy</option><option value="medium">⭐ Medium</option><option value="difficult">🔥 Difficult</option><option value="advanced">⚔️ Advanced</option></select></div>'+\
- '<div class="academy-field"><label>Topic</label><select id="academyTopic" class="academy-select">'+topics.map(t=>'<option '+(t===state.academyTopic?'selected':'')+'>'+escA(t)+'</option>').join('')+'</select></div>'+\
+ '<div class="academy-field"><label>Difficulty</label><select id="academyDifficulty" class="academy-select"><option value="easy">🌱 Easy</option><option value="medium">⭐ Medium</option><option value="difficult">🔥 Difficult</option><option value="advanced">⚔️ Advanced</option></select></div>'+
+ '<div class="academy-field"><label>Topic</label><select id="academyTopic" class="academy-select">'+topics.map(t=>'<option '+(t===state.academyTopic?'selected':'')+'>'+escA(t)+'</option>').join('')+'</select></div>'+
  '<div class="academy-field"><label>Question Type</label><select id="academyQuestionType" class="academy-select"><option>All Questions</option><option>Standard</option><option>Comprehension</option><option>Visual</option></select></div>'+
  '<div class="academy-field"><label>Play Mode</label><select id="academyMode" class="academy-select"><option>Solo</option><option>Online Battle</option><option>Bluetooth Battle</option></select><div class="academy-subject-note">Battle modes remain part of the Quizy experience.</div></div>'+
  '<div class="academy-field"><label>Coverage</label><select id="academyCoverage" class="academy-select"><option value="term">Selected term</option><option value="year">Full Academic Year</option></select><div class="academy-subject-note">Choose one term or eventually mix questions across all three terms.</div></div>'+
@@ -243,14 +243,14 @@ function academyMenu(){
 
 function startAcademy(){
  const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject;
- let source=PILOT[key]||[];
+ let source=academySourceForSelection();
  if(state.academyCoverage==='year'){
   source=[];
   ['First Term','Second Term','Third Term'].forEach(function(t){const s=PILOT[state.academyClass+'|'+t+'|'+state.academySubject];if(s)source=source.concat(s);});
  }
  if(state.academyMode==='Online Battle' && typeof onlineBattleLaunch==='function'){state.academyBattleQuestions=source.slice();onlineBattleLaunch();return;}
  if(state.academyMode==='Bluetooth Battle' && typeof battleMenu==='function'){state.academyBattleQuestions=source.slice();battleMenu();return;}
- if(!source)return;
+ if(!Array.isArray(source)||!source.length){academyMenu();return;}
  state.academyQuestions=source.slice();state.academyQIndex=0;state.academyScore=0;state.screen='academyQuestion';render();
  const first=state.academyQuestions[0];if(first)speakAcademy((first.passage?first.passage+' ':'')+first.q);
 }
@@ -324,7 +324,7 @@ function ensureAcademyLaunch(){
  }catch(e){console.warn('Quizy Academy launch hook:',e)}
 }
 /* QUIZY ACADEMY V3 — What's New integration and curriculum metadata */
-const ACADEMY_BUILD='4.0';
+const ACADEMY_BUILD='5.0';
 const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded again',tag:'NEW',text:'The Academy question bank has been expanded with curriculum-backed starter questions across English comprehension, Mathematics, Physics, Chemistry, Biology, Economics, Geography and Government, while keeping passages, system read-aloud, diagrams, charts, tables, images, topic filters and difficulty levels. The Year 1–12 structure remains ready for continued curriculum population from the supplied 2025 NERDC schemes.'};
 function injectAcademyUpdate(){
  try{
