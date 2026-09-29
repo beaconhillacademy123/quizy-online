@@ -1,4 +1,4 @@
-const CACHE='quizy-shell-v11';
+const CACHE='quizy-shell-v12';
 const CORE=['/','/index.html','/academy-content.js','/academy-expansion-v2.js','/academy-expansion-v3.js','/manifest.json','/icon-192.svg','/icon-512.svg'];
 
 self.addEventListener('install',e=>{
@@ -22,17 +22,20 @@ self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   if(u.origin!==location.origin) return;
 
-  // Always check the network first for the app shell so installed users
-  // receive new production deployments instead of an old cached index.
+  // Serve the cached app shell immediately when available.
+  // Refresh it in the background so startup is not held hostage by a slow network.
   if(e.request.mode==='navigate' || u.pathname==='/' || u.pathname==='/index.html'){
     e.respondWith(
-      fetch(e.request)
-        .then(r=>{
-          const copy=r.clone();
-          caches.open(CACHE).then(c=>c.put(e.request,copy));
+      caches.match(e.request).then(cached=>{
+        const network=fetch(e.request).then(r=>{
+          if(r && r.ok){
+            const copy=r.clone();
+            caches.open(CACHE).then(c=>c.put(e.request,copy)).catch(()=>{});
+          }
           return r;
-        })
-        .catch(()=>caches.match(e.request))
+        }).catch(()=>null);
+        return cached || network;
+      })
     );
     return;
   }
