@@ -1,4 +1,4 @@
-const CACHE='quizy-shell-v15';
+const CACHE='quizy-shell-v16';
 const CORE=['/','/index.html','/academy-content.js','/academy-expansion-v2.js','/academy-expansion-v3.js','/manifest.json','/icon-192.svg','/icon-512.svg'];
 
 self.addEventListener('install',e=>{
