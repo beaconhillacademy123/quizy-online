@@ -1481,44 +1481,83 @@ var baseRender=window.render;if(typeof baseRender==='function'){window.render=fu
 #start.btn.primary:disabled,#academyStart.btn.primary:disabled{opacity:.45;}
 </style>
 <script>
-/* QUIZY_ENTRY_FINAL_GUARD_V3 */
+/* QUIZY_ENTRY_ROUTER_V4
+   One permanent delegated click path for entry buttons.
+   Buttons are recreated by render(), so never bind directly to a specific
+   button instance. This listener survives every render.
+*/
 (function(){
-  var bound=false;
-  function bind(){
-    var start=document.getElementById('start');
-    if(start){
-      start.disabled=false;
-      start.removeAttribute('disabled');
-      start.style.pointerEvents='auto';
-      start.style.touchAction='manipulation';
-      start.setAttribute('aria-disabled','false');
-      if(!bound){
-        bound=true;
-        start.addEventListener('click',function(e){
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          try{
-            if(typeof window.__quizyStartAdventure==='function') window.__quizyStartAdventure(e);
-            else if(typeof quizyCoreStartAdventure==='function') quizyCoreStartAdventure();
-          }catch(err){
-            console.error('Quizy final Start Adventure guard:',err);
-          }
-        },true);
-      }
-    }
-    var academy=document.getElementById('academyStart');
-    if(academy){
-      academy.disabled=false;
-      academy.removeAttribute('disabled');
-      academy.style.pointerEvents='auto';
-      academy.style.touchAction='manipulation';
-    }
+  var ROUTER_KEY='__quizyEntryRouterV4';
+  if(window[ROUTER_KEY]) return;
+  window[ROUTER_KEY]=true;
+
+  function showEntryError(title,message,retry){
+    try{
+      var app=document.getElementById('app');
+      if(!app) return;
+      app.style.visibility='visible';
+      app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center">'+
+        '<div style="font-size:52px">🧭</div>'+
+        '<h2>'+title+'</h2>'+
+        '<p>'+message+'</p>'+
+        '<button type="button" class="btn primary" id="quizyEntryRetry">🔄 Try Again</button>'+
+        '</div>';
+      var b=document.getElementById('quizyEntryRetry');
+      if(b) b.onclick=function(){try{retry()}catch(e){console.error('Quizy entry retry:',e);}};
+    }catch(e){console.error('Quizy entry error screen:',e);}
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
-  bind();
-  setTimeout(bind,250);
-  setTimeout(bind,1000);
-  setTimeout(bind,2500);
+
+  document.addEventListener('click',function(e){
+    var target=e.target&&e.target.closest?e.target.closest('#start,#academyStartHome,#academyStart'):null;
+    if(!target || target.disabled) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    try{
+      if(target.id==='start'){
+        if(typeof window.__quizyStartAdventure==='function'){
+          window.__quizyStartAdventure(e);
+        }else if(typeof window.quizyCoreStartAdventure==='function'){
+          window.quizyCoreStartAdventure();
+        }else if(typeof window.startGame==='function'){
+          window.startGame();
+        }else{
+          throw new Error('Adventure start function is not available yet.');
+        }
+        return;
+      }
+
+      if(target.id==='academyStartHome'){
+        if(typeof window.academyOpen==='function'){
+          window.academyOpen();
+        }else{
+          throw new Error('Academy entry function is not available yet.');
+        }
+        return;
+      }
+
+      if(target.id==='academyStart'){
+        if(typeof window.academyStart==='function'){
+          window.academyStart();
+        }else{
+          throw new Error('Academy challenge function is not available yet.');
+        }
+      }
+    }catch(err){
+      console.error('Quizy entry router:',err);
+      var isAcademy=target.id!=='start';
+      showEntryError(
+        isAcademy?'Academy could not open':'Adventure could not open',
+        isAcademy?'Quizy could not start this academic challenge. Your saved progress has not been erased.':'Quizy could not start this adventure. Your saved progress has not been erased.',
+        function(){
+          if(isAcademy && typeof window.academyStart==='function') window.academyStart();
+          else if(typeof window.__quizyStartAdventure==='function') window.__quizyStartAdventure();
+          else if(typeof window.startGame==='function') window.startGame();
+        }
+      );
+    }
+  },true);
 })();
 </script>
 </body></html>
