@@ -1135,9 +1135,7 @@ window.helpMapComingSoon=function(){
     styles();
     addFloatingButton();
     badge();
-    if(state.screen==='start' && !seen() && !document.getElementById('quizyUpdateOverlay')){
-      setTimeout(open,250);
-    }
+    /* Do not auto-open What's New over the start screen. The floating What's New button remains available. */
   };
   window.openQuizyUpdates=open;
   window.closeQuizyUpdates=close;
@@ -1373,35 +1371,7 @@ document.addEventListener('click',function(e){var btn=e.target.closest&&e.target
 var baseRender=window.render;if(typeof baseRender==='function'){window.render=function(){baseRender();setTimeout(applyMotion,0)}}var observer=new MutationObserver(function(){ensureAmbient();document.querySelectorAll('.cloud-modal,.adventure-modal,.quizy-update-card').forEach(function(n){n.classList.add('quizy-motion-modal')})});observer.observe(document.body,{childList:true,subtree:true});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyMotion);else applyMotion();
 })();
 </script>
-<script src="/academy-content.js"></script><script src="/academy-expansion-v2.js"></script><script src="/academy-expansion-v3.js"></script><script>
-/* QUIZY_BUTTON_SAFETY_V1
-   Capture the two primary entry buttons before other click handlers can interfere.
-*/
-(function(){
-  function runOnce(fn,e){
-    if(typeof fn!=='function') return;
-    try{
-      if(e){e.preventDefault();e.stopImmediatePropagation();}
-      fn(e);
-    }catch(err){
-      console.error('Quizy entry button error:',err);
-      var app=document.getElementById('app');
-      if(app){
-        app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🧭</div><h2>Quizy is ready, but the adventure did not open.</h2><p>Please tap the button below.</p><button type="button" class="btn primary" id="quizySafeRetry">🔄 Try Again</button></div>';
-        var b=document.getElementById('quizySafeRetry');
-        if(b)b.onclick=function(){try{fn();}catch(x){console.error(x);}};
-      }
-    }
-  }
-  document.addEventListener('click',function(e){
-    var t=e.target&&e.target.closest?e.target.closest('#start,#academyStartHome,#academyStart'):null;
-    if(!t || t.disabled) return;
-    if(t.id==='start') runOnce(window.__quizyStartAdventure||window.startGame,e);
-    else if(t.id==='academyStartHome') runOnce(window.academyOpen,e);
-    else if(t.id==='academyStart') runOnce(window.__quizyStartAcademy,e);
-  },true);
-})();
-</script>
+<script src="/academy-content.js"></script><script src="/academy-expansion-v2.js"></script><script src="/academy-expansion-v3.js"></script>
 <style>
 /* Keep the two entry points visibly actionable on every screen size. */
 #start.btn.primary,#academyStartHome.btn,#academyStart.btn.primary{
@@ -1422,7 +1392,7 @@ var baseRender=window.render;if(typeof baseRender==='function'){window.render=fu
       start.disabled=false;
       start.removeAttribute('disabled');
       start.style.pointerEvents='auto';
-      start.onclick=function(e){try{if(e){e.preventDefault();e.stopPropagation();}window.startGame();}catch(err){console.error('Final start guard:',err);}};
+      start.onclick=function(e){try{if(e){e.preventDefault();}if(typeof window.__quizyStartAdventure==='function'){window.__quizyStartAdventure(e);}else if(typeof window.startGame==='function'){window.startGame();}else{setTimeout(bind,120);}}catch(err){console.error('Final start guard:',err);}};
     }
     var academy=document.getElementById('academyStart');
     if(academy){
