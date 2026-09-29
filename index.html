@@ -206,7 +206,50 @@ const connect=()=>{const sb=window.QuizyCloud?.supabase;if(!sb){status.textConte
 channel.subscribe(st=>{if(st==='SUBSCRIBED'){if(role==='guest'){send({type:'join',id:pid,name:state.name||'Explorer',avatar:state.avatar||'🦊'});status.textContent='Joined! Waiting for host…'}else{players=[{id:pid,name:state.name||'Explorer',avatar:state.avatar||'🦊',active:true,score:0,roundScore:0,finalScore:0}];lobby();status.textContent='Waiting for 1–3 friends…'}}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT')status.textContent='Could not connect to the battle room.'})};
 w.querySelector('#qobCreate').onclick=()=>{role='host';code=Math.random().toString(36).slice(2,8).toUpperCase();connect()};
 w.querySelector('#qobJoin').onclick=()=>{const v=w.querySelector('#qobCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(v.length!==6){status.textContent='Enter the 6-character room code.';return}role='guest';code=v;connect()};
-}function startGame(){try{const input=document.getElementById('playerName');const v=(input?.value||'').trim()||'Explorer';const existed=loadProfile(v);if(!existed){const legacy=store.get('triviaTrailProgress')||{};state.name=v;state.profileId=profileId(v);state.totalStars=0;state.landStars={};state.landCorrect={};state.landDone={};state.coins=legacy.coins||0;state.bestStreak=legacy.bestStreak||0;state.badges=legacy.badges||[];state.unlocked=legacy.unlocked||[];state.questionHistory=legacy.questionHistory||{};state.musicOn=legacy.musicOn!==false}else{state.name=state.name||v}state.lives=3;state.hints=3;state.streak=0;state.landSession={};state.answers={};state.screen='map';state.shopReturnScreen=null;state.resumeAvailable=false;saveProgress();try{startFeedback()}catch(e){console.warn('Quizy start feedback:',e)}try{startMusic()}catch(e){console.warn('Quizy start music:',e)}render()}catch(e){console.error('Quizy Start Adventure error:',e);const app=document.getElementById('app');if(app){app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🧭</div><h2>Adventure could not open</h2><p>Quizy is still working. Tap below to try again.</p><button type="button" class="btn primary" id="quizyStartRetry">🔄 Try Again</button></div>';document.getElementById('quizyStartRetry')?.addEventListener('click',startGame)}}}
+}function startGame(){
+ try{
+  const input=document.getElementById('playerName');
+  const v=(input?.value||'').trim()||'Explorer';
+  const existed=loadProfile(v);
+  if(!existed){
+   const legacy=store.get('triviaTrailProgress')||{};
+   state.name=v;
+   state.profileId=profileId(v);
+   state.totalStars=0;
+   state.landStars={};
+   state.landCorrect={};
+   state.landDone={};
+   state.coins=legacy.coins||0;
+   state.bestStreak=legacy.bestStreak||0;
+   state.badges=legacy.badges||[];
+   state.unlocked=legacy.unlocked||[];
+   state.questionHistory=legacy.questionHistory||{};
+   state.musicOn=legacy.musicOn!==false;
+  }else{
+   state.name=state.name||v;
+  }
+  state.lives=3;
+  state.hints=3;
+  state.streak=0;
+  state.landSession={};
+  state.answers={};
+  state.screen='map';
+  state.shopReturnScreen=null;
+  state.resumeAvailable=false;
+  try{saveProgress()}catch(e){console.warn('Quizy progress save skipped:',e)}
+  try{startFeedback()}catch(e){console.warn('Quizy start feedback:',e)}
+  try{startMusic()}catch(e){console.warn('Quizy start music:',e)}
+  render();
+ }catch(e){
+  console.error('Quizy Start Adventure error:',e);
+  const app=document.getElementById('app');
+  if(app){
+   app.style.visibility='visible';
+   app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🧭</div><h2>Adventure could not open</h2><p>Quizy hit a startup error. Tap below to try again.</p><button type="button" class="btn primary" id="quizyStartRetry">🔄 Try Again</button></div>';
+   document.getElementById('quizyStartRetry')?.addEventListener('click',function(){location.reload()});
+  }
+ }
+}
 function startLand(i){
  try{
   const l=LANDS[Number(i)];
@@ -320,7 +363,14 @@ const ACADEMY_BANK={
 function academyBankKey(){return state.academyClass+'|'+state.academyTerm+'|'+state.academySubject}
 function academyGetQuestions(){const key=academyBankKey(),set=ACADEMY_BANK[key]||{};let qs=[];if(state.academyTerm==='full'){const keys=Object.keys(ACADEMY_BANK).filter(k=>k.startsWith(state.academyClass+'|')&&k.endsWith('|'+state.academySubject));qs=keys.flatMap(k=>{const x=ACADEMY_BANK[k]||{};return Array.isArray(x[state.academyDifficulty])?x[state.academyDifficulty]:[]});}else{qs=Array.isArray(set[state.academyDifficulty])?set[state.academyDifficulty]:[]}return qs.map(q=>({...q,opts:q.opts?[...q.opts]:undefined}))}
 function academyOpen(){state.screen='academy';state.academyReady=false;render()}
-window.__quizyStartAdventure=function(e){try{if(e){e.preventDefault();e.stopPropagation()}startGame()}catch(err){console.error('Quizy Start Adventure click error:',err);}};
+window.__quizyStartAdventure=function(e){
+ try{
+  if(e){e.preventDefault();e.stopPropagation();}
+  var b=document.getElementById('start');
+  if(b){b.disabled=false;b.removeAttribute('disabled');b.style.pointerEvents='auto';}
+  startGame();
+ }catch(err){console.error('Quizy Start Adventure click error:',err);}
+};
 window.__quizyStartAcademy=function(e){try{if(e){e.preventDefault();e.stopPropagation()}academyStart()}catch(err){console.error('Quizy Academy start click error:',err);}};
 function academyStart(){const qs=academyGetQuestions();if(!qs.length){state.academyReady=false;render();return}state.academyQuestions=shuffle(qs).slice(0,10);state.academyBattleQuestions=state.academyQuestions.map(q=>({...q,opts:q.opts?[...q.opts]:undefined}));state.academyQIndex=0;state.academyScore=0;state.academyAnswered=false;state.academyReady=true;state.screen='academyQuiz';render()}
 function academyFinish(){if('speechSynthesis'in window){try{speechSynthesis.cancel()}catch{}}state.screen='academyResult';render()}
