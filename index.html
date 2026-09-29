@@ -425,7 +425,7 @@ function academyAnswer(index){if(state.academyAnswered)return;const q=state.acad
 function academyNext(){if(state.academyQIndex>=state.academyQuestions.length-1){academyFinish();return}state.academyQIndex++;state.academyAnswered=false;render()}
 function academySpeak(){const q=state.academyQuestions[state.academyQIndex];if(!q)return;const passage=q.passage?('Passage. '+q.passage+'. '):'';const choices=q.opts?(' Options: '+q.opts.map((x,i)=>String.fromCharCode(65+i)+'. '+x).join(' ')):'';speakQuestion(passage+q.q+choices)}
 function render(){const app=document.getElementById('app');
-if(state.screen==='start'){app.innerHTML=`<div class="screen card start"><button class="help-map-hero" type="button" onclick="window.openQuizyHelpMap()" aria-label="Open Help Map"><span class="map-icon">🗺️</span><span>Help Map</span></button><h1>Quizy</h1><p class="start-sub">A colourful adventure of questions, spelling, brain breaks and stars. Choose your level and explore every land!</p><input class="name-input" id="playerName" maxlength="24" placeholder="Enter explorer's name" value="${esc(state.name)}"><div class="label">CHOOSE YOUR LEVEL</div><div class="ages"><button class="age ${state.age==='young'?'active':''}" id="young">🌱 Ages 5–7</button><button class="age ${state.age==='old'?'active':''}" id="old">🚀 Ages 8–10</button></div><div class="label">CHOOSE DIFFICULTY</div><div class="ages difficulty-choices"><button class="age ${state.difficulty==='easy'?'active':''}" id="easyDiff">🌱 Easy</button><button class="age ${state.difficulty==='medium'?'active':''}" id="medDiff">⭐ Medium</button><button class="age ${state.difficulty==='difficult'?'active':''}" id="hardDiff">🔥 Difficult</button></div><div class="difficulty-note">Easy = warm-up · Medium = serious thinking · Difficult = CHALLENGE MODE — even older learners may need to think!</div><div class="label">CHOOSE YOUR EXPLORER</div><div class="avatars">${AVATARS.map(a=>`<button class="avatar ${state.avatar===a?'active':''}" data-av="${a}">${a}</button>`).join('')}</div><div class="start-actions"><button type="button" class="btn primary" id="start">Start Adventure ✨</button><button class="btn ghost" id="academyStartHome" style="margin-top:9px">🎓 Quizy Academy</button><button class="btn ghost" id="battleStart" style="margin-top:9px">⚔️ Bluetooth Battle</button><button class="btn ghost" id="inviteFriend" style="margin-top:9px">🌐 Online Battle</button><button class="btn ghost" id="inviteFriendShare" style="margin-top:9px">🧭 Invite a Friend</button></div><div id="savedProfiles"></div>${state.resumeAvailable?'<div class="resume-card"><strong>▶ Resume your last adventure</strong><span class="small">Your unfinished quiz is saved on this device.</span><button class="btn primary" id="resume" style="margin-top:10px">Resume Quiz</button></div>':''}<div style="margin-top:12px"><button class="btn ghost" id="board">🏆 Class Leaderboard</button><button class="btn ghost" id="aboutQuizy" type="button" onclick="window.openQuizyAbout()">ⓘ About Quizy</button></div><div class="credit">Created by <strong>Mr. Promise U. Egbe</strong><br><a href="tel:07064242015" style="color:inherit;text-decoration:none;font-weight:800">📞 0706 424 2015</a><br><span style="opacity:.85">Custom educational games &amp; digital learning tools</span></div></div>`;document.getElementById('young').onclick=()=>{state.age='young';render()};document.getElementById('old').onclick=()=>{state.age='old';render()};document.getElementById('easyDiff').onclick=()=>{state.difficulty='easy';render()};document.getElementById('medDiff').onclick=()=>{state.difficulty='medium';render()};document.getElementById('hardDiff').onclick=()=>{state.difficulty='difficult';render()};document.getElementById('start').onclick=window.__quizyStartAdventure;document.getElementById('academyStartHome').onclick=academyOpen;document.getElementById('battleStart').onclick=battleMenu;document.getElementById('inviteFriend').onclick=inviteFriend;document.getElementById('inviteFriendShare').onclick=shareInviteFriend;document.getElementById('board').onclick=leaderboard;/* About Quizy uses its inline action above. */document.getElementById('resume')?.addEventListener('click',resumeGame);const profBox=document.getElementById('savedProfiles');const all=profiles();const ids=Object.keys(all);if(profBox&&ids.length){profBox.innerHTML='<div class="label">SAVED EXPLORERS</div><div class="profile-list">'+ids.slice(0,6).map(id=>`<button class="profile-chip" data-profile="${esc(id)}">${esc(all[id].avatar||'🦊')} ${esc(all[id].name)}</button>`).join('')+'</div>';profBox.querySelectorAll('[data-profile]').forEach(b=>b.onclick=()=>{document.getElementById('playerName').value=all[b.dataset.profile].name;state.age=all[b.dataset.profile].age||'young';state.difficulty=all[b.dataset.profile].difficulty||'easy';state.avatar=all[b.dataset.profile].avatar||'🦊';render()})}document.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{state.avatar=b.dataset.av;render()});return}
+if(state.screen==='start'){app.innerHTML=`<div class="screen card start"><button class="help-map-hero" type="button" onclick="window.openQuizyHelpMap()" aria-label="Open Help Map"><span class="map-icon">🗺️</span><span>Help Map</span></button><h1>Quizy</h1><p class="start-sub">A colourful adventure of questions, spelling, brain breaks and stars. Choose your level and explore every land!</p><input class="name-input" id="playerName" maxlength="24" placeholder="Enter explorer's name" value="${esc(state.name)}"><div class="label">CHOOSE YOUR LEVEL</div><div class="ages"><button class="age ${state.age==='young'?'active':''}" id="young">🌱 Ages 5–7</button><button class="age ${state.age==='old'?'active':''}" id="old">🚀 Ages 8–10</button></div><div class="label">CHOOSE DIFFICULTY</div><div class="ages difficulty-choices"><button class="age ${state.difficulty==='easy'?'active':''}" id="easyDiff">🌱 Easy</button><button class="age ${state.difficulty==='medium'?'active':''}" id="medDiff">⭐ Medium</button><button class="age ${state.difficulty==='difficult'?'active':''}" id="hardDiff">🔥 Difficult</button></div><div class="difficulty-note">Easy = warm-up · Medium = serious thinking · Difficult = CHALLENGE MODE — even older learners may need to think!</div><div class="label">CHOOSE YOUR EXPLORER</div><div class="avatars">${AVATARS.map(a=>`<button class="avatar ${state.avatar===a?'active':''}" data-av="${a}">${a}</button>`).join('')}</div><div class="start-actions"><a href="#quizy-adventure" class="btn primary" id="start" role="button">Start Adventure ✨</a><a href="#quizy-academy" class="btn ghost" id="academyStartHome" role="button" style="margin-top:9px">🎓 Quizy Academy</a><button class="btn ghost" id="battleStart" style="margin-top:9px">⚔️ Bluetooth Battle</button><button class="btn ghost" id="inviteFriend" style="margin-top:9px">🌐 Online Battle</button><button class="btn ghost" id="inviteFriendShare" style="margin-top:9px">🧭 Invite a Friend</button></div><div id="savedProfiles"></div>${state.resumeAvailable?'<div class="resume-card"><strong>▶ Resume your last adventure</strong><span class="small">Your unfinished quiz is saved on this device.</span><button class="btn primary" id="resume" style="margin-top:10px">Resume Quiz</button></div>':''}<div style="margin-top:12px"><button class="btn ghost" id="board">🏆 Class Leaderboard</button><button class="btn ghost" id="aboutQuizy" type="button" onclick="window.openQuizyAbout()">ⓘ About Quizy</button></div><div class="credit">Created by <strong>Mr. Promise U. Egbe</strong><br><a href="tel:07064242015" style="color:inherit;text-decoration:none;font-weight:800">📞 0706 424 2015</a><br><span style="opacity:.85">Custom educational games &amp; digital learning tools</span></div></div>`;document.getElementById('young').onclick=()=>{state.age='young';render()};document.getElementById('old').onclick=()=>{state.age='old';render()};document.getElementById('easyDiff').onclick=()=>{state.difficulty='easy';render()};document.getElementById('medDiff').onclick=()=>{state.difficulty='medium';render()};document.getElementById('hardDiff').onclick=()=>{state.difficulty='difficult';render()};document.getElementById('battleStart').onclick=battleMenu;document.getElementById('inviteFriend').onclick=inviteFriend;document.getElementById('inviteFriendShare').onclick=shareInviteFriend;document.getElementById('board').onclick=leaderboard;/* About Quizy uses its inline action above. */document.getElementById('resume')?.addEventListener('click',resumeGame);const profBox=document.getElementById('savedProfiles');const all=profiles();const ids=Object.keys(all);if(profBox&&ids.length){profBox.innerHTML='<div class="label">SAVED EXPLORERS</div><div class="profile-list">'+ids.slice(0,6).map(id=>`<button class="profile-chip" data-profile="${esc(id)}">${esc(all[id].avatar||'🦊')} ${esc(all[id].name)}</button>`).join('')+'</div>';profBox.querySelectorAll('[data-profile]').forEach(b=>b.onclick=()=>{document.getElementById('playerName').value=all[b.dataset.profile].name;state.age=all[b.dataset.profile].age||'young';state.difficulty=all[b.dataset.profile].difficulty||'easy';state.avatar=all[b.dataset.profile].avatar||'🦊';render()})}document.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{state.avatar=b.dataset.av;render()});return}
 if(state.screen==='academy'){const subjects=academySubjects(state.academyClass);if(!subjects.includes(state.academySubject))state.academySubject=subjects[0];
 app.innerHTML=`<div class="screen card academy-shell">${topbar()}<section class="academy-hero"><div class="academy-hero-icon">🎓</div><h1>Quizy Academy</h1><p>School Curriculum Challenge — explore curriculum questions by class, term, subject and difficulty, while keeping the adventure, battle and learning tools of Quizy.</p></section><div class="academy-grid">
 <div class="academy-field"><label>Class / Year</label><select id="academyClass">${Object.keys({primary1:1,primary2:1,primary3:1,primary4:1,primary5:1,primary6:1,jss1:1,jss2:1,jss3:1,ss1:1,ss2:1,ss3:1}).map(k=>`<option value="${k}" ${state.academyClass===k?'selected':''}>${academyClassLabel(k)}</option>`).join('')}</select></div>
@@ -434,7 +434,7 @@ app.innerHTML=`<div class="screen card academy-shell">${topbar()}<section class=
 <div class="academy-field"><label>Difficulty</label><select id="academyDifficulty"><option value="easy" ${state.academyDifficulty==='easy'?'selected':''}>🌱 Easy</option><option value="medium" ${state.academyDifficulty==='medium'?'selected':''}>⭐ Medium</option><option value="difficult" ${state.academyDifficulty==='difficult'?'selected':''}>🔥 Difficult</option><option value="advanced" ${state.academyDifficulty==='advanced'?'selected':''}>⚡ Expert Challenge</option></select></div>
 </div><div class="academy-subject-note">📚 <strong>Curriculum coverage:</strong> supplied NERDC 2025 schemes. <span id="academyCoverageNote">Checking this selection…</span><br>Questions can include <strong>comprehension passages, read-aloud questions, diagrams, images, charts, graphs and tables</strong> where the topic requires them.</div>
 <div class="academy-features"><div class="academy-feature"><span>📖</span>Curriculum Questions</div><div class="academy-feature"><span>🔊</span>Read Questions Aloud</div><div class="academy-feature"><span>📊</span>Visual Questions</div></div>
-<div class="academy-actions"><button type="button" class="btn primary" id="academyStart">🎓 Start Academic Challenge</button><button class="btn ghost" id="academyBack">🗺️ Back to Quizy</button></div>
+<div class="academy-actions"><a href="#quizy-academy-start" class="btn primary" id="academyStart" role="button">🎓 Start Academic Challenge</a><button class="btn ghost" id="academyBack">🗺️ Back to Quizy</button></div>
 ${state.academyReady?'<div class="academy-subject-note" style="margin-top:16px;text-align:center">🧩 <strong>Academy is expanding curriculum set by curriculum set.</strong><br>When a selection is not yet populated, its Start button stays disabled. Your existing Quizy adventures remain untouched.</div>':''}</div>`;
 bindTop();
 document.getElementById('academyClass').onchange=e=>{state.academyClass=e.target.value;state.academySubject=academySubjects(state.academyClass)[0];render()};
@@ -445,7 +445,6 @@ const academyCoverageNote=document.getElementById('academyCoverageNote'),academy
 const academyAvailable=academyGetQuestions().length;
 if(academyCoverageNote)academyCoverageNote.innerHTML=academyAvailable?'<strong>'+academyAvailable+' question'+(academyAvailable===1?'':'s')+' available</strong> at this difficulty for this selection.':'<strong>Question set still being built for this selection.</strong> Choose another term, subject or difficulty for the current pilot bank.';
 if(academyStartBtn){academyStartBtn.disabled=false;academyStartBtn.title=academyAvailable?'Start this academic challenge':'This selection is not populated yet — Quizy will show you the available Academy sets.';}
-document.getElementById('academyStart').onclick=function(e){try{if(e){e.preventDefault();e.stopPropagation();}if(!academyAvailable){var n=document.getElementById('academyCoverageNote');if(n)n.innerHTML='<strong>This exact set is still being populated.</strong> Please choose another subject, term or difficulty.';return;}academyStart();}catch(err){console.error('Quizy Academy start error:',err);var app=document.getElementById('app');if(app){app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🎓</div><h2>Academy is ready, but this challenge did not open.</h2><p>Please tap below to try again.</p><button type="button" class="btn primary" id="academyRetry">🔄 Try Again</button></div>';var b=document.getElementById('academyRetry');if(b)b.onclick=function(){try{academyStart();}catch(x){console.error(x);}};}}};
 document.getElementById('academyBack').onclick=goHome;return}
 if(state.screen==='map'){const total=totalPossible(),pct=Math.round(state.totalStars/total*100);const rows=LANDS.map((l,i)=>{const s=state.landStars[l.id]||0,c=state.landCorrect[l.id]||0,d=!!state.landDone[l.id];return `<div class="land card ${d?'done':''}" data-i="${i}" style="--land:${l.color}"><div class="land-icon">${l.icon}</div><div class="land-info"><h3>${l.name}</h3><div class="land-meta">${d?'Completed · ':''}${c}/${l.count} correct</div><div class="progress"><i style="width:${Math.min(100,c/l.count*100)}%"></i></div></div><div class="land-score">${s} ⭐</div>${d?'<div class="check">✓ DONE</div>':''}</div>`}).join('');app.innerHTML=`<div class="screen">${topbar()}${featurebar()}<div class="stats"><div class="stat card"><div class="stat-label">Explorer</div><div class="stat-value">${esc(state.name)}</div><div class="stat-label">${state.age==='young'?'Ages 5–7':'Ages 8–10'} · ${{easy:'Easy',medium:'Medium',difficult:'Difficult'}[state.difficulty||'easy']}</div></div><div class="stat card"><div class="stat-label">Stars</div><div class="stat-value">⭐ ${state.totalStars}</div><div class="stat-label">of ${total} possible</div></div><div class="stat card"><div class="stat-label">Trail progress</div><div class="stat-value">${pct}%</div><div class="progress"><i style="width:${pct}%"></i></div></div></div><div class="map-head"><div><h2>Choose your next land</h2><p>Each expedition gives you 10 fresh questions from your growing question vault. Difficulty: <strong>${({easy:'Easy',medium:'Medium',difficult:'Difficult'})[state.difficulty||'easy']}</strong>.</p></div><div class="actions"><button class="btn ghost" id="board">🏆 Scores</button><button class="btn ghost" id="ach">🏅 Achievements</button><button class="btn ghost" id="daily">📅 Daily</button><button class="btn ghost" id="class">🏫 Classroom</button><button class="btn ghost" id="battle">⚔️ Battle</button><button class="btn ghost" id="report">📊 Report</button><button class="btn ghost" id="full">⛶ Fullscreen</button><button class="btn ghost" id="switch">Switch player</button></div></div><div class="trail">${rows}</div></div>`;document.querySelectorAll('.land').forEach(x=>{x.addEventListener('click',()=>startLand(Number(x.dataset.i)));});document.getElementById('board').onclick=leaderboard;document.getElementById('switch').onclick=()=>{if(confirm('Switch explorer? Your current progress is saved.'))reset()};document.getElementById('ach').onclick=achievements;document.getElementById('daily').onclick=dailyChallenge;document.getElementById('class').onclick=classroomMode;document.getElementById('battle').onclick=battleMenu;document.getElementById('report').onclick=parentReport;document.getElementById('full').onclick=fullScreen;document.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{state.avatar=b.dataset.av;render()});bindTop();return}
 if(state.screen==='gameover'){app.innerHTML=`<div class="screen card complete"><div class="break-icon">💔🎮</div><h2>Game Over!</h2><p><strong>${esc(state.name)}</strong>, you used all 3 lives.</p><div class="result-grid" style="margin:18px 0"><div class="result-box">🪙 <strong>${state.coins}</strong><div class="small">Coins saved</div></div><div class="result-box">🔥 <strong>${state.bestStreak}</strong><div class="small">Best streak</div></div></div><p class="small">Your run has ended. Restart to begin a fresh adventure.</p><div class="row" style="margin-top:20px"><button class="btn primary" id="restart">🔄 Restart Game</button><button class="btn ghost" id="dash">🏠 Dashboard</button></div></div>`;document.getElementById('restart').onclick=startGame;document.getElementById('dash').onclick=dashboard;return}
@@ -1138,7 +1137,7 @@ window.helpMapComingSoon=function(){
 <script>
 /* QUIZY UPDATE CENTRE V1 */
 (function(){
-  const UPDATE_VERSION='3.4';
+  const UPDATE_VERSION='3.5';
   const UPDATE_KEY='quizyLastSeenUpdate';
   const UPDATES=[
     {icon:'⚔️',title:'Advanced Mode is here',tag:'NEW',text:'A new high-level challenge tier has been added for players who want questions that can challenge even adults.'},
@@ -1157,7 +1156,7 @@ window.helpMapComingSoon=function(){
     {icon:'📌',title:'Academy coverage indicator',tag:'NEW',text:'The Academy now tells you how many questions are currently available for the selected class, term, subject and difficulty instead of leaving an empty challenge screen.'},
     {icon:'⚔️',title:'Academy battle handoff strengthened',tag:'IMPROVED',text:'When an Academy challenge starts, its selected questions are prepared for the existing battle engines so the same academic set can be used for competitive play.'},
     {icon:'🧠',title:'Academy content pack now feeds the selector',tag:'IMPROVED',text:'The separate Academy content pack now feeds the live class, term, subject and difficulty selection, so adding curriculum material does not require rebuilding the main Quizy shell.'},
-    {icon:'🚀',title:'Academy question bank expanded again',tag:'NEW',text:'The latest Academy expansion adds more Primary 4–6 content, JSS3 Mathematics, SS2 Physics and Nigerian History, SS3 Further Mathematics, and additional comprehension and visual questions.'},{icon:'🧭',title:'Academy curriculum coverage widened',tag:'NEW',text:'The latest curriculum pack adds more Year 2–6, JSS2–3 and SS2–3 question sets across Mathematics, English, Science, Social and Citizenship Studies, Business, Biology, Economics, Geography and more.'},{icon:'🛡️',title:'Start Adventure startup hardened',tag:'IMPROVED',text:'The Start Adventure entry now has a direct protected startup path, so it no longer depends on the chain of optional cloud, advanced-mode and visual wrappers to open the game.'},{icon:'🔗',title:'Entry buttons now use a permanent router',tag:'FIXED',text:'Quizy now routes Start Adventure and Academy buttons through one persistent click layer, so they continue working even after the screen is re-rendered by background updates.'},{icon:'⚡',title:'Faster app-shell loading',tag:'IMPROVED',text:'The Quizy app shell now prioritizes the installed cache while checking the network in the background, reducing startup delays on slower connections.'}
+    {icon:'🚀',title:'Academy question bank expanded again',tag:'NEW',text:'The latest Academy expansion adds more Primary 4–6 content, JSS3 Mathematics, SS2 Physics and Nigerian History, SS3 Further Mathematics, and additional comprehension and visual questions.'},{icon:'🧭',title:'Academy curriculum coverage widened',tag:'NEW',text:'The latest curriculum pack adds more Year 2–6, JSS2–3 and SS2–3 question sets across Mathematics, English, Science, Social and Citizenship Studies, Business, Biology, Economics, Geography and more.'},{icon:'🛡️',title:'Start Adventure startup hardened',tag:'IMPROVED',text:'The Start Adventure entry now has a direct protected startup path, so it no longer depends on the chain of optional cloud, advanced-mode and visual wrappers to open the game.'},{icon:'🔗',title:'Entry buttons now use a permanent router',tag:'FIXED',text:'Quizy now routes Start Adventure and Academy buttons through one persistent click layer, so they continue working even after the screen is re-rendered by background updates.'},{icon:'🧭',title:'Quizy entry navigation rebuilt',tag:'FIXED',text:'Start Adventure and Academy now use a clean browser-route entry path instead of stacked click handlers.'},{icon:'⚡',title:'Faster app-shell loading',tag:'IMPROVED',text:'The Quizy app shell now prioritizes the installed cache while checking the network in the background, reducing startup delays on slower connections.'}
   ];
 
   function seen(){return store.get(UPDATE_KEY)===UPDATE_VERSION}
@@ -1477,87 +1476,53 @@ var baseRender=window.render;if(typeof baseRender==='function'){window.render=fu
   pointer-events:auto;
   min-height:48px;
 }
-#start.btn.primary{box-shadow:0 10px 24px rgba(99,91,255,.32)!important;font-size:17px!important;background:linear-gradient(135deg,var(--primary),var(--primary2))!important;color:#fff!important;opacity:1!important;cursor:pointer!important;touch-action:manipulation;}
+#start.btn.primary{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 10px 24px rgba(99,91,255,.32)!important;font-size:17px!important;background:linear-gradient(135deg,var(--primary),var(--primary2))!important;color:#fff!important;opacity:1!important;cursor:pointer!important;touch-action:manipulation;}
 #start.btn.primary:disabled,#academyStart.btn.primary:disabled{opacity:.45;}
 </style>
 <script>
-/* QUIZY_ENTRY_ROUTER_V4
-   One permanent delegated click path for entry buttons.
-   Buttons are recreated by render(), so never bind directly to a specific
-   button instance. This listener survives every render.
-*/
+/* QUIZY_ROUTE_BRIDGE_V1 */
 (function(){
-  var ROUTER_KEY='__quizyEntryRouterV4';
-  if(window[ROUTER_KEY]) return;
-  window[ROUTER_KEY]=true;
-
-  function showEntryError(title,message,retry){
+  var busy=false;
+  function clearRoute(){try{history.replaceState(null,document.title,location.pathname+location.search)}catch(e){}}
+  function runRoute(route){
+    if(busy)return;
+    if(route!=='#quizy-adventure'&&route!=='#quizy-academy'&&route!=='#quizy-academy-start')return;
+    busy=true;
     try{
-      var app=document.getElementById('app');
-      if(!app) return;
-      app.style.visibility='visible';
-      app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center">'+
-        '<div style="font-size:52px">🧭</div>'+
-        '<h2>'+title+'</h2>'+
-        '<p>'+message+'</p>'+
-        '<button type="button" class="btn primary" id="quizyEntryRetry">🔄 Try Again</button>'+
-        '</div>';
-      var b=document.getElementById('quizyEntryRetry');
-      if(b) b.onclick=function(){try{retry()}catch(e){console.error('Quizy entry retry:',e);}};
-    }catch(e){console.error('Quizy entry error screen:',e);}
-  }
-
-  document.addEventListener('click',function(e){
-    var target=e.target&&e.target.closest?e.target.closest('#start,#academyStartHome,#academyStart'):null;
-    if(!target || target.disabled) return;
-
-    e.preventDefault();
-    e.stopImmediatePropagation();
-
-    try{
-      if(target.id==='start'){
-        if(typeof window.__quizyStartAdventure==='function'){
-          window.__quizyStartAdventure(e);
-        }else if(typeof window.quizyCoreStartAdventure==='function'){
-          window.quizyCoreStartAdventure();
-        }else if(typeof window.startGame==='function'){
-          window.startGame();
-        }else{
-          throw new Error('Adventure start function is not available yet.');
-        }
-        return;
-      }
-
-      if(target.id==='academyStartHome'){
-        if(typeof window.academyOpen==='function'){
-          window.academyOpen();
-        }else{
-          throw new Error('Academy entry function is not available yet.');
-        }
-        return;
-      }
-
-      if(target.id==='academyStart'){
-        if(typeof window.academyStart==='function'){
-          window.academyStart();
-        }else{
-          throw new Error('Academy challenge function is not available yet.');
-        }
+      if(route==='#quizy-adventure'){
+        if(typeof window.__quizyStartAdventure==='function')window.__quizyStartAdventure();
+        else if(typeof window.startGame==='function')window.startGame();
+        else throw new Error('Quizy adventure start function is unavailable.');
+      }else if(route==='#quizy-academy'){
+        if(typeof window.academyOpen==='function')window.academyOpen();
+        else throw new Error('Quizy Academy entry function is unavailable.');
+      }else{
+        if(typeof window.academyStart==='function')window.academyStart();
+        else throw new Error('Quizy Academy challenge function is unavailable.');
       }
     }catch(err){
-      console.error('Quizy entry router:',err);
-      var isAcademy=target.id!=='start';
-      showEntryError(
-        isAcademy?'Academy could not open':'Adventure could not open',
-        isAcademy?'Quizy could not start this academic challenge. Your saved progress has not been erased.':'Quizy could not start this adventure. Your saved progress has not been erased.',
-        function(){
-          if(isAcademy && typeof window.academyStart==='function') window.academyStart();
-          else if(typeof window.__quizyStartAdventure==='function') window.__quizyStartAdventure();
-          else if(typeof window.startGame==='function') window.startGame();
-        }
-      );
+      console.error('Quizy route bridge:',err);
+      var app=document.getElementById('app');
+      if(app){
+        app.style.visibility='visible';
+        app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🧭</div><h2>Quizy could not open this screen</h2><p>Your saved progress has not been erased.</p><button type="button" class="btn primary" id="quizyRouteRetry">🔄 Try Again</button></div>';
+        var retry=document.getElementById('quizyRouteRetry');
+        if(retry)retry.onclick=function(){clearRoute();busy=false;location.reload()};
+      }
+    }finally{
+      clearRoute();
+      setTimeout(function(){busy=false},0);
     }
-  },true);
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target&&e.target.closest?e.target.closest('#start,#academyStartHome,#academyStart'):null;
+    if(!t)return;
+    var href=t.getAttribute('href');
+    if(href)setTimeout(function(){runRoute(href)},0);
+  },false);
+  window.addEventListener('hashchange',function(){runRoute(location.hash)});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){if(location.hash)runRoute(location.hash)},{once:true});
+  else if(location.hash)runRoute(location.hash);
 })();
 </script>
 </body></html>
