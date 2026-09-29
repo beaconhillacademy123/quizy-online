@@ -1,345 +1,78 @@
-/* QUIZY ACADEMY V3 — curriculum expansion + rich media + comprehension voice + update centre */
+/* QUIZY ACADEMY V1 — isolated foundation */
 (function(){
 'use strict';
-
-const PRIMARY_1_3_SUBJECTS=[
- {group:'Core',items:['English Language','Mathematics','Basic Science']},
- {group:'Social & Citizenship',items:['Social and Citizenship Studies']},
- {group:'History & Society',items:['Nigerian History']},
- {group:'Arts & Culture',items:['Cultural and Creative Arts']},
- {group:'Physical & Health',items:['Physical and Health Education']},
- {group:'Religious Studies',items:['Christian Religious Studies','Islamic Studies']}
-];
-const PRIMARY_4_6_SUBJECTS=[
- {group:'Core',items:['English Language','Mathematics','Basic Science & Technology']},
- {group:'Social & Citizenship',items:['Social and Citizenship Studies']},
- {group:'History & Society',items:['Nigerian History']},
- {group:'Arts & Culture',items:['Cultural and Creative Arts']},
- {group:'Physical & Health',items:['Physical and Health Education']},
- {group:'Religious Studies',items:['Christian Religious Studies','Islamic Studies']},
- {group:'Pre-Vocational',items:['Prevocational Studies']},
- {group:'Digital & Languages',items:['Basic Digital Literacy','French Language']}
-];
-const JUNIOR_SUBJECT_GROUPS=[
- {group:'Core',items:['English Studies','Mathematics','Intermediate Science']},
- {group:'Society & Citizenship',items:['Social and Citizenship Studies','Nigerian History']},
- {group:'Business & Digital',items:['Business Studies','Digital Technologies']},
- {group:'Arts & Life Skills',items:['Cultural and Creative Arts','Physical and Health Education']},
- {group:'Languages',items:['French']},
- {group:'Religious Studies',items:['Christian Religious Studies','Islamic Religious Studies']}
-];
-const SENIOR_SUBJECT_GROUPS=[
- {group:'Core & Sciences',items:['English Language','Mathematics','Physics','Chemistry','Biology']},
- {group:'Social Sciences',items:['Economics','Geography','Government']},
- {group:'Business',items:['Commerce','Financial Accounting','Business Studies']},
- {group:'Humanities & Languages',items:['Literature in English','French']},
- {group:'Technology & Applied',items:['Digital Technologies','Agricultural Science','Further Mathematics','Technical Drawing']},
- {group:'Religious Studies',items:['Christian Religious Studies','Islamic Religious Studies']}
-];
-
-/*
- * Curriculum source note:
- * The Academy catalogue is being aligned to the supplied 2025 NERDC schemes.
- * The PDFs are the curriculum reference; question content will be populated
- * term-by-term instead of inventing a full 12-year bank in one deployment.
- * Visual questions support diagrams, charts, tables and images through q.media.
- * English comprehension is represented by q.passage and can be read aloud.
- */
-const PILOT={
- 'Year 1|First Term|English Language':[
-  {passage:'Tunde woke up early on Saturday morning. He helped his mother sweep the compound before breakfast. After eating, he packed his books and went to the library with his sister.',q:'What did Tunde do before breakfast?',opts:['He went to school','He swept the compound','He played football','He went to the market'],a:1,exp:'The passage says Tunde helped his mother sweep the compound before breakfast.',difficulty:'easy'},
-  {passage:'Tunde woke up early on Saturday morning. He helped his mother sweep the compound before breakfast. After eating, he packed his books and went to the library with his sister.',q:'Where did Tunde go after eating?',opts:['The farm','The market','The library','The playground'],a:2,exp:'After eating, Tunde packed his books and went to the library with his sister.',difficulty:'easy'},
-  {q:'Which word is a noun?',opts:['Quickly','School','Run','Beautiful'],a:1,exp:'School is a noun because it names a place.',difficulty:'easy'},
-  {q:'Choose the word that completes the sentence: She ___ to school every day.',opts:['go','goes','going','gone'],a:1,exp:'With “she” in the simple present tense, we use “goes”.',difficulty:'easy'},
-  {q:'Which word means the opposite of “big”?',opts:['Tall','Small','Long','Wide'],a:1,exp:'Small is the opposite of big.',difficulty:'easy'}
- ],
- 'Year 1|First Term|Basic Science':[
-  {q:'Which of these is a living thing?',opts:['Stone','Chair','Goat','Spoon'],a:2,exp:'A goat is a living thing because it grows, breathes and needs food.',difficulty:'easy'},
-  {q:'Which part of the body helps us to see?',opts:['Ear','Eye','Nose','Hand'],a:1,exp:'We use our eyes for seeing.',difficulty:'easy'},
-  {q:'Which of these gives us light during the day?',opts:['The Sun','A shoe','A table','A book'],a:0,exp:'The Sun provides natural light during the day.',difficulty:'easy'},
-  {q:'Which of these is used for drinking water?',opts:['Cup','Shoe','Pencil','Book'],a:0,exp:'A cup is commonly used for drinking water.',difficulty:'easy'},
-  {q:'Which sense organ helps us hear sounds?',opts:['Eye','Ear','Tongue','Skin'],a:1,exp:'We use our ears to hear sounds.',difficulty:'easy'}
- ],
-
- 'Year 1|First Term|Mathematics':[
-  {q:'Which number comes after 4?',opts:['3','5','6','2'],a:1,exp:'The number after 4 is 5.',difficulty:'easy'},
-  {q:'How many apples are shown?',opts:['2','3','4','5'],a:1,exp:'There are three apples in the picture.',difficulty:'easy',media:{type:'diagram',label:'Count the apples',svg:'<svg viewBox="0 0 360 120" role="img" aria-label="Three apples"><rect width="360" height="120" rx="20" fill="#f8fbff"/><g transform="translate(55 25)"><circle cx="25" cy="42" r="25" fill="#ef4444"/><path d="M25 17Q20 4 9 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/><circle cx="145" cy="42" r="25" fill="#ef4444"/><path d="M145 17Q140 4 129 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/><circle cx="265" cy="42" r="25" fill="#ef4444"/><path d="M265 17Q260 4 249 8" fill="none" stroke="#16a34a" stroke-width="6" stroke-linecap="round"/></g></svg>'}},
-  {q:'Which number means nothing or an empty set?',opts:['1','5','0','10'],a:2,exp:'Zero (0) represents nothing or an empty set.',difficulty:'easy'},
-  {q:'Which number is the greatest: 6, 8 or 7?',opts:['6','8','7','5'],a:1,exp:'8 is greater than 6 and 7.',difficulty:'easy'},
-  {passage:'Amina visited her grandmother during the holiday. Her grandmother showed her a small garden behind the house. Amina helped to water the vegetables and picked three ripe tomatoes.',q:'How many ripe tomatoes did Amina pick?',opts:['One','Two','Three','Five'],a:2,exp:'The passage says Amina picked three ripe tomatoes.',difficulty:'easy'},
-  {q:'What is 2 + 1?',opts:['2','3','4','1'],a:1,exp:'Putting 2 and 1 together gives 3.',difficulty:'easy'}
- ],
- 'Year 7|Third Term|Mathematics':[
-  {q:'Study the bar chart. Which category has the highest value?',opts:['A','B','C','D'],a:2,exp:'Category C is the tallest bar, so it has the highest value.',difficulty:'medium',media:{type:'chart',label:'Bar chart — data presentation',svg:'<svg viewBox="0 0 520 300" role="img" aria-label="Bar chart with A at 4, B at 6, C at 9 and D at 5"><rect width="520" height="300" rx="18" fill="#f8fbff"/><line x1="70" y1="245" x2="480" y2="245" stroke="#64748b" stroke-width="2"/><line x1="70" y1="35" x2="70" y2="245" stroke="#64748b" stroke-width="2"/><g fill="#635bff"><rect x="105" y="151" width="65" height="94" rx="8"/><rect x="205" y="104" width="65" height="141" rx="8"/><rect x="305" y="57" width="65" height="188" rx="8"/><rect x="405" y="128" width="65" height="117" rx="8"/></g><g font-family="Arial" font-size="18" font-weight="700" fill="#18233a"><text x="130" y="272">A</text><text x="230" y="272">B</text><text x="330" y="272">C</text><text x="430" y="272">D</text><text x="128" y="142">4</text><text x="228" y="95">6</text><text x="328" y="48">9</text><text x="428" y="119">5</text></g></svg>'}}
- ]
+const TERMS=['First Term','Second Term','Third Term'], YEARS=Array.from({length:12},(_,i)=>'Year '+(i+1));
+const GROUPS={
+ p:[['Core',['English Language','Mathematics','Basic Science']],['Physical & Health',['Physical and Health Education']],['Religious Studies',['Christian Religious Studies','Islamic Studies']],['History & Society',['Nigerian History']],['Social & Citizenship',['Social and Citizenship Studies']],['Arts & Culture',['Cultural and Creative Arts']]],
+ p46:[['Core',['English Language','Mathematics','Basic Science & Technology']],['Physical & Health',['Physical and Health Education']],['Religious Studies',['Christian Religious Studies','Islamic Religious Studies']],['History & Society',['Nigerian History']],['Social & Citizenship',['Social and Citizenship Studies']],['Arts & Culture',['Cultural and Creative Arts']],['Pre-Vocational',['Prevocational Studies']],['Digital & Languages',['Basic Digital Literacy','French Language']]],
+ j:[['Core',['English Studies','Mathematics','Intermediate Science']],['Society & Citizenship',['Social and Citizenship Studies','Nigerian History']],['Business & Digital',['Business Studies','Digital Technologies']],['Arts & Life Skills',['Cultural and Creative Arts','Physical and Health Education']],['Languages',['French']],['Religious Studies',['Christian Religious Studies','Islamic Religious Studies']]],
+ s:[['Core & Sciences',['English Language','Mathematics','Physics','Chemistry','Biology']],['Social Sciences',['Economics','Geography','Government']],['Business',['Commerce','Financial Accounting','Business Studies']],['Humanities & Languages',['Literature in English','French']],['Technology & Applied',['Digital Technologies','Agricultural Science','Further Mathematics','Technical Drawing']],['Religious Studies',['Christian Religious Studies','Islamic Religious Studies']]]
 };
+function groups(y){const n=+String(y).replace(/\D/g,'');return n<=3?GROUPS.p:n<=6?GROUPS.p46:n<=9?GROUPS.j:GROUPS.s}
+function subjects(y){return groups(y).flatMap(g=>g[1])}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function say(t){try{speechSynthesis.cancel();speechSynthesis.speak(Object.assign(new SpeechSynthesisUtterance(String(t)),{rate:.9,pitch:1}))}catch(e){}}
 
-function years(){return Array.from({length:12},(_,i)=>'Year '+(i+1));}
-function subjectsFor(year){
- const n=Number(String(year).replace(/\D/g,''));
- if(n<=3)return PRIMARY_1_3_SUBJECTS;
- if(n<=6)return PRIMARY_4_6_SUBJECTS;
- if(n<=9)return JUNIOR_SUBJECT_GROUPS;
- return SENIOR_SUBJECT_GROUPS;
-}
-function flatSubjects(year){return subjectsFor(year).flatMap(g=>g.items);}
-function speakAcademy(text){try{if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(text||''));u.rate=0.92;u.pitch=1;u.volume=1;window.speechSynthesis.speak(u);}catch(e){console.warn('Academy voice:',e)}}
-function escA(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-
-function injectStyles(){
- if(document.getElementById('quizyAcademyStyles'))return;
- const st=document.createElement('style');st.id='quizyAcademyStyles';
- st.textContent=[
- '.academy-wrap{padding:26px;max-width:900px;margin:auto}',
- '.academy-hero{padding:28px;text-align:center;background:linear-gradient(145deg,#f5f2ff,#eefaff 55%,#effcf5);border-radius:26px;border:1px solid #fff;box-shadow:0 20px 55px rgba(24,35,58,.11)}',
- '.academy-icon{font-size:58px;line-height:1}.academy-title{font:700 38px Fredoka,sans-serif;margin:6px 0}.academy-sub{color:var(--muted);font-weight:700;margin:0 auto;max-width:650px;line-height:1.5}',
- '.academy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0}.academy-field{padding:14px;border:1px solid var(--line);border-radius:18px;background:#fff;text-align:left}',
- '.academy-field label{display:block;font-size:11px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}.academy-select{width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font:inherit;font-weight:850;outline:0}',
- '.academy-select:focus{border-color:var(--primary);box-shadow:0 0 0 4px #635bff14}.academy-subject-note{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.4}',
- '.academy-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:18px}.academy-status{margin:14px auto 0;padding:12px 14px;border-radius:15px;background:#f5f7ff;color:#526078;font-weight:800;font-size:13px}.academy-status.ready{background:#ecfaf0;color:#18743a}.academy-status.info{background:#fff8df;color:#7a5711}',
- '.academy-feature-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.academy-feature{padding:13px;border:1px solid var(--line);border-radius:17px;background:#fff;text-align:center}.academy-feature b{display:block;font-size:22px}.academy-feature span{font-size:11px;color:var(--muted);font-weight:800}',
- '.academy-question{padding:28px;max-width:820px;margin:auto;text-align:center}.academy-media{margin:16px auto 20px;max-width:720px;padding:12px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 8px 22px rgba(24,35,58,.06)}.academy-media-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:900;margin-bottom:8px}.academy-media svg{display:block;width:100%;height:auto}.academy-media img{display:block;width:100%;height:auto;max-height:320px;object-fit:contain;border-radius:12px}.academy-media table{width:100%;border-collapse:collapse;font-size:13px}.academy-media th,.academy-media td{padding:8px;border:1px solid var(--line);text-align:center}.academy-media th{background:#f5f7ff;font-weight:900}.academy-breadcrumb{font-size:12px;color:var(--muted);font-weight:900;margin-bottom:10px}.academy-qtext{font:700 29px Fredoka,sans-serif;line-height:1.28;margin:18px auto 24px;max-width:700px}.academy-answers{display:grid;grid-template-columns:1fr 1fr;gap:11px}',
- '.academy-answer{padding:16px;border:2px solid var(--line);border-radius:15px;background:#fff;text-align:left;font-weight:900;cursor:pointer}.academy-answer:hover{border-color:var(--primary);background:#f8f7ff}.academy-answer.correct{background:#eaf8ef;border-color:#55bf76;color:#137536}.academy-answer.wrong{background:#fff0f0;border-color:#f38b8b;color:#b42323}',
- '.academy-result{padding:35px;text-align:center}.academy-score{font:700 56px Fredoka,sans-serif;color:var(--primary);margin:10px}.academy-result p{color:var(--muted);font-weight:750}',
- '@media(max-width:700px){.academy-wrap{padding:16px}.academy-grid{grid-template-columns:1fr}.academy-feature-row{grid-template-columns:1fr}.academy-title{font-size:32px}.academy-qtext{font-size:23px}.academy-answers{grid-template-columns:1fr}.academy-question{padding:18px 10px}}'
- ].join('');
- document.head.appendChild(st);
-}
-
-function initState(){
- state.academyClass=state.academyClass||'Year 1';
- state.academyTerm=state.academyTerm||'First Term';
- state.academySubject=state.academySubject||'Mathematics';
- state.academyDifficulty=state.academyDifficulty||'easy';
- state.academyMode=state.academyMode||'Solo';
- state.academyCoverage=state.academyCoverage||'term';
- state.academyTopic=state.academyTopic||'All Topics';
- state.academyQuestionType=state.academyQuestionType||'All Questions';
- state.academyQuestions=state.academyQuestions||[];
- state.academyQIndex=state.academyQIndex||0;
- state.academyScore=state.academyScore||0;
-}
-
-function academyCurriculumModal(){
- const existing=document.getElementById('academyCurriculumOverlay');if(existing){existing.remove();return;}
- const overlay=document.createElement('div');overlay.id='academyCurriculumOverlay';
- overlay.style.cssText='position:fixed;inset:0;z-index:10050;background:rgba(7,18,34,.68);backdrop-filter:blur(6px);display:grid;place-items:center;padding:16px';
- const groups=subjectsFor(state.academyClass);
- const mapped=groups.reduce((n,g)=>n+g.items.length,0);
- overlay.innerHTML='<div style="width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:26px;padding:22px;box-shadow:0 25px 80px rgba(0,0,0,.3)">'+
- '<div style="text-align:center"><div style="font-size:46px">🗺️</div><h2 style="margin:4px 0">Academy Curriculum Map</h2><p style="color:var(--muted);font-weight:700;margin:0">'+escA(state.academyClass)+' · 2025 curriculum reference</p></div>'+
- '<div style="margin:16px 0;padding:13px;border-radius:16px;background:#f5f7ff;color:#526078;font-weight:800;font-size:13px;line-height:1.5">'+mapped+' subject entries are mapped for this class. The question bank is being populated term-by-term from the supplied curriculum schemes. We will not fill missing areas with made-up curriculum content.</div>'+
- '<div style="display:grid;gap:10px">'+groups.map(g=>'<div style="border:1px solid var(--line);border-radius:18px;padding:14px"><div style="font-weight:900;margin-bottom:8px">📚 '+escA(g.group)+'</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+g.items.map(s=>'<span style="padding:7px 10px;border-radius:999px;background:#f7f8fb;border:1px solid var(--line);font-size:12px;font-weight:800">'+escA(s)+'</span>').join('')+'</div></div>').join('')+'</div>'+
- '<div style="display:flex;justify-content:center;gap:9px;margin-top:18px"><button class="btn primary" id="academyMapClose">Close Map</button></div></div>';
- document.body.appendChild(overlay);
- document.getElementById('academyMapClose').onclick=function(){overlay.remove();};
- overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
-}
- 
-function academyLegacyClassKey(year){
- const n=Number(String(year||'').replace(/\\D/g,''));
- if(n>=1&&n<=6)return 'primary'+n;
- if(n>=7&&n<=9)return 'jss'+(n-6);
- if(n>=10&&n<=12)return 'ss'+(n-9);
- return '';
-}
-function academyRawSource(){
- const cls=state.academyClass||'Year 1';
- const term=state.academyTerm||'First Term';
- const subject=state.academySubject||'Mathematics';
- const sources=[];
- const pilotKey=cls+'|'+term+'|'+subject;
- if(Array.isArray(PILOT[pilotKey]))sources.push(...PILOT[pilotKey].map(q=>Object.assign({},q)));
- const legacy=academyLegacyClassKey(cls);
- const termKey={ 'First Term':'term1','Second Term':'term2','Third Term':'term3' }[term];
- if(legacy&&termKey&&typeof ACADEMY_BANK!=='undefined'){
-   const set=ACADEMY_BANK[legacy+'|'+termKey+'|'+subject];
-   if(set){
-     ['easy','medium','difficult','advanced'].forEach(function(level){
-       if(Array.isArray(set[level]))sources.push(...set[level].map(function(q){return Object.assign({difficulty:level},q)}));
-     });
-   }
- }
- return sources;
-}
-function academySourceForSelection(){
- const difficulty=state.academyDifficulty||'easy';
- const topic=state.academyTopic||'All Topics';
- const type=state.academyQuestionType||'All Questions';
- let source=academyRawSource();
- if(state.academyCoverage==='year'){
-   const originalTerm=state.academyTerm;
-   source=[];
-   ['First Term','Second Term','Third Term'].forEach(function(term){
-     state.academyTerm=term;
-     source=source.concat(academyRawSource());
-   });
-   state.academyTerm=originalTerm;
- }
- return source.filter(function(q){
-  if((q.difficulty||'easy')!==difficulty)return false;
-  if(topic!=='All Topics'&&q.topic&&q.topic!==topic)return false;
-  if(type==='Comprehension'&&!q.passage)return false;
-  if(type==='Visual'&&!(q.media&&['image','diagram','chart','table'].includes(q.media.type)))return false;
-  if(type==='Standard'&&(q.passage||q.media))return false;
-  return true;
- });
-}
-function academyTopics(){
- const originalTerm=state.academyTerm;
- let q=[];
- if(state.academyCoverage==='year'){
-   ['First Term','Second Term','Third Term'].forEach(function(term){
-     state.academyTerm=term;
-     q=q.concat(academyRawSource());
-   });
- }else{
-   q=academyRawSource();
- }
- state.academyTerm=originalTerm;
- return ['All Topics'].concat([...new Set(q.map(x=>x.topic).filter(Boolean))]);
-}
-function academyMenu(){
- initState();
- const yearList=years(),groups=subjectsFor(state.academyClass);
- const available=flatSubjects(state.academyClass);
- if(!available.includes(state.academySubject))state.academySubject=available[0];
- const subjectOptions=groups.map(g=>'<optgroup label="'+escA(g.group)+'">'+g.items.map(s=>'<option value="'+escA(s)+'" '+(s===state.academySubject?'selected':'')+'>'+escA(s)+'</option>').join('')+'</optgroup>').join('');
- const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject,hasPilot=academySourceForSelection().length>0;
- const topics=academyTopics();
- const app=document.getElementById('app');
- app.innerHTML='<div class="screen card academy-wrap">'+
- '<div class="academy-hero"><div class="academy-icon">🎓📚</div><div class="academy-title">Quizy Academy</div><p class="academy-sub">School Curriculum Challenge — choose your class, term, subject and difficulty, then enter the Quizy academic adventure.</p></div>'+
- '<div class="academy-grid">'+
- '<div class="academy-field"><label>Class</label><select id="academyClass" class="academy-select">'+yearList.map(y=>'<option '+(y===state.academyClass?'selected':'')+'>'+y+'</option>').join('')+'</select></div>'+
- '<div class="academy-field"><label>Term</label><select id="academyTerm" class="academy-select"><option '+(state.academyTerm==='First Term'?'selected':'')+'>First Term</option><option '+(state.academyTerm==='Second Term'?'selected':'')+'>Second Term</option><option '+(state.academyTerm==='Third Term'?'selected':'')+'>Third Term</option></select></div>'+
- '<div class="academy-field"><label>Subject</label><select id="academySubject" class="academy-select">'+subjectOptions+'</select><div class="academy-subject-note">Subjects are grouped to keep the screen clean.</div></div>'+
- '<div class="academy-field"><label>Difficulty</label><select id="academyDifficulty" class="academy-select"><option value="easy">🌱 Easy</option><option value="medium">⭐ Medium</option><option value="difficult">🔥 Difficult</option><option value="advanced">⚔️ Advanced</option></select></div>'+
- '<div class="academy-field"><label>Topic</label><select id="academyTopic" class="academy-select">'+topics.map(t=>'<option '+(t===state.academyTopic?'selected':'')+'>'+escA(t)+'</option>').join('')+'</select></div>'+
- '<div class="academy-field"><label>Question Type</label><select id="academyQuestionType" class="academy-select"><option>All Questions</option><option>Standard</option><option>Comprehension</option><option>Visual</option></select></div>'+
- '<div class="academy-field"><label>Play Mode</label><select id="academyMode" class="academy-select"><option>Solo</option><option>Online Battle</option><option>Bluetooth Battle</option></select><div class="academy-subject-note">Battle modes remain part of the Quizy experience.</div></div>'+
- '<div class="academy-field"><label>Coverage</label><select id="academyCoverage" class="academy-select"><option value="term">Selected term</option><option value="year">Full Academic Year</option></select><div class="academy-subject-note">Choose one term or eventually mix questions across all three terms.</div></div>'+
- '</div>'+
- '<div class="academy-status '+(hasPilot?'ready':'info')+'" id="academyStatus">'+(hasPilot?'✅ Pilot question set ready for this selection.':'📚 This curriculum selection is registered. Its full question bank will be added from the curriculum scheme.')+'</div>'+
- '<div class="academy-actions"><button class="btn ghost" id="academyBack">🏕️ Back to Quizy</button><button class="btn ghost" id="academyMap">🗺️ Curriculum Map</button><button class="btn primary" id="academyStart" '+(hasPilot?'':'disabled')+'>🎓 Start Academy Challenge</button></div>'+
- '<div class="academy-feature-row"><div class="academy-feature"><b>12</b><span>Year levels</span></div><div class="academy-feature"><b>3</b><span>Terms per year</span></div><div class="academy-feature"><b>🖼️</b><span>Images · Graphs · Charts</span></div></div></div>';
-
- document.getElementById('academyDifficulty').value=state.academyDifficulty;
- document.getElementById('academyCoverage').value=state.academyCoverage;
- document.getElementById('academyTopic').value=state.academyTopic;
- document.getElementById('academyQuestionType').value=state.academyQuestionType;
- document.getElementById('academyMode').value=state.academyMode;
- document.getElementById('academyClass').onchange=function(){state.academyClass=this.value;state.academySubject='';academyMenu();};
- document.getElementById('academyTerm').onchange=function(){state.academyTerm=this.value;academyMenu();};
- document.getElementById('academySubject').onchange=function(){state.academySubject=this.value;academyMenu();};
- document.getElementById('academyDifficulty').onchange=function(){state.academyDifficulty=this.value;academyMenu();};
- document.getElementById('academyMode').onchange=function(){state.academyMode=this.value;academyMenu();};
- document.getElementById('academyCoverage').onchange=function(){state.academyCoverage=this.value;academyMenu();};
- document.getElementById('academyTopic').onchange=function(){state.academyTopic=this.value;academyMenu();};
- document.getElementById('academyQuestionType').onchange=function(){state.academyQuestionType=this.value;academyMenu();};
- document.getElementById('academyBack').onclick=function(){state.screen='start';render();};
- document.getElementById('academyStart').onclick=startAcademy;
-}
-
-function startAcademy(){
- const key=state.academyClass+'|'+state.academyTerm+'|'+state.academySubject;
- let source=academySourceForSelection();
- if(state.academyCoverage==='year'){
-  source=[];
-  ['First Term','Second Term','Third Term'].forEach(function(t){const s=PILOT[state.academyClass+'|'+t+'|'+state.academySubject];if(s)source=source.concat(s);});
- }
- if(state.academyMode==='Online Battle' && typeof onlineBattleLaunch==='function'){state.academyBattleQuestions=source.slice();onlineBattleLaunch();return;}
- if(state.academyMode==='Bluetooth Battle' && typeof battleMenu==='function'){state.academyBattleQuestions=source.slice();battleMenu();return;}
- if(!Array.isArray(source)||!source.length){academyMenu();return;}
- state.academyQuestions=source.slice();state.academyQIndex=0;state.academyScore=0;state.screen='academyQuestion';render();
- const first=state.academyQuestions[0];if(first)speakAcademy((first.passage?first.passage+' ':'')+first.q);
-}
-
-function academyMedia(q){
- const m=q&&q.media;if(!m)return '';
- if(m.type==='image'&&m.src)return '<div class="academy-media"><div class="academy-media-label">'+escA(m.label||'Study the image')+'</div><img src="'+escA(m.src)+'" alt="'+escA(m.alt||m.label||'Question image')+'"></div>';
- if(m.type==='diagram'||m.type==='chart')return '<div class="academy-media"><div class="academy-media-label">'+escA(m.label||'Study the diagram')+'</div>'+String(m.svg||'')+'</div>';
- if(m.type==='table'&&Array.isArray(m.headers)&&Array.isArray(m.rows)){const h=m.headers.map(x=>'<th>'+escA(x)+'</th>').join('');const rows=m.rows.map(r=>'<tr>'+r.map(x=>'<td>'+escA(x)+'</td>').join('')+'</tr>').join('');return '<div class="academy-media"><div class="academy-media-label">'+escA(m.label||'Study the table')+'</div><table><thead><tr>'+h+'</tr></thead><tbody>'+rows+'</tbody></table></div>';}
- return '';
-}
-
-function academyQuestion(){
- const q=state.academyQuestions[state.academyQIndex];
- if(!q){state.screen='academyResult';render();return;}
- const app=document.getElementById('app'),pct=Math.round((state.academyQIndex/state.academyQuestions.length)*100);
- app.innerHTML='<div class="screen card academy-question">'+
- '<div class="academy-breadcrumb">🎓 Quizy Academy · '+escA(state.academyClass)+' · '+escA(state.academyTerm)+' · '+escA(state.academySubject)+'</div>'+
- '<div class="q-progress"><i style="width:'+pct+'%"></i></div><div class="q-counter">Question '+(state.academyQIndex+1)+' of '+state.academyQuestions.length+'</div>'+
- '<div class="q-icon">🎓</div>'+(q.passage?'<div class="academy-passage"><div class="academy-media-label">READING COMPREHENSION</div><div>'+escA(q.passage)+'</div><button class="btn ghost" id="academyReadPassage" style="margin-top:10px">🔊 Read Passage</button></div>':'')+academyMedia(q)+'<div class="academy-qtext">'+escA(q.q)+'</div><button class="btn ghost" id="academyReadQuestion" style="margin-bottom:14px">🔊 Read Question</button>'+
- '<div class="academy-answers">'+q.opts.map((o,i)=>'<button class="academy-answer" data-a="'+i+'">'+escA(o)+'</button>').join('')+'</div>'+
- '<div class="academy-actions"><button class="btn ghost" id="academyQuit">🏕️ Exit Academy</button></div></div>';
- document.querySelectorAll('.academy-answer').forEach(b=>b.onclick=function(){academyAnswer(Number(this.dataset.a));});
- const rp=document.getElementById('academyReadPassage');if(rp)rp.onclick=function(){speakAcademy(q.passage)};
- const rq=document.getElementById('academyReadQuestion');if(rq)rq.onclick=function(){speakAcademy(q.q+' '+q.opts.map((x,i)=>String.fromCharCode(65+i)+'. '+x).join('. '))};
- speakAcademy(q.passage?q.passage+' '+q.q:q.q);
- document.getElementById('academyQuit').onclick=function(){state.screen='academy';render();};
-}
-
-function academyAnswer(i){
- const q=state.academyQuestions[state.academyQIndex],buttons=[...document.querySelectorAll('.academy-answer')];
- buttons.forEach(b=>b.disabled=true);
- const ok=i===q.a;if(ok)state.academyScore++;
- if(buttons[q.a])buttons[q.a].classList.add('correct');if(!ok&&buttons[i])buttons[i].classList.add('wrong');
- const fb=document.createElement('div');fb.className='feedback '+(ok?'good':'bad');
- fb.innerHTML=(ok?'Correct! ⭐ ':'Not quite. ')+'<div class="explain">'+escA(q.exp||'')+'</div><button class="btn primary" id="academyNext" style="margin-top:10px">Continue ➜</button>';
- document.querySelector('.academy-question').appendChild(fb);
- document.getElementById('academyNext').onclick=function(){state.academyQIndex++;render();};
-}
-
-function academyResultView(){
- const total=state.academyQuestions.length||1,pct=Math.round(state.academyScore/total*100);
- document.getElementById('app').innerHTML='<div class="screen card academy-result"><div style="font-size:62px">🏆</div><h2>Academy Challenge Complete!</h2><div class="academy-score">'+state.academyScore+'/'+total+'</div><p>'+pct+'% correct · '+escA(state.academyClass)+' · '+escA(state.academyTerm)+' · '+escA(state.academySubject)+'</p><div class="academy-actions"><button class="btn primary" id="academyAgain">🔁 Try Again</button><button class="btn ghost" id="academyChoose">📚 Choose Another</button></div></div>';
- document.getElementById('academyAgain').onclick=startAcademy;
- document.getElementById('academyChoose').onclick=function(){state.screen='academy';render();};
-}
-
-const previousRender=window.render;
-window.render=function(){
- if(state.screen==='academy'){injectStyles();academyMenu();return;}
- if(state.screen==='academyQuestion'){injectStyles();academyQuestion();return;}
- if(state.screen==='academyResult'){injectStyles();academyResultView();return;}
- previousRender();
- if(state.screen==='start'){
-  const actions=document.querySelector('.start-actions');
-  if(actions&&!document.getElementById('academyLaunch')){
-   const b=document.createElement('button');b.className='btn ghost';b.id='academyLaunch';b.style.marginTop='9px';b.textContent='🎓 Quizy Academy';
-   b.onclick=function(){initState();state.screen='academy';render();};actions.appendChild(b);
-  }
- }
-};
-
-function ensureAcademyLaunch(){
- try{
-  if(typeof state==='undefined'||state.screen!=='start')return;
-  const actions=document.querySelector('.start-actions');
-  if(actions&&!document.getElementById('academyLaunch')){
-   const b=document.createElement('button');b.className='btn ghost';b.id='academyLaunch';b.style.marginTop='9px';b.textContent='🎓 Quizy Academy';
-   b.onclick=function(){initState();state.screen='academy';render();};actions.appendChild(b);
-  }
- }catch(e){console.warn('Quizy Academy launch hook:',e)}
-}
-/* QUIZY ACADEMY V3 — What's New integration and curriculum metadata */
-const ACADEMY_BUILD='5.0';
-const ACADEMY_UPDATE={icon:'🎓',title:'Quizy Academy expanded again',tag:'NEW',text:'The Academy question bank has been expanded with curriculum-backed starter questions across English comprehension, Mathematics, Physics, Chemistry, Biology, Economics, Geography and Government, while keeping passages, system read-aloud, diagrams, charts, tables, images, topic filters and difficulty levels. The Year 1–12 structure remains ready for continued curriculum population from the supplied 2025 NERDC schemes.'};
-function injectAcademyUpdate(){
- try{
-  const list=document.querySelector('.quizy-update-list');
-  if(!list || list.querySelector('[data-quizy-academy-update]'))return;
-  const item=document.createElement('div');item.className='quizy-update-item';item.setAttribute('data-quizy-academy-update','1');
-  item.innerHTML='<div class="quizy-update-item-icon">'+ACADEMY_UPDATE.icon+'</div><div class="quizy-update-item-body"><div class="quizy-update-item-title">'+ACADEMY_UPDATE.title+'<span class="quizy-update-tag">'+ACADEMY_UPDATE.tag+'</span></div><div class="quizy-update-item-text">'+ACADEMY_UPDATE.text+'</div></div>';
-  list.prepend(item);
-  const version=document.querySelector('.quizy-update-head p');
-  if(version && /Quizy Update v/.test(version.textContent))version.textContent='Quizy Update v3.0 · Academy '+ACADEMY_BUILD;
- }catch(e){console.warn('Quizy Academy update centre:',e)}
-}
-const academyUpdateObserver=new MutationObserver(injectAcademyUpdate);
-academyUpdateObserver.observe(document.body,{childList:true,subtree:true});
-setTimeout(injectAcademyUpdate,300);
-
-ensureAcademyLaunch();
+/* Verified starter bank: supplied 2025 NERDC Primary 1 schemes. */
+const BANK={
+'Year 1|First Term|Mathematics':[
+['Whole Numbers 1–5','easy','Which number comes after 4?',['3','5','6','2'],1,'The number after 4 is 5.'],
+['Whole Number 0 (Zero)','easy','Which number means nothing or an empty set?',['1','0','5','10'],1,'Zero represents nothing or an empty set.'],
+['Whole Numbers 6–9','easy','Which number is greatest?',['6','8','7','5'],1,'8 is the greatest.'],
+['Whole Number 10','easy','How many fingers are there on two hands?',['5','8','10','12'],2,'There are 10 fingers on two hands.'],
+['Addition (Introduction)','easy','What is 2 + 1?',['2','3','4','1'],1,'2 + 1 = 3.'],
+['Addition (Introduction)','medium','Amina has 2 pencils and gets 2 more. How many pencils does she have?',['3','4','5','2'],1,'2 + 2 = 4.'],
+['Subtraction (Introduction)','easy','What is 5 − 2?',['2','3','4','7'],1,'5 − 2 = 3.'],
+['Subtraction (Continued)','medium','There are 8 oranges. If 3 are eaten, how many remain?',['4','5','6','11'],1,'8 − 3 = 5.'],
+['Whole Numbers 1–5','easy','How many circles are shown?',['2','3','4','5'],2,'There are four circles.','<svg viewBox="0 0 420 130"><rect width="420" height="130" rx="18" fill="#f7f9ff"/><g fill="#635bff"><circle cx="75" cy="65" r="25"/><circle cx="175" cy="65" r="25"/><circle cx="275" cy="65" r="25"/><circle cx="375" cy="65" r="25"/></g></svg>']
+],
+'Year 1|First Term|English Language':[
+['Phonemic Awareness','easy','Which word rhymes with “cat”?',['bed','bat','dog','sun'],1,'Bat rhymes with cat.'],
+['Phonemic Awareness','easy','Which word belongs to the same family as “red”?',['bed','cat','pot','bag'],0,'Bed belongs to the -ed family.'],
+['Songs and Rhymes','easy','Which pair rhymes?',['cat–bat','dog–sun','red–bag','pot–bed'],0,'Cat and bat rhyme.'],
+['Sounds of Animals','easy','Which animal says “moo”?',['Cat','Dog','Cow','Lion'],2,'A cow makes a moo sound.'],
+['Sounds of Things','easy','Which object can make a ringing sound?',['Bell','Pillow','Book','Shoe'],0,'A bell can ring.'],
+['Sound Clusters','medium','Which word begins with “sh”?',['ship','cat','bag','red'],0,'Ship begins with sh.'],
+['Sound Clusters','medium','Which word begins with “ch”?',['chair','fish','goat','sun'],0,'Chair begins with ch.'],
+['Reading: Comprehension','easy','What colour is Bisi’s bag?',['Blue','Red','Green','Yellow'],1,'The passage says Bisi has a red bag.','', 'Bisi has a red bag. She takes the bag to school every day. Her teacher keeps the classroom clean and tidy.'],
+['Reading: Comprehension','medium','Where does Bisi take her bag?',['Market','Farm','School','Park'],2,'Bisi takes her bag to school.','', 'Bisi has a red bag. She takes the bag to school every day. Her teacher keeps the classroom clean and tidy.']
+],
+'Year 1|First Term|Basic Science':[
+['Exploring Our Environment','easy','Which place is part of a school environment?',['Classroom','Moon','Ocean','Mountain'],0,'A classroom is part of the school environment.'],
+['Exploring Our Environment','easy','Which sense helps us hear?',['Sight','Hearing','Taste','Touch'],1,'Hearing helps us hear sounds.'],
+['Roads','easy','Which traffic-light colour means stop?',['Green','Yellow','Red','Blue'],2,'Red means stop.'],
+['Roads','easy','What should you do before crossing a road?',['Run without looking','Look carefully for traffic','Close your eyes','Play on the road'],1,'Look carefully for traffic and cross safely.'],
+['Colour Identification','easy','Which is a primary colour?',['Green','Orange','Red','Purple'],2,'Red is a primary colour.'],
+['Shapes','easy','Which shape has no corners?',['Circle','Square','Triangle','Rectangle'],0,'A circle has no corners.'],
+['Living Things','easy','Which is a living thing?',['Stone','Chair','Goat','Spoon'],2,'A goat is living.'],
+['Living Things','medium','Which part of a plant usually grows below the soil?',['Flower','Leaf','Root','Fruit'],2,'Roots usually grow below the soil.']
+],
+'Year 1|First Term|Social and Citizenship Studies':[
+['Leadership','easy','Who can be a leader at home?',['A parent','A toy','A chair','A book'],0,'Parents can be leaders at home.'],
+['Leadership','easy','Which is a good quality of a leader?',['Honesty','Cruelty','Laziness','Dishonesty'],0,'Honesty is a good leadership quality.'],
+['Leadership','easy','Why do we need leaders?',['To create confusion','To guide people and keep order','To stop learning','To waste time'],1,'Leaders guide people and help keep order.'],
+['Leadership at Home','easy','Which responsibility may parents have?',['Providing care','Breaking rules','Damaging property','Stopping learning'],0,'Parents provide care and support.'],
+['Respect','easy','Which action shows respect for a teacher?',['Listening','Shouting','Ignoring instructions','Throwing books'],0,'Listening respectfully shows good behaviour.'],
+['Good Citizenship','medium','Which action helps keep a community clean?',['Littering','Using a bin','Blocking drains','Throwing rubbish on the road'],1,'Using a bin helps keep the community clean.']
+]};
+function init(){if(typeof state==='undefined')return false;state.academyClass??='Year 1';state.academyTerm??='First Term';state.academySubject??='Mathematics';state.academyDifficulty??='easy';state.academyType??='All Questions';state.academyMode??='Solo';state.academyCoverage??='term';state.academyTopic??='All Topics';state.academyQuestions??=[];state.academyQIndex??=0;state.academyScore??=0;return true}
+function raw(){let a=[],ts=state.academyCoverage==='year'?TERMS:[state.academyTerm];for(const t of ts){const z=BANK[state.academyClass+'|'+t+'|'+state.academySubject]||[];a=a.concat(z.map(x=>({topic:x[0],d:x[1],q:x[2],o:x[3],a:x[4],e:x[5],v:x[6]||'',p:x[7]||''})))}return a}
+function source(){let a=raw().filter(x=>x.d===state.academyDifficulty);if(state.academyType==='Comprehension')a=a.filter(x=>x.p);if(state.academyType==='Visual')a=a.filter(x=>x.v);if(state.academyType==='Standard')a=a.filter(x=>!x.p&&!x.v);if(state.academyTopic!=='All Topics')a=a.filter(x=>x.topic===state.academyTopic);return a}
+function css(){if(document.getElementById('academyV1'))return;const s=document.createElement('style');s.id='academyV1';s.textContent='.academy{padding:22px;max-width:920px;margin:auto}.academyHero{padding:28px;text-align:center;border-radius:26px;background:linear-gradient(145deg,#f5f2ff,#eefaff 55%,#effcf5);box-shadow:0 20px 55px rgba(24,35,58,.1)}.academyHeroIcon{font-size:56px}.academy h1{font:700 38px Fredoka;margin:6px 0}.academySub{color:var(--muted);font-weight:700;line-height:1.5}.academyGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.academyField{padding:14px;border:1px solid var(--line);border-radius:18px;background:#fff}.academyField label{display:block;font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;margin-bottom:7px}.academySelect{width:100%;padding:13px;border:2px solid var(--line);border-radius:14px;background:#fff;font:inherit;font-weight:800}.academyNote{font-size:12px;color:var(--muted);margin-top:6px}.academyStatus{margin:14px 0;padding:13px;border-radius:16px;font-weight:850;font-size:13px}.academyReady{background:#ecfaf0;color:#18743a}.academyWait{background:#fff8df;color:#7a5711}.academyActions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:16px}.academyStats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}.academyStat{padding:15px;text-align:center;border:1px solid var(--line);border-radius:18px;background:#fff}.academyStat b{display:block;font-size:23px}.academyStat span{font-size:11px;color:var(--muted);font-weight:800}.academyQ{padding:28px;text-align:center;max-width:840px;margin:auto}.academyPassage{max-width:750px;margin:15px auto;padding:18px;text-align:left;border:2px solid #dbe4ff;border-radius:18px;background:#f8faff;line-height:1.65;font-weight:700}.academyMedia{max-width:750px;margin:15px auto;padding:10px;border:1px solid var(--line);border-radius:18px;background:#fff}.academyMedia svg{display:block;width:100%;height:auto}.academyQText{font:700 28px Fredoka;line-height:1.3;max-width:720px;margin:18px auto}.academyAnswers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.academyAnswer{padding:15px;border:2px solid var(--line);border-radius:15px;background:#fff;text-align:left;font-weight:900;cursor:pointer}.academyAnswer.correct{background:#eaf8ef;border-color:#55bf76}.academyAnswer.wrong{background:#fff0f0;border-color:#f38b8b}.academyFeedback{margin:15px auto;padding:14px;border-radius:16px;background:#f7f8fb;max-width:700px;color:var(--muted);font-weight:800}.academyResult{text-align:center;padding:38px}.academyScore{font:700 58px Fredoka;color:var(--primary)}@media(max-width:700px){.academy{padding:15px}.academyGrid,.academyStats,.academyAnswers{grid-template-columns:1fr}.academy h1{font-size:32px}.academyQ{padding:18px 10px}.academyQText{font-size:23px}}';document.head.appendChild(s)}
+function menu(){init();css();const gs=groups(state.academyClass),ss=subjects(state.academyClass);if(!ss.includes(state.academySubject))state.academySubject=ss[0];const q=source(),topics=[...new Set(raw().map(x=>x.topic))],opts=gs.map(g=>'<optgroup label="'+esc(g[0])+'">'+g[1].map(x=>'<option '+(x===state.academySubject?'selected':'')+'>'+esc(x)+'</option>').join('')+'</optgroup>').join('');document.getElementById('app').innerHTML='<div class="screen card academy"><div class="academyHero"><div class="academyHeroIcon">🎓📚</div><h1>Quizy Academy</h1><p class="academySub">School Curriculum Challenge — choose class, term, subject and difficulty. The Academy stays inside the Quizy game experience.</p></div><div class="academyGrid"><div class="academyField"><label>Class</label><select id="acClass" class="academySelect">'+YEARS.map(y=>'<option '+(y===state.academyClass?'selected':'')+'>'+y+'</option>').join('')+'</select></div><div class="academyField"><label>Term</label><select id="acTerm" class="academySelect">'+TERMS.map(t=>'<option '+(t===state.academyTerm?'selected':'')+'>'+t+'</option>').join('')+'</select></div><div class="academyField"><label>Subject</label><select id="acSubject" class="academySelect">'+opts+'</select><div class="academyNote">Dropdown groups keep the screen uncluttered.</div></div><div class="academyField"><label>Difficulty</label><select id="acDiff" class="academySelect"><option value="easy">🌱 Easy</option><option value="medium">⭐ Medium</option><option value="difficult">🔥 Difficult</option><option value="advanced">⚔️ Advanced</option></select></div><div class="academyField"><label>Topic</label><select id="acTopic" class="academySelect"><option>All Topics</option>'+topics.map(t=>'<option>'+esc(t)+'</option>').join('')+'</select></div><div class="academyField"><label>Question Type</label><select id="acType" class="academySelect"><option>All Questions</option><option>Standard</option><option>Comprehension</option><option>Visual</option></select></div><div class="academyField"><label>Play Mode</label><select id="acMode" class="academySelect"><option>Solo</option><option>Online Battle</option><option>Bluetooth Battle</option></select><div class="academyNote">Battle modes remain part of the Academy design.</div></div><div class="academyField"><label>Coverage</label><select id="acCoverage" class="academySelect"><option value="term">Selected term</option><option value="year">Full academic year</option></select></div></div><div class="academyStatus '+(q.length?'academyReady':'academyWait')+'">'+(q.length?'✅ '+q.length+' verified questions ready.':'📚 This selection is mapped, but its verified question bank is not loaded yet.')+'</div><div class="academyActions"><button class="btn ghost" id="acBack">🏕️ Back to Quizy</button><button class="btn ghost" id="acMap">🗺️ Curriculum Map</button><button class="btn primary" id="acStart" '+(q.length?'':'disabled')+'>🎓 Start Academy Challenge</button></div><div class="academyStats"><div class="academyStat"><b>12</b><span>Year levels</span></div><div class="academyStat"><b>3</b><span>Terms per year</span></div><div class="academyStat"><b>🖼️</b><span>Images · Graphs · Charts</span></div></div></div>';wire()}
+function wire(){document.getElementById('acDiff').value=state.academyDifficulty;document.getElementById('acTopic').value=state.academyTopic;document.getElementById('acType').value=state.academyType;document.getElementById('acMode').value=state.academyMode;document.getElementById('acCoverage').value=state.academyCoverage;const r=()=>render();document.getElementById('acClass').onchange=e=>{state.academyClass=e.target.value;state.academySubject=subjects(state.academyClass)[0];state.academyTopic='All Topics';r()};document.getElementById('acTerm').onchange=e=>{state.academyTerm=e.target.value;state.academyTopic='All Topics';r()};document.getElementById('acSubject').onchange=e=>{state.academySubject=e.target.value;state.academyTopic='All Topics';r()};document.getElementById('acDiff').onchange=e=>{state.academyDifficulty=e.target.value;r()};document.getElementById('acTopic').onchange=e=>{state.academyTopic=e.target.value;r()};document.getElementById('acType').onchange=e=>{state.academyType=e.target.value;r()};document.getElementById('acMode').onchange=e=>state.academyMode=e.target.value;document.getElementById('acCoverage').onchange=e=>{state.academyCoverage=e.target.value;state.academyTopic='All Topics';r()};document.getElementById('acBack').onclick=()=>{state.screen='start';render()};document.getElementById('acMap').onclick=map;document.getElementById('acStart').onclick=start}
+function map(){const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:10050;background:rgba(7,18,34,.7);display:grid;place-items:center;padding:16px';o.innerHTML='<div style="width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:26px;padding:22px"><div style="text-align:center;font-size:42px">🗺️</div><h2 style="text-align:center">Academy Curriculum Map</h2><p style="text-align:center;color:var(--muted);font-weight:700">'+esc(state.academyClass)+' · 2025 curriculum reference</p>'+groups(state.academyClass).map(g=>'<div style="border:1px solid var(--line);border-radius:16px;padding:13px;margin:9px 0"><b>📚 '+esc(g[0])+'</b><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:7px">'+g[1].map(s=>'<span style="padding:6px 9px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:800">'+esc(s)+'</span>').join('')+'</div></div>').join('')+'<div style="text-align:center"><button class="btn primary" id="mapClose">Close Map</button></div></div>';document.body.appendChild(o);document.getElementById('mapClose').onclick=()=>o.remove();o.onclick=e=>{if(e.target===o)o.remove()}}
+function start(){const q=source();if(!q.length){menu();return}state.academyQuestions=q.sort(()=>Math.random()-.5);state.academyQIndex=0;state.academyScore=0;state.screen='academyQuestion';render()}
+function question(){const q=state.academyQuestions[state.academyQIndex];if(!q){state.screen='academyResult';render();return}document.getElementById('app').innerHTML='<div class="screen card academyQ"><div style="font-size:12px;color:var(--muted);font-weight:900">🎓 '+esc(state.academyClass)+' · '+esc(state.academyTerm)+' · '+esc(state.academySubject)+'</div><div class="q-progress" style="margin:12px 0"><i style="width:'+Math.round(state.academyQIndex/state.academyQuestions.length*100)+'%"></i></div><div class="q-counter">Question '+(state.academyQIndex+1)+' of '+state.academyQuestions.length+'</div>'+(q.p?'<div class="academyPassage"><b>READING COMPREHENSION</b><br>'+esc(q.p)+'<br><button class="btn ghost" id="readP" style="margin-top:9px">🔊 Read Passage</button></div>':'')+(q.v?'<div class="academyMedia"><div style="font-size:11px;color:var(--muted);font-weight:900;margin-bottom:6px">VISUAL QUESTION</div>'+q.v+'</div>':'')+'<div class="academyQText">'+esc(q.q)+'</div><button class="btn ghost" id="readQ">🔊 Read Question</button><div class="academyAnswers" style="margin-top:14px">'+q.o.map((x,i)=>'<button class="academyAnswer" data-i="'+i+'">'+String.fromCharCode(65+i)+'. '+esc(x)+'</button>').join('')+'</div><div class="academyActions"><button class="btn ghost" id="exitA">🏕️ Exit Academy</button></div></div>';document.querySelectorAll('.academyAnswer').forEach(b=>b.onclick=()=>answer(+b.dataset.i));document.getElementById('readQ').onclick=()=>say(q.q+' '+q.o.join('. '));const rp=document.getElementById('readP');if(rp)rp.onclick=()=>say(q.p);document.getElementById('exitA').onclick=()=>{state.screen='academy';render()};say((q.p?q.p+' ':'')+q.q)}
+function answer(i){const q=state.academyQuestions[state.academyQIndex],bs=[...document.querySelectorAll('.academyAnswer')];bs.forEach(b=>b.disabled=true);const ok=i===q.a;if(ok)state.academyScore++;bs[q.a]?.classList.add('correct');if(!ok)bs[i]?.classList.add('wrong');const f=document.createElement('div');f.className='academyFeedback';f.innerHTML=(ok?'Correct! ⭐':'Not quite.')+'<div style="margin-top:6px">'+esc(q.e)+'</div><button class="btn primary" id="nextA" style="margin-top:9px">Continue ➜</button>';document.querySelector('.academyQ').appendChild(f);document.getElementById('nextA').onclick=()=>{state.academyQIndex++;render()}}
+function result(){const t=state.academyQuestions.length,s=state.academyScore;document.getElementById('app').innerHTML='<div class="screen card academyResult"><div style="font-size:62px">🏆</div><h2>Academy Challenge Complete!</h2><div class="academyScore">'+s+'/'+t+'</div><p style="color:var(--muted);font-weight:800">'+(t?Math.round(s/t*100):0)+'% correct</p><div class="academyActions"><button class="btn primary" id="againA">🔁 Try Again</button><button class="btn ghost" id="chooseA">📚 Choose Another</button></div></div>';document.getElementById('againA').onclick=start;document.getElementById('chooseA').onclick=()=>{state.screen='academy';render()}}
+function launch(){if(!init())return;state.screen='academy';render()}
+function ensure(){try{if(typeof state==='undefined'||state.screen!=='start')return;const h=document.querySelector('.start-actions');if(h&&!document.getElementById('academyLaunch')){const b=document.createElement('button');b.id='academyLaunch';b.className='btn ghost';b.style.marginTop='9px';b.textContent='🎓 Quizy Academy';b.onclick=launch;h.appendChild(b)}}catch(e){}}
+const ACADEMY_BUILD='V1.0.0';
+function updateCentre(){try{const l=document.querySelector('.quizy-update-list');if(!l||l.querySelector('[data-academy-v1]'))return;const x=document.createElement('div');x.className='quizy-update-item';x.dataset.academyV1='1';x.innerHTML='<div class="quizy-update-item-icon">🎓</div><div class="quizy-update-item-body"><div class="quizy-update-item-title">Quizy Academy rebuilt from the foundation<span class="quizy-update-tag">NEW</span></div><div class="quizy-update-item-text">Academy now has a clean curriculum selector, verified starter questions, comprehension passages, system read-aloud, visual questions and a curriculum map. More verified banks will be added from the supplied 2025 NERDC schemes.</div></div>';l.prepend(x)}catch(e){}}
+const baseRender=window.render;
+window.render=function(){if(!init())return;if(state.screen==='academy'){menu();return}if(state.screen==='academyQuestion'){css();question();return}if(state.screen==='academyResult'){css();result();return}baseRender();ensure()};
+window.openQuizyAcademy=launch;
+new MutationObserver(updateCentre).observe(document.body,{childList:true,subtree:true});
+setTimeout(()=>{ensure();updateCentre()},50);
 })();
