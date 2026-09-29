@@ -123,7 +123,9 @@
       q:'Which object has a shape like a ball?',opts:['Sphere','Triangle','Square','Rectangle'],a:0,exp:'A ball is an example of a sphere.'},
     {id:'y1-s1-10',year:1,term:'t3',subject:'Basic Science',topic:'Environment',difficulty:'hard',
       q:'Which action helps to keep our environment clean?',opts:['Dropping rubbish anywhere','Putting rubbish in a bin','Blocking drains','Throwing bottles on the road'],a:1,exp:'Using a bin helps keep the environment clean.'}
-  ];
+,
+    {id:'y1-m1-11',year:1,term:'t1',subject:'Mathematics',topic:'Whole Numbers 6–9',difficulty:'easy',q:'Which number is the smallest?',opts:['7','9','6','8'],a:2,exp:'6 is smaller than 7, 8 and 9.'}
+  
 
   const state={year:1,term:'t1',subject:'Mathematics',difficulty:'all',index:0,questions:[],answers:[],score:0,mode:'select'};
 
