@@ -363,13 +363,60 @@ const ACADEMY_BANK={
 function academyBankKey(){return state.academyClass+'|'+state.academyTerm+'|'+state.academySubject}
 function academyGetQuestions(){const key=academyBankKey(),set=ACADEMY_BANK[key]||{};let qs=[];if(state.academyTerm==='full'){const keys=Object.keys(ACADEMY_BANK).filter(k=>k.startsWith(state.academyClass+'|')&&k.endsWith('|'+state.academySubject));qs=keys.flatMap(k=>{const x=ACADEMY_BANK[k]||{};return Array.isArray(x[state.academyDifficulty])?x[state.academyDifficulty]:[]});}else{qs=Array.isArray(set[state.academyDifficulty])?set[state.academyDifficulty]:[]}return qs.map(q=>({...q,opts:q.opts?[...q.opts]:undefined}))}
 function academyOpen(){state.screen='academy';state.academyReady=false;render()}
+function quizyCoreStartAdventure(){
+  var input=document.getElementById('playerName');
+  var v=((input&&input.value)||'').trim()||'Explorer';
+  try{
+    var existed=loadProfile(v);
+    if(!existed){
+      var legacy=store.get('triviaTrailProgress')||{};
+      state.name=v;
+      state.profileId=profileId(v);
+      state.totalStars=0;
+      state.landStars={};
+      state.landCorrect={};
+      state.landDone={};
+      state.coins=legacy.coins||0;
+      state.bestStreak=legacy.bestStreak||0;
+      state.badges=legacy.badges||[];
+      state.unlocked=legacy.unlocked||[];
+      state.questionHistory=legacy.questionHistory||{};
+      state.musicOn=legacy.musicOn!==false;
+    }else{
+      state.name=state.name||v;
+    }
+    state.lives=3;
+    state.hints=3;
+    state.streak=0;
+    state.landSession={};
+    state.answers={};
+    state.screen='map';
+    state.shopReturnScreen=null;
+    state.resumeAvailable=false;
+    try{saveProgress()}catch(e){console.warn('Quizy progress save skipped:',e)}
+    try{saveProfile()}catch(e){console.warn('Quizy profile save skipped:',e)}
+    try{startFeedback()}catch(e){console.warn('Quizy start feedback:',e)}
+    try{startMusic()}catch(e){console.warn('Quizy start music:',e)}
+    render();
+    return true;
+  }catch(err){
+    console.error('Quizy Core Start Adventure error:',err);
+    var app=document.getElementById('app');
+    if(app){
+      app.style.visibility='visible';
+      app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🧭</div><h2>Adventure could not open</h2><p>Quizy could not start this adventure. Your saved progress has not been erased.</p><button type="button" class="btn primary" id="quizyStartRetry">🔄 Try Again</button></div>';
+      document.getElementById('quizyStartRetry')?.addEventListener('click',function(){quizyCoreStartAdventure()});
+    }
+    return false;
+  }
+}
 window.__quizyStartAdventure=function(e){
- try{
-  if(e){e.preventDefault();e.stopPropagation();}
-  var b=document.getElementById('start');
-  if(b){b.disabled=false;b.removeAttribute('disabled');b.style.pointerEvents='auto';}
-  startGame();
- }catch(err){console.error('Quizy Start Adventure click error:',err);}
+  try{
+    if(e){e.preventDefault();e.stopPropagation();}
+    var b=document.getElementById('start');
+    if(b){b.disabled=false;b.removeAttribute('disabled');b.style.pointerEvents='auto';b.setAttribute('aria-disabled','false');}
+    quizyCoreStartAdventure();
+  }catch(err){console.error('Quizy Start Adventure click error:',err);}
 };
 window.__quizyStartAcademy=function(e){try{if(e){e.preventDefault();e.stopPropagation()}academyStart()}catch(err){console.error('Quizy Academy start click error:',err);}};
 function academyStart(){const qs=academyGetQuestions();if(!qs.length){state.academyReady=false;render();return}state.academyQuestions=shuffle(qs).slice(0,10);state.academyBattleQuestions=state.academyQuestions.map(q=>({...q,opts:q.opts?[...q.opts]:undefined}));state.academyQIndex=0;state.academyScore=0;state.academyAnswered=false;state.academyReady=true;state.screen='academyQuiz';render()}
@@ -1091,7 +1138,7 @@ window.helpMapComingSoon=function(){
 <script>
 /* QUIZY UPDATE CENTRE V1 */
 (function(){
-  const UPDATE_VERSION='3.2';
+  const UPDATE_VERSION='3.3';
   const UPDATE_KEY='quizyLastSeenUpdate';
   const UPDATES=[
     {icon:'⚔️',title:'Advanced Mode is here',tag:'NEW',text:'A new high-level challenge tier has been added for players who want questions that can challenge even adults.'},
@@ -1110,7 +1157,7 @@ window.helpMapComingSoon=function(){
     {icon:'📌',title:'Academy coverage indicator',tag:'NEW',text:'The Academy now tells you how many questions are currently available for the selected class, term, subject and difficulty instead of leaving an empty challenge screen.'},
     {icon:'⚔️',title:'Academy battle handoff strengthened',tag:'IMPROVED',text:'When an Academy challenge starts, its selected questions are prepared for the existing battle engines so the same academic set can be used for competitive play.'},
     {icon:'🧠',title:'Academy content pack now feeds the selector',tag:'IMPROVED',text:'The separate Academy content pack now feeds the live class, term, subject and difficulty selection, so adding curriculum material does not require rebuilding the main Quizy shell.'},
-    {icon:'🚀',title:'Academy question bank expanded again',tag:'NEW',text:'The latest Academy expansion adds more Primary 4–6 content, JSS3 Mathematics, SS2 Physics and Nigerian History, SS3 Further Mathematics, and additional comprehension and visual questions.'},{icon:'🧭',title:'Academy curriculum coverage widened',tag:'NEW',text:'The latest curriculum pack adds more Year 2–6, JSS2–3 and SS2–3 question sets across Mathematics, English, Science, Social and Citizenship Studies, Business, Biology, Economics, Geography and more.'}
+    {icon:'🚀',title:'Academy question bank expanded again',tag:'NEW',text:'The latest Academy expansion adds more Primary 4–6 content, JSS3 Mathematics, SS2 Physics and Nigerian History, SS3 Further Mathematics, and additional comprehension and visual questions.'},{icon:'🧭',title:'Academy curriculum coverage widened',tag:'NEW',text:'The latest curriculum pack adds more Year 2–6, JSS2–3 and SS2–3 question sets across Mathematics, English, Science, Social and Citizenship Studies, Business, Biology, Economics, Geography and more.'},{icon:'🛡️',title:'Start Adventure startup hardened',tag:'IMPROVED',text:'The Start Adventure entry now has a direct protected startup path, so it no longer depends on the chain of optional cloud, advanced-mode and visual wrappers to open the game.'},{icon:'⚡',title:'Faster app-shell loading',tag:'IMPROVED',text:'The Quizy app shell now prioritizes the installed cache while checking the network in the background, reducing startup delays on slower connections.'}
   ];
 
   function seen(){return store.get(UPDATE_KEY)===UPDATE_VERSION}
@@ -1434,26 +1481,44 @@ var baseRender=window.render;if(typeof baseRender==='function'){window.render=fu
 #start.btn.primary:disabled,#academyStart.btn.primary:disabled{opacity:.45;}
 </style>
 <script>
-/* QUIZY_ENTRY_FINAL_GUARD_V2 */
+/* QUIZY_ENTRY_FINAL_GUARD_V3 */
 (function(){
+  var bound=false;
   function bind(){
     var start=document.getElementById('start');
     if(start){
       start.disabled=false;
       start.removeAttribute('disabled');
       start.style.pointerEvents='auto';
-      start.onclick=function(e){try{if(e){e.preventDefault();}if(typeof window.__quizyStartAdventure==='function'){window.__quizyStartAdventure(e);}else if(typeof window.startGame==='function'){window.startGame();}else{setTimeout(bind,120);}}catch(err){console.error('Final start guard:',err);}};
+      start.style.touchAction='manipulation';
+      start.setAttribute('aria-disabled','false');
+      if(!bound){
+        bound=true;
+        start.addEventListener('click',function(e){
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          try{
+            if(typeof window.__quizyStartAdventure==='function') window.__quizyStartAdventure(e);
+            else if(typeof quizyCoreStartAdventure==='function') quizyCoreStartAdventure();
+          }catch(err){
+            console.error('Quizy final Start Adventure guard:',err);
+          }
+        },true);
+      }
     }
     var academy=document.getElementById('academyStart');
     if(academy){
       academy.disabled=false;
       academy.removeAttribute('disabled');
       academy.style.pointerEvents='auto';
+      academy.style.touchAction='manipulation';
     }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+  bind();
   setTimeout(bind,250);
   setTimeout(bind,1000);
+  setTimeout(bind,2500);
 })();
 </script>
 </body></html>
