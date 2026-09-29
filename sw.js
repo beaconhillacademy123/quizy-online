@@ -1,4 +1,4 @@
-const CACHE='quizy-shell-v17';
+const CACHE='quizy-shell-v18';
 const CORE=['/','/index.html','/manifest.json','/icon-192.svg','/icon-512.svg'];
 
 self.addEventListener('install',e=>{
@@ -22,12 +22,23 @@ self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   if(u.origin!==location.origin) return;
 
-  // Navigation must prefer the current deployment so users do not get
-  // trapped on an older cached index after a production update.
-  // If the network is unavailable, fall back to the cached shell.
   if(e.request.mode==='navigate' || u.pathname==='/' || u.pathname==='/index.html'){
     e.respondWith(
       fetch(e.request).then(r=>{
+        if(r && r.ok){
+          const copy=r.clone();
+          caches.open(CACHE).then(c=>c.put(e.request,copy)).catch(()=>{});
+        }
+        return r;
+      }).catch(()=>caches.match(e.request))
+    );
+    return;
+  }
+
+  /* Academy code must not be trapped behind an older cached module. */
+  if(u.pathname==='/academy.js'){
+    e.respondWith(
+      fetch(e.request,{cache:'no-store'}).then(r=>{
         if(r && r.ok){
           const copy=r.clone();
           caches.open(CACHE).then(c=>c.put(e.request,copy)).catch(()=>{});
