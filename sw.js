@@ -1,4 +1,4 @@
-const CACHE='quizy-shell-v21';
+const CACHE='quizy-shell-v22';
 const CORE=['/','/index.html','/manifest.json','/icon-192.svg','/icon-512.svg'];
 
 self.addEventListener('install',e=>{
