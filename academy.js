@@ -86,6 +86,13 @@
       exp:'5 − 2 = 3.'
     },
     {
+      id:'y1-m-t1-05',year:1,term:'t1',subject:'Mathematics',
+      topic:'Counting',difficulty:'easy',
+      q:'How many fingers are on one hand?',
+      opts:['3','4','5','6'],a:2,
+      exp:'One hand has five fingers.'
+    },
+    {
       id:'y1-m-t2-01',year:1,term:'t2',subject:'Mathematics',
       topic:'Ordering Numbers',difficulty:'easy',
       q:'Which number is greater?',
