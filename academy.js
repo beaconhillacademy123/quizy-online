@@ -432,21 +432,6 @@
     document.head.appendChild(s);
   }
 
-  function addEntryButton(){
-    if(document.getElementById('quizyAcademyEntry'))return;
-    if(!window.state || state.screen!=='start')return;
-    const host=document.querySelector('.start-actions')||document.querySelector('.start');
-    if(!host)return;
-    const b=document.createElement('button');
-    b.id='quizyAcademyEntry';
-    b.type='button';
-    b.className='btn primary quizy-academy-entry';
-    b.innerHTML='🎓 Quizy Academy · School Curriculum';
-    b.onclick=function(){window.QuizyAcademy.open();};
-    if(host.classList.contains('start-actions'))host.appendChild(b);
-    else host.appendChild(b);
-  }
-
   function renderSelect(){
     const app=document.getElementById('app');
     if(!app)return;
@@ -595,16 +580,6 @@
     document.getElementById('mapBack').onclick=renderSelect;
   }
 
-  function wrapRender(){
-    const base=window.render;
-    if(typeof base!=='function')return;
-    window.render=function(){
-      base.apply(this,arguments);
-      setTimeout(addEntryButton,0);
-    };
-    setTimeout(addEntryButton,0);
-  }
-
   window.QuizyAcademy={
     open:function(){injectStyle();renderSelect();},
     getQuestionSet:function(opts){
@@ -622,5 +597,4 @@
   };
 
   injectStyle();
-  wrapRender();
 })();
