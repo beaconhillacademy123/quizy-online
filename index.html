@@ -64,9 +64,11 @@ function profileId(name){return String(name||'Explorer').trim().toLowerCase().re
 function profiles(){return store.get('quizyProfiles')||{}}
 function saveProfile(){if(!state.name)return;const all=profiles();all[state.profileId||profileId(state.name)]={name:state.name,age:state.age,difficulty:state.difficulty,avatar:state.avatar,totalStars:state.totalStars,landStars:state.landStars,landCorrect:state.landCorrect,landDone:state.landDone,coins:state.coins,bestStreak:state.bestStreak,badges:state.badges,unlocked:state.unlocked,theme:state.theme,questionHistory:state.questionHistory,musicOn:state.musicOn,sportCategory:state.sportCategory||''};store.set('quizyProfiles',all)}
 function loadProfile(name){const id=profileId(name),p=profiles()[id];if(!p)return false;state.profileId=id;state.name=p.name;state.age=p.age||'young';state.difficulty=p.difficulty||'easy';state.avatar=p.avatar||'🦊';state.totalStars=p.totalStars||0;state.landStars=p.landStars||{};state.landCorrect=p.landCorrect||Object.fromEntries(LANDS.map(l=>[l.id,Math.min(l.count,p.landStars?.[l.id]||0)]));state.landDone=p.landDone||{};state.coins=p.coins||0;state.bestStreak=p.bestStreak||0;state.badges=p.badges||[];state.unlocked=p.unlocked||[];state.theme=p.theme||'default';state.questionHistory=p.questionHistory||{};state.musicOn=p.musicOn!==false;state.sportCategory=p.sportCategory||'';return true}
-function saveProgress(){const data={coins:state.coins,badges:state.badges,unlocked:state.unlocked,theme:state.theme,bestStreak:state.bestStreak,dailyDate:state.dailyDate||'',dailyDone:!!state.dailyDone,dailyCompletedAt:state.dailyCompletedAt||0,questionHistory:state.questionHistory||{},musicOn:state.musicOn!==false};store.set('triviaTrailProgress',data);saveProfile();const resumable=['question','shop','break','dailyplay','classquiz','bonus'].includes(state.screen)&&!!state.name;if(resumable){try{store.set('quizyResume',{state:JSON.parse(JSON.stringify({...state,resumeAvailable:false,boardEntries:null})),savedAt:Date.now()})}catch{}}else if(['start','final','leaderboard','certificate','map'].includes(state.screen)){store.remove('quizyResume')}}
+let resumeWriteSuppressed=false;function clearResume(reason='intentional-exit'){store.remove('quizyResume');state.resumeAvailable=false;try{store.set('quizyResumeMeta',{clearedAt:Date.now(),reason})}catch{}}
+function saveProgress(opts={}){const data={coins:state.coins,badges:state.badges,unlocked:state.unlocked,theme:state.theme,bestStreak:state.bestStreak,dailyDate:state.dailyDate||'',dailyDone:!!state.dailyDone,dailyCompletedAt:state.dailyCompletedAt||0,questionHistory:state.questionHistory||{},musicOn:state.musicOn!==false};store.set('triviaTrailProgress',data);saveProfile();const resumable=['question','shop','break','dailyplay','classquiz','bonus'].includes(state.screen)&&!!state.name&&!resumeWriteSuppressed&&!opts.clearResume;if(opts.clearResume||['start','final','leaderboard','certificate','map'].includes(state.screen)){clearResume(opts.reason||'screen-exit');return}if(resumable){try{store.set('quizyResume',{state:JSON.parse(JSON.stringify({...state,resumeAvailable:false,boardEntries:null})),savedAt:Date.now()});state.resumeAvailable=true}catch{}}}
+function abandonCurrentSession(reason='intentional-exit'){clearInterval(breakTimer);if('speechSynthesis'in window){try{speechSynthesis.cancel()}catch{}}clearResume(reason);state.shopReturnScreen=null;state.currentBreak=null;state.pendingAfterBreak=null;state.landIndex=null;state.qIndex=0;state.screen=state.name?'map':'start';render()}
 function loadProgress(){const p=store.get('triviaTrailProgress');if(p){state.coins=p.coins||0;state.badges=p.badges||[];state.unlocked=p.unlocked||[];state.theme=p.theme||'default';state.bestStreak=p.bestStreak||0;state.dailyDate=p.dailyDate||'';state.dailyCompletedAt=p.dailyCompletedAt||0;state.dailyDone=p.dailyDate===todayKey()&&!!p.dailyDone;state.questionHistory=p.questionHistory||{};state.musicOn=p.musicOn!==false}const r=store.get('quizyResume');state.resumeAvailable=!!(r&&r.state&&r.state.name)}
-function resumeGame(){const r=store.get('quizyResume');if(!r||!r.state)return;state={...state,...r.state,resumeAvailable:false};state.boardEntries=null;render();if(state.screen==='question'&&state.landIndex!==null){const l=LANDS[state.landIndex];if(l?.mode==='spelling'&&state.landSession?.[l.id]?.[state.qIndex])speakWord(state.landSession[l.id][state.qIndex].word)}if(state.screen==='break')startBreakTimer();startMusic()}
+function resumeGame(){const r=store.get('quizyResume');if(!r||!r.state){clearResume('resume-missing');return}state={...state,...r.state,resumeAvailable:false};state.boardEntries=null;clearResume('resumed');render();if(state.screen==='question'&&state.landIndex!==null){const l=LANDS[state.landIndex];if(l?.mode==='spelling'&&state.landSession?.[l.id]?.[state.qIndex])speakWord(state.landSession[l.id][state.qIndex].word)}if(state.screen==='break')startBreakTimer();startMusic()}
 let audioCtx=null,musicTimer=null,breakTimer=null,musicGain=null;
 const bgMusic=document.getElementById('bgMusic');
 bgMusic.src='/quizy-background-music.mp3';
@@ -79,8 +81,10 @@ function wrongSound(){const c=audio();if(!c)return;const now=c.currentTime;const
 function praiseVoice(text){if(!voiceOn)return;if(!('speechSynthesis'in window))return;duckMusic(true);speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.84;u.pitch=1.08;u.volume=1;const voices=speechSynthesis.getVoices();u.voice=voices.find(v=>/^en(-|_)(NG|GB|US)/i.test(v.lang))||voices.find(v=>/^en/i.test(v.lang))||null;u.onend=()=>duckMusic(false);u.onerror=()=>duckMusic(false);speechSynthesis.speak(u)}
 function beep(ok=true){if(ok){clap();setTimeout(()=>praiseVoice(GOOD[Math.floor(Math.random()*GOOD.length)].replace(/^[^A-Za-z]+/,'').trim()),110)}else{wrongSound();setTimeout(()=>praiseVoice(BAD[Math.floor(Math.random()*BAD.length)].replace(/^[^A-Za-z]+/,'').trim()),110)}}
 function startFeedback(){playTone(523.25,.12,'sine',.08);setTimeout(()=>playTone(659.25,.14,'sine',.07),80)}
-function startMusic(){if(!state.musicOn)return;const el=document.getElementById('bgMusic');if(!el)return;el.volume=1;el.play().catch(()=>{});}
-function stopMusic(){const el=document.getElementById('bgMusic');if(el){el.pause();el.currentTime=0;}}
+let audioNeedsGesture=false;async function startMusic(){if(!state.musicOn)return false;const el=document.getElementById('bgMusic');if(!el)return false;el.volume=1;try{await el.play();audioNeedsGesture=false;return true}catch(e){audioNeedsGesture=true;return false}}
+function stopMusic(){const el=document.getElementById('bgMusic');if(el){el.pause();el.currentTime=0}audioNeedsGesture=false}
+function retryAudioAfterGesture(){if(state.musicOn!==false&&audioNeedsGesture)startMusic();try{if(audioCtx?.state==='suspended')audioCtx.resume()}catch{}}
+['pointerdown','touchstart','keydown'].forEach(ev=>window.addEventListener(ev,retryAudioAfterGesture,{passive:true}));
 let musicWasPlayingBeforeHide=false;document.addEventListener('visibilitychange',()=>{if(document.hidden){const el=document.getElementById('bgMusic');musicWasPlayingBeforeHide=!!(el&&!el.paused&&state.musicOn!==false);stopMusic();if('speechSynthesis'in window){try{speechSynthesis.cancel()}catch{}}}else if(musicWasPlayingBeforeHide&&state.musicOn!==false){startMusic();}});window.addEventListener('pagehide',()=>{stopMusic();if('speechSynthesis'in window){try{speechSynthesis.cancel()}catch{}}});
 function duckMusic(on){const el=document.getElementById('bgMusic');if(el)el.volume=on?.08:1;}
 let voiceOn=true;
@@ -202,6 +206,8 @@ w.querySelector('#qobCreate').onclick=()=>{role='host';code=Math.random().toStri
 w.querySelector('#qobJoin').onclick=()=>{const v=w.querySelector('#qobCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(v.length!==6){status.textContent='Enter the 6-character room code.';return}role='guest';code=v;connect()};
 }function startGame(){
  try{
+  clearResume('new-adventure');
+  resumeWriteSuppressed=false;
   const input=document.getElementById('playerName');
   const v=(input?.value||'').trim()||'Explorer';
   const existed=loadProfile(v);
@@ -292,9 +298,9 @@ function prepareItem(item){
   return x;
 }
 function continueBreak(){clearInterval(breakTimer);state.coins+=3;saveProgress();state.screen=state.pendingAfterBreak||'map';render();if(state.screen==='final')saveScore()}
-function dashboard(){clearInterval(breakTimer);state.screen=state.name?'map':'start';state.landIndex=null;state.qIndex=0;render()}
-function goHome(){clearInterval(breakTimer);if('speechSynthesis'in window){try{speechSynthesis.cancel()}catch{}}state.screen='start';state.landIndex=null;state.qIndex=0;state.sportCategory='';render()}
-function goBack(){clearInterval(breakTimer);if('speechSynthesis'in window){try{speechSynthesis.cancel()}catch{}}if(state.screen==='shop'){if(state.shopReturnScreen==='question'&&state.landIndex!==null&&state.lives>0){state.screen='question';state.shopReturnScreen=null}else{state.screen=state.name?'map':'start';state.landIndex=null;state.qIndex=0;state.shopReturnScreen=null}}else if(state.screen==='map'||state.screen==='daily'||state.screen==='achievements'||state.screen==='report'||state.screen==='classroom'||state.screen==='settings'){state.screen=state.name?'map':'start';state.landIndex=null;state.qIndex=0}else if(state.screen==='question'||state.screen==='break'){state.screen='map';state.landIndex=null;state.qIndex=0}else if(state.screen==='final'){state.screen='map';state.landIndex=null;state.qIndex=0}if(state.screen==='leaderboard'){state.screen=state.name?'map':'start';state.landIndex=null;state.qIndex=0}else if(state.screen==='certificate'){state.screen='final'}else{return}render()}
+function dashboard(){abandonCurrentSession('dashboard-return')}
+function goHome(){abandonCurrentSession('home-return');state.sportCategory=''}
+function goBack(){clearInterval(breakTimer);if('speechSynthesis'in window){try{speechSynthesis.cancel()}catch{}}if(state.screen==='shop'){if(state.shopReturnScreen==='question'&&state.landIndex!==null&&state.lives>0){state.screen='question';state.shopReturnScreen=null}else{state.screen=state.name?'map':'start';state.landIndex=null;state.qIndex=0;state.shopReturnScreen=null}}else if(state.screen==='map'||state.screen==='daily'||state.screen==='achievements'||state.screen==='report'||state.screen==='classroom'||state.screen==='settings'){state.screen=state.name?'map':'start';state.landIndex=null;state.qIndex=0}else if(state.screen==='question'||state.screen==='break'){clearResume('back-to-map');state.screen='map';state.landIndex=null;state.qIndex=0}else if(state.screen==='final'){clearResume('final-to-map');state.screen='map';state.landIndex=null;state.qIndex=0}if(state.screen==='leaderboard'){state.screen=state.name?'map':'start';state.landIndex=null;state.qIndex=0}else if(state.screen==='certificate'){state.screen='final'}else{return}render()}
 function saveScore(){if(state.saved)return;state.saved=true;let b=store.get('triviaTrailBoard')||[];b.push({name:state.name,avatar:state.avatar,stars:state.totalStars,total:totalPossible(),date:new Date().toISOString()});b.sort((a,b)=>b.stars/b.total-a.stars/a.total);store.set('triviaTrailBoard',b.slice(0,30));}
 function leaderboard(){state.screen='leaderboard';state.boardEntries=store.get('triviaTrailBoard')||[];render()}
 function printCert(){state.screen='certificate';render();setTimeout(()=>print(),200)}
@@ -478,10 +484,12 @@ const localSaveProfile=window.saveProfile||saveProfile;
 const localPoolFor=window.poolFor||poolFor;
 const localStartGame=window.startGame||startGame;
 const localFinishLand=window.finishLand||finishLand;
-window.saveProfile=function(){localSaveProfile();saveCloudProfile();};
+let cloudSaveQueue=Promise.resolve();
+function queueCloudSave(){if(!window.QuizyCloud?.user)return cloudSaveQueue;cloudSaveQueue=cloudSaveQueue.then(()=>saveCloudProfile()).catch(e=>console.warn('Quizy cloud save skipped:',e));return cloudSaveQueue}
+window.saveProfile=function(){localSaveProfile();queueCloudSave();};
 window.poolFor=function(l,a){const local=localPoolFor(l,a)||[];const remote=window.QuizyCloud.remoteQuestions?.[l.id]||[];if(!remote.length)return local;const merged=new Map();local.forEach(q=>merged.set(q._id,q));remote.forEach(q=>merged.set(q._id,q));return [...merged.values()];};
 window.startGame=function(){const chosenAge=state.age,chosenDifficulty=state.difficulty;localStartGame();state.age=chosenAge;state.difficulty=chosenDifficulty;if(window.QuizyCloud.user){pullCloudProfile().then(()=>{state.age=chosenAge;state.difficulty=chosenDifficulty;saveCloudProfile();saveProgress();render();});}};
-window.finishLand=function(){localFinishLand();logAttempt();};
+window.finishLand=function(){localFinishLand();logAttempt();queueCloudSave();};
 
 function decorate(){
   const start=document.querySelector('.start');
@@ -496,7 +504,7 @@ const localRender=window.render||render;
 window.render=function(){localRender();if(window.__quizyInitialRenderDone)decorate();};
 
 supabase.auth.onAuthStateChange((_event,session)=>{window.QuizyCloud.user=session?.user||null;refreshAccountUI();});
-(async()=>{await currentUser();await pullQuestions();try{navigator.serviceWorker?.register('/sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{})}catch(e){}decorate();})();
+(async()=>{try{await currentUser();await pullQuestions()}catch(e){console.warn('Quizy cloud bootstrap skipped:',e)}decorate();})();
 });
 
 try{loadProgress();render();window.__quizyInitialRenderDone=true;window.dispatchEvent(new Event('quizy:initial-render'));}catch(e){console.error('Quizy startup error:',e);const app=document.getElementById('app');if(app){app.style.visibility='visible';app.innerHTML='<div class="screen card complete" style="padding:32px;text-align:center"><div style="font-size:52px">🧭</div><h2>Quizy could not start</h2><p>Please reload Quizy and try again.</p><button class="btn primary" onclick="location.reload()">🔄 Reload Quizy</button></div>';}}
@@ -1342,7 +1350,7 @@ window.helpMapComingSoon=function(){
   function restore(){
     try{
       const invite=new URL(location.href).searchParams.has('invite');
-      if(!invite && state.screen==='start' && state.resumeAvailable)resumeGame();
+      const r=store.get('quizyResume');if(!invite && state.screen==='start' && state.resumeAvailable && r?.state?.name)resumeGame();
     }catch(e){console.warn('Quizy resume restore failed',e);}
   }
   window.addEventListener('pageshow',function(){setTimeout(restore,120);});
