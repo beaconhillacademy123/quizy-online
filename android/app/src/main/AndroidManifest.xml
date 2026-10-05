@@ -6,7 +6,7 @@
  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
  <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
  <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
- <application android:theme="@style/AppTheme" android:label="Quizy" android:icon="@drawable/ic_quizy" android:usesCleartextTraffic="false" android:allowBackup="false" android:supportsRtl="true">
+ <application android:theme="@style/AppTheme" android:label="Quizy" android:icon="@drawable/quizy_brand" android:usesCleartextTraffic="false" android:allowBackup="false" android:supportsRtl="true">
   <activity android:name=".MainActivity" android:screenOrientation="portrait" android:exported="true">
    <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
   </activity>
