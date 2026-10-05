@@ -118,13 +118,15 @@ async function leave(){
 }
 function startPolling(){stopPoll();pollTimer=setInterval(refresh,900)}
 async function copyText(text){
- if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);return true}
- const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+ try{if(window.QuizyClipboard?.copyText?.(String(text))===true)return true}catch{}
+ try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(String(text));return true}}catch{}
+ const ta=document.createElement('textarea');ta.value=String(text);ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='0';document.body.appendChild(ta);ta.focus();ta.select();
  let ok=false;try{ok=document.execCommand('copy')}catch{}ta.remove();return ok;
 }
 async function copyCode(){
- try{const ok=await copyText(roomCode);if(!ok)throw new Error('copy unavailable');alert('Room code copied!')}
- catch{alert('Could not copy the code. Please press and hold the code to copy it.')}
+ const ok=await copyText(roomCode);
+ if(ok)alert('Room code copied to clipboard.');
+ else alert('Could not copy the code. Please press and hold the code to copy it.');
 }
 function share(){
  const url=location.origin+location.pathname+'?join='+encodeURIComponent(roomCode);
