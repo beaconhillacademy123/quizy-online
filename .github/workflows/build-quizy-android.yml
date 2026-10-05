@@ -16,10 +16,23 @@ jobs:
         with:
           packages: 'platforms;android-35 build-tools;35.0.0'
       - uses: gradle/actions/setup-gradle@v4
-      - name: Build APK
+      - name: Restore Quizy signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.QUIZY_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_B64" || { echo "Missing QUIZY_KEYSTORE_BASE64"; exit 1; }
+          echo "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/quizy-release.keystore"
+      - name: Build signed release APK
         working-directory: android
-        run: gradle --no-daemon assembleDebug
+        env:
+          QUIZY_KEYSTORE_FILE: ${{ runner.temp }}/quizy-release.keystore
+          QUIZY_KEYSTORE_PASSWORD: ${{ secrets.QUIZY_KEYSTORE_PASSWORD }}
+          QUIZY_KEY_PASSWORD: ${{ secrets.QUIZY_KEY_PASSWORD }}
+        run: |
+          test -n "$QUIZY_KEYSTORE_PASSWORD" || { echo "Missing QUIZY_KEYSTORE_PASSWORD"; exit 1; }
+          test -n "$QUIZY_KEY_PASSWORD" || { echo "Missing QUIZY_KEY_PASSWORD"; exit 1; }
+          gradle --no-daemon assembleRelease
       - uses: actions/upload-artifact@v4
         with:
-          name: Quizy-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Quizy-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
