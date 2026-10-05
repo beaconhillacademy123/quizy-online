@@ -174,6 +174,8 @@ function inviteFriend(){onlineBattleLaunch()}function shareInviteFriend(){
 }
 
 function onlineBattleLaunch(){
+  // Keep only non-sensitive player preferences for the dedicated battle client.
+  try{sessionStorage.setItem('quizyBattleIdentity',JSON.stringify({name:state.name||'Explorer',avatar:state.avatar||'🦊',age:state.age||'young',difficulty:state.difficulty||'easy'}));}catch(e){}
   // Online Battle runs on a dedicated page so the main Quizy bundle (which contains
   // ordinary Adventure answer keys) is never part of the battle client.
   location.href='/battle.html';
