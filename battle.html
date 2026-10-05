@@ -18,10 +18,10 @@ const app=document.getElementById('app');
 const playerId='p'+crypto.randomUUID().replaceAll('-','').slice(0,12);
 let roomId='',roomCode='',playerToken='',isHost=false,pollTimer=null,lastState=null,answerLocked=false,advanceTimer=null;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const name=()=>localStorage.getItem('quizyBattleName')||'Explorer';
-const avatar=()=>localStorage.getItem('quizyBattleAvatar')||'🦊';
-const difficulty=()=>localStorage.getItem('quizyDifficulty')||'easy';
-const age=()=>localStorage.getItem('quizyAge')||'young';
+let identity={};try{identity=JSON.parse(sessionStorage.getItem('quizyBattleIdentity')||'{}')}catch{};const name=()=>identity.name||'Explorer';
+const avatar=()=>identity.avatar||'🦊';
+const difficulty=()=>identity.difficulty||'easy';
+const age=()=>identity.age||'young';
 function stopPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null}}
 async function api(action,extra={}){
  const {data,error}=await supabase.functions.invoke('quizy-online-battle',{body:{action,...extra}});
