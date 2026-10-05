@@ -32,10 +32,10 @@ async function api(action,extra={}){
 function msg(e){return '<div class="status">⚠️ '+esc(e?.message||e)+'</div>'}
 function renderHome(error=''){
  stopPoll();
- app.innerHTML=`<div class="card hero"><div class="logo">🌐⚔️</div><div class="h1">Quizy Online Battle</div><p class="muted">Unlimited players. Everyone gets the same question. Nobody receives the answer key before answering.</p>${error?msg(error):''}</div>
+ app.innerHTML=`<div class="card hero"><div class="logo">🌐⚔️</div><div class="h1">Quizy Online Battle</div><p class="muted">Unlimited players ⚔️ Let the battle begin!</p>${error?msg(error):''}</div>
  <div class="grid">
-  <div class="panel"><h2>🏰 Create Battle</h2><p class="muted">Create a room and invite as many players as you want. There is no app-level player cap.</p><button class="btn primary" id="create">Create Room</button></div>
-  <div class="panel"><h2>🗺️ Join Battle</h2><p class="muted">Enter the 6-character room code.</p><input id="code" class="input" maxlength="6" placeholder="ABC123"><button class="btn primary" id="join" style="width:100%;margin-top:10px">Join Room</button></div>
+  <div class="panel"><h2>🏰 Create Battle</h2><p class="muted">Create a room and invite your friends to play.</p><button class="btn primary" id="create">Create Room</button></div>
+  <div class="panel"><h2>🗺️ Join Battle</h2><p class="muted">Enter the room code.</p><input id="code" class="input" maxlength="6" placeholder="ABC123"><button class="btn primary" id="join" style="width:100%;margin-top:10px">Join Room</button></div>
  </div>
  <div style="text-align:center;margin-top:14px"><button class="btn ghost" id="back">← Return to Quizy</button></div>`;
  document.getElementById('create').onclick=createRoom;
@@ -88,7 +88,7 @@ async function refresh(){
 }
 async function createRoom(){
  try{
-  const r=await api('create',{player_id:playerId,name:name(),avatar:avatar(),difficulty:difficulty(),age});
+  const r=await api('create',{player_id:playerId,name:name(),avatar:avatar(),difficulty:difficulty(),age:age()});
   roomId=r.room_id;roomCode=r.code;playerToken=r.player_token;isHost=true;answerLocked=false;
   sessionStorage.setItem('quizyBattleSession',JSON.stringify({roomId,playerToken,isHost}));
   await refresh();startPolling();
