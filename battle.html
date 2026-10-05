@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Quizy — Online Battle</title>
+<style>
+:root{--bg:#f4f7ff;--ink:#18233a;--muted:#68748a;--line:#e1e7f1;--primary:#635bff;--primary2:#8b5cf6;--good:#16a34a;--bad:#ef4444}
+*{box-sizing:border-box}body{margin:0;padding:14px;background:radial-gradient(circle at 0 0,#e9e9ff,transparent 32%),radial-gradient(circle at 100% 100%,#e1f8f0,transparent 32%),var(--bg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}main{width:min(920px,100%);margin:auto}.card{background:rgba(255,255,255,.97);border:1px solid #fff;border-radius:24px;box-shadow:0 18px 50px rgba(24,35,58,.12);padding:24px}.hero{text-align:center}.logo{font-size:58px}.h1{font-size:32px;font-weight:950;margin:5px 0}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.panel{padding:18px;border:2px solid var(--line);border-radius:20px;background:#fff}.btn{border:0;border-radius:14px;padding:13px 18px;font-weight:900;cursor:pointer;background:#eef1f7;color:var(--ink)}.btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff}.btn.good{background:#eaf8ef;color:#147a38}.btn.ghost{background:transparent;border:1px solid var(--line)}.btn:disabled{opacity:.45;cursor:not-allowed}.input{width:100%;padding:14px;border:2px solid var(--line);border-radius:14px;text-align:center;font-weight:900;font-size:20px;text-transform:uppercase}.room{font-size:36px;letter-spacing:8px;font-weight:950;background:#f4f6ff;border-radius:18px;padding:13px;margin:10px auto;max-width:330px}.players{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:14px 0}.player{padding:12px;border-radius:15px;background:#f7f9ff;text-align:left}.player.me{outline:2px solid #c7c4ff}.score{font-weight:950}.question{font-size:28px;line-height:1.25;font-weight:900;text-align:center;margin:15px auto 22px;max-width:760px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.answer{padding:16px;border:2px solid var(--line);background:#fff;border-radius:16px;font-weight:900;text-align:left;cursor:pointer}.answer:hover{border-color:var(--primary);background:#f8f7ff}.answer:disabled{opacity:.55;cursor:not-allowed}.wait{text-align:center;padding:18px;border-radius:16px;background:#f5f7ff;font-weight:900}.result{padding:13px;border-radius:16px;margin:8px 0;background:#f7f9ff;display:flex;justify-content:space-between;gap:10px}.result.good{background:#ecfaf0}.result.bad{background:#fff1f1}.toolbar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.status{text-align:center;padding:10px;border-radius:999px;background:#f3f5fa;font-weight:800;color:var(--muted);margin:10px 0}.champion{text-align:center;font-size:26px;font-weight:950;padding:18px;background:linear-gradient(135deg,#fff4c2,#fff)}@media(max-width:700px){.grid{grid-template-columns:1fr}.answers{grid-template-columns:1fr}.question{font-size:22px}.card{padding:17px}.room{font-size:29px;letter-spacing:5px}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const supabase=createClient('https://snxehcpichoskvdtuveh.supabase.co','sb_publishable_54n8FEVRWSq1A17OeO-lxw_E_74g9Gh');
+const app=document.getElementById('app');
+const playerId='p'+crypto.randomUUID().replaceAll('-','').slice(0,12);
+let roomId='',roomCode='',playerToken='',isHost=false,pollTimer=null,lastState=null,answerLocked=false,advanceTimer=null;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let identity={};try{identity=JSON.parse(sessionStorage.getItem('quizyBattleIdentity')||'{}')}catch{};const name=()=>identity.name||'Explorer';
+const avatar=()=>identity.avatar||'🦊';
+const difficulty=()=>identity.difficulty||'easy';
+const age=()=>identity.age||'young';
+function stopPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null}}
+async function api(action,extra={}){
+ const {data,error}=await supabase.functions.invoke('quizy-online-battle',{body:{action,...extra}});
+ if(error)throw new Error(error.message||'Battle service unavailable');
+ if(data?.error)throw new Error(data.error);
+ return data;
+}
+function msg(e){return '<div class="status">⚠️ '+esc(e?.message||e)+'</div>'}
+function renderHome(error=''){
+ stopPoll();
+ app.innerHTML=`<div class="card hero"><div class="logo">🌐⚔️</div><div class="h1">Quizy Online Battle</div><p class="muted">Unlimited players. Everyone gets the same question. Nobody receives the answer key before answering.</p>${error?msg(error):''}</div>
+ <div class="grid">
+  <div class="panel"><h2>🏰 Create Battle</h2><p class="muted">Create a room and invite as many players as you want. There is no app-level player cap.</p><button class="btn primary" id="create">Create Room</button></div>
+  <div class="panel"><h2>🗺️ Join Battle</h2><p class="muted">Enter the 6-character room code.</p><input id="code" class="input" maxlength="6" placeholder="ABC123"><button class="btn primary" id="join" style="width:100%;margin-top:10px">Join Room</button></div>
+ </div>
+ <div style="text-align:center;margin-top:14px"><button class="btn ghost" id="back">← Return to Quizy</button></div>`;
+ document.getElementById('create').onclick=createRoom;
+ document.getElementById('join').onclick=()=>joinRoom(document.getElementById('code').value);
+ document.getElementById('back').onclick=()=>location.href='/?fromBattle=1';
+}
+function playersHtml(st){
+ return '<div class="players">'+(st.players||[]).map(p=>'<div class="player '+(p.player_id===st.me?.player_id?'me':'')+'"><strong>'+esc(p.avatar)+' '+esc(p.display_name)+'</strong><br><span class="muted">'+(p.player_id===st.me?.player_id?'You · ':'')+'⭐ <span class="score">'+p.score+'</span></span></div>').join('')+'</div>';
+}
+function renderLobby(st){
+ app.innerHTML='<div class="card hero"><div class="logo">🏰</div><div class="h1">Battle Room</div><p class="muted">Share this code with everyone you want to play.</p><div class="room">'+esc(st.code)+'</div><button class="btn primary" id="share">📤 Share Invitation</button>'+playersHtml(st)+'<div class="status">'+(st.players?.length||0)+' player(s) in the room</div><button class="btn primary" id="start" '+(st.players?.length<2||!st.me?.is_host?'disabled':'')+'>⚔️ Start Battle</button><div style="margin-top:9px"><button class="btn ghost" id="leave">Leave Room</button></div></div>';
+ document.getElementById('share').onclick=share;
+ document.getElementById('start').onclick=startBattle;
+ document.getElementById('leave').onclick=leave;
+}
+function renderRound(st){
+ const q=st.question;
+ const resolved=st.round_resolved;
+ if(!q){app.innerHTML='<div class="card hero"><div class="logo">⏳</div><h2>Preparing the battle…</h2></div>';return}
+ let body='<div class="card"><div class="toolbar"><strong>Round '+(st.current_round+1)+' / '+st.total_rounds+'</strong><span>👥 '+st.player_count+' players</span></div>'+playersHtml(st)+'<div class="question">'+esc(q.q)+'</div>';
+ if(!resolved){
+   body+='<div class="answers">'+q.opts.map((o,i)=>'<button class="answer" data-answer="'+i+'" '+(answerLocked?'disabled':'')+'>'+String.fromCharCode(65+i)+'. '+esc(o)+'</button>').join('')+'</div>';
+   body+='<div class="wait" style="margin-top:14px">'+(answerLocked?'✅ Your answer is locked. Waiting for everyone else…':'Choose your answer. Your choice stays private until the round is complete.')+'</div>';
+ }else{
+   body+='<h3 style="text-align:center">✨ Round Results</h3>';
+   body+=(st.results||[]).map(r=>{const p=st.players.find(x=>x.player_id===r.player_id);return '<div class="result '+(r.correct?'good':'bad')+'"><strong>'+esc(p?.display_name||'Player')+'</strong><span>'+(r.correct?'✅ Correct':'❌ Wrong')+'</span></div>'}).join('');
+   body+='<div class="wait" style="margin-top:14px">The next round will begin shortly…</div>';
+ }
+ body+='</div>';
+ app.innerHTML=body;
+ document.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>submitAnswer(+b.dataset.answer));
+}
+function renderFinished(st){
+ const sorted=[...(st.players||[])].sort((a,b)=>b.score-a.score);
+ app.innerHTML='<div class="card hero"><div class="logo">🏆</div><div class="h1">Battle Complete!</div><div class="champion">👑 '+esc(sorted[0]?.display_name||'Champion')+' wins with '+(sorted[0]?.score||0)+' point(s)</div>'+playersHtml(st)+'<div style="margin-top:14px"><button class="btn primary" id="back">Return to Quizy</button></div></div>';
+ document.getElementById('back').onclick=()=>location.href='/?fromBattle=1';
+}
+async function refresh(){
+ if(!roomId||!playerToken)return;
+ try{
+  const r=await api('state',{room_id:roomId,player_token:playerToken});
+  const st=r.state;lastState=st;
+  if(st.status==='lobby')renderLobby(st);
+  else if(st.status==='playing')renderRound(st);
+  else renderFinished(st);
+  if(st.round_resolved && st.status==='playing' && st.me?.is_host && !advanceTimer){
+    advanceTimer=setTimeout(async()=>{advanceTimer=null;try{await api('next',{room_id:roomId,player_token:playerToken});await refresh()}catch(e){console.warn(e)}},1800);
+  }
+ }catch(e){console.warn('battle refresh',e)}
+}
+async function createRoom(){
+ try{
+  const r=await api('create',{player_id:playerId,name:name(),avatar:avatar(),difficulty:difficulty(),age});
+  roomId=r.room_id;roomCode=r.code;playerToken=r.player_token;isHost=true;answerLocked=false;
+  sessionStorage.setItem('quizyBattleSession',JSON.stringify({roomId,playerToken,isHost}));
+  await refresh();startPolling();
+ }catch(e){renderHome(e)}
+}
+async function joinRoom(code){
+ try{
+  const r=await api('join',{code,name:name(),avatar:avatar(),player_id:playerId});
+  roomId=r.room_id;roomCode=r.code;playerToken=r.player_token;isHost=false;answerLocked=false;
+  sessionStorage.setItem('quizyBattleSession',JSON.stringify({roomId,playerToken,isHost}));
+  await refresh();startPolling();
+ }catch(e){renderHome(e)}
+}
+async function startBattle(){
+ try{await api('start',{room_id:roomId,player_token:playerToken});answerLocked=false;await refresh()}catch(e){alert(e.message)}
+}
+async function submitAnswer(i){
+ if(answerLocked||!lastState)return;
+ answerLocked=true;renderRound(lastState);
+ try{const r=await api('answer',{room_id:roomId,player_token:playerToken,round:lastState.current_round,answer_index:i});lastState=r.state;renderRound(lastState)}catch(e){answerLocked=false;alert(e.message);await refresh()}
+}
+async function leave(){
+ stopPoll();
+ try{await api('leave',{room_id:roomId,player_token:playerToken})}catch{}
+ sessionStorage.removeItem('quizyBattleSession');roomId='';playerToken='';renderHome();
+}
+function startPolling(){stopPoll();pollTimer=setInterval(refresh,900)}
+function share(){
+ const url=location.origin+location.pathname+'?join='+encodeURIComponent(roomCode);
+ const text='⚔️ Join my Quizy Online Battle! Room code: '+roomCode+'\n'+url;
+ if(navigator.share)navigator.share({title:'Join my Quizy Battle',text,url}).catch(()=>{});
+ else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>alert('Invitation copied!')).catch(()=>alert(text));
+ else alert(text);
+}
+async function boot(){
+ const saved=sessionStorage.getItem('quizyBattleSession');
+ if(saved){try{const s=JSON.parse(saved);roomId=s.roomId;playerToken=s.playerToken;isHost=!!s.isHost;await refresh();startPolling();return}catch{}}
+ renderHome();
+ const join=new URLSearchParams(location.search).get('join');
+ if(join){document.getElementById('code').value=join;setTimeout(()=>document.getElementById('join').click(),200)}
+}
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+-- Online battle referee schema is applied in Supabase. The battle tables are RLS-protected and accessed by the Edge Function only.\n-- Tables: public.quizy_battle_rooms, public.quizy_battle_players, public.quizy_battle_answers.\n-- The Edge Function stores answer keys server-side and never returns answer_index until the round is resolved.\n
