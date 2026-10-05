@@ -1,4 +1,34 @@
 plugins { id 'com.android.application' }
-android { namespace 'com.beaconhillacademy.quizy'; compileSdk 35
-    defaultConfig { applicationId 'com.beaconhillacademy.quizy'; minSdk 23; targetSdk 35; versionCode 2; versionName '1.1.0' }
+android {
+    namespace 'com.beaconhillacademy.quizy'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.beaconhillacademy.quizy'
+        minSdk 23
+        targetSdk 35
+        versionCode 2
+        versionName '1.1.0'
+    }
+
+    signingConfigs {
+        release {
+            def ks = System.getenv("QUIZY_KEYSTORE_FILE")
+            def kp = System.getenv("QUIZY_KEYSTORE_PASSWORD")
+            def keyp = System.getenv("QUIZY_KEY_PASSWORD")
+            if (ks && kp && keyp) {
+                storeFile file(ks)
+                storePassword kp
+                keyAlias "quizy-release"
+                keyPassword keyp
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
 }
