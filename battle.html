@@ -88,7 +88,7 @@ async function refresh(){
 }
 async function createRoom(){
  try{
-  const r=await api('create',{player_id:playerId,name:name(),avatar:avatar(),difficulty:difficulty(),age});
+  const r=await api('create',{player_id:playerId,name:name(),avatar:avatar(),difficulty:difficulty(),age:age()});
   roomId=r.room_id;roomCode=r.code;playerToken=r.player_token;isHost=true;answerLocked=false;
   sessionStorage.setItem('quizyBattleSession',JSON.stringify({roomId,playerToken,isHost}));
   await refresh();startPolling();
