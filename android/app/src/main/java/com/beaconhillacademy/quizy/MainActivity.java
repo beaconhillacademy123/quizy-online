@@ -6,6 +6,12 @@ import android.bluetooth.*;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.*;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.webkit.*;
 import org.json.*;
 import java.io.*;
@@ -16,11 +22,12 @@ public class MainActivity extends Activity {
  private static final int REQ_BT=7001, REQ_DISCOVERABLE=7002;
  private static final UUID APP_UUID=UUID.fromString("8d4c1d2a-3e8b-4b16-a9f4-2b8d6d2a7c11");
  private static final String SERVICE_NAME="Quizy Battle", QUIZY_URL="https://quizy-online-rho.vercel.app/";
- private WebView webView; private BluetoothAdapter adapter; private BluetoothSocket socket; private BluetoothServerSocket serverSocket; private OutputStream output;
+ private WebView webView; private ImageView splash; private BluetoothAdapter adapter; private BluetoothSocket socket; private BluetoothServerSocket serverSocket; private OutputStream output;
  private final ExecutorService io=Executors.newCachedThreadPool(); private final Handler main=new Handler(Looper.getMainLooper());
- @Override protected void onCreate(Bundle b){super.onCreate(b);webView=new WebView(this);setContentView(webView);adapter=BluetoothAdapter.getDefaultAdapter();
-  webView.getSettings().setJavaScriptEnabled(true);webView.getSettings().setDomStorageEnabled(true);webView.setWebChromeClient(new WebChromeClient());webView.setWebViewClient(new WebViewClient());
-  webView.addJavascriptInterface(new QuizyBluetoothBridge(),"QuizyBluetooth");webView.addJavascriptInterface(new QuizyClipboardBridge(),"QuizyClipboard");webView.loadUrl(QUIZY_URL);requestBluetoothPermissions();}
+ @Override protected void onCreate(Bundle b){super.onCreate(b); adapter=BluetoothAdapter.getDefaultAdapter(); FrameLayout root=new FrameLayout(this); webView=new WebView(this); root.addView(webView,new FrameLayout.LayoutParams(-1,-1)); splash=new ImageView(this); splash.setImageResource(com.beaconhillacademy.quizy.R.drawable.quizy_brand); splash.setScaleType(ImageView.ScaleType.CENTER_INSIDE); GradientDrawable bg=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{Color.rgb(255,248,214),Color.rgb(225,245,255),Color.rgb(240,255,244)}); splash.setBackground(bg); splash.setPadding(24,48,24,48); FrameLayout.LayoutParams sp=new FrameLayout.LayoutParams(-1,-1); sp.gravity=Gravity.CENTER; root.addView(splash,sp); setContentView(root);
+  webView.setBackgroundColor(Color.TRANSPARENT); webView.getSettings().setJavaScriptEnabled(true);webView.getSettings().setDomStorageEnabled(true);webView.setWebChromeClient(new WebChromeClient());webView.setWebViewClient(new WebViewClient(){ @Override public void onPageFinished(WebView view,String url){ super.onPageFinished(view,url); main.postDelayed(()->hideSplash(),650); }});
+  webView.addJavascriptInterface(new QuizyBluetoothBridge(),"QuizyBluetooth");webView.addJavascriptInterface(new QuizyClipboardBridge(),"QuizyClipboard");webView.loadUrl(QUIZY_URL); requestBluetoothPermissions(); main.postDelayed(()->hideSplash(),3500); }
+ private void hideSplash(){ if(splash==null||splash.getVisibility()!=View.VISIBLE)return; splash.animate().alpha(0f).setDuration(520).withEndAction(()->{splash.setVisibility(View.GONE);}).start(); }
  private boolean hasBtPermission(){if(Build.VERSION.SDK_INT<31)return true;return checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED&&checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN)==PackageManager.PERMISSION_GRANTED&&checkSelfPermission(Manifest.permission.BLUETOOTH_ADVERTISE)==PackageManager.PERMISSION_GRANTED;}
  private void requestBluetoothPermissions(){if(Build.VERSION.SDK_INT>=31&&!hasBtPermission())requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT,Manifest.permission.BLUETOOTH_SCAN,Manifest.permission.BLUETOOTH_ADVERTISE},REQ_BT);}
  private boolean enabled(){if(adapter==null){emitError("This phone does not support Bluetooth.");return false;}if(!adapter.isEnabled()){try{startActivity(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));}catch(Exception e){}emitStatus("Turn on Bluetooth, then tap Host or Join again.");return false;}return true;}
