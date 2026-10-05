@@ -2,7 +2,9 @@ name: Build Quizy Android APK
 on:
   workflow_dispatch:
   push:
-    paths: ['android/**']
+    paths:
+      - 'android/**'
+      - '.github/workflows/build-quizy-android.yml'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,3 +38,4 @@ jobs:
         with:
           name: Quizy-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
