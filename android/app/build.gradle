@@ -19,7 +19,7 @@ android {
             if (ks && kp && keyp) {
                 storeFile file(ks)
                 storePassword kp
-                keyAlias "quizy-release"
+                keyAlias "Quizy release"
                 keyPassword keyp
             }
         }
