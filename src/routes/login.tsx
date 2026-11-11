@@ -58,7 +58,7 @@ function Login() {
       }
       if (mode === "reset" && resetStep === "verify") {
         const code = otp.trim();
-        if (!/^\d{6}$/.test(code)) throw new Error("Enter the eight-digit code from your email.");
+        if (!/^\d{8}$/.test(code)) throw new Error("Enter the eight-digit code from your email.");
         const { error: verifyError } = await supabase.auth.verifyOtp({
           email: email.trim(),
           token: code,
