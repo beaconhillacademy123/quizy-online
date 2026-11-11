@@ -155,13 +155,18 @@ function Login() {
               inputMode="numeric"
               autoComplete="one-time-code"
               pattern="[0-9]{8}"
-              maxLength={8}
               value={otp}
-              onChange={(event) => setOtp(event.target.value.replace(/\D/g, "").slice(0, 8))}
-              placeholder="Six-digit code"
-              aria-label="Six-digit email code"
+              onChange={(event) => {
+                setOtp(event.target.value.replace(/\D/g, "").slice(0, 8));
+                setError("");
+              }}
+              placeholder="Eight-digit code"
+              aria-label="Eight-digit email code"
               className="min-h-12 w-full rounded-2xl border border-line bg-surface-2 px-4 font-bold tracking-[0.3em] text-fg"
             />
+            <p aria-live="polite" className="text-right text-xs font-bold text-muted">
+              {otp.length}/8 digits entered
+            </p>
           )}
           {needsPassword && (
             <>
