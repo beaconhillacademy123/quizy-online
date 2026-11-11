@@ -11,10 +11,10 @@ Accounts, saved progress, messages, and online battles use the existing Supabase
 - An unfinished question is kept if you leave or refresh, including inside the signed-in profile.
 - Sign in with email to save the trail across devices. Password reset is on the same screen. Google or X appear only when `VITE_SUPABASE_OAUTH` lists a provider that is enabled in Supabase Auth.
 - Online battle uses a room code and the `quizy-online-battle` function. The answer key stays on the server. Bluetooth battle works only inside the Android app in `android/`, which calls `window.QuizyBluetooth`.
-- The Command Center opens for the owner account (`uchep1990@gmail.com` unless `QUIZY_OWNER_EMAIL` says otherwise).
+- The Command Center opens for the owner account (`uchep1990@gmail.com` unless the Supabase Edge Function secret `QUIZY_OWNER_EMAIL` says otherwise).
 
 ## Publish
 
-Deploy this repository to the existing Vercel project. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Do not set `DATABASE_URL` and do not put a service-role key in the frontend. The Android `QUIZY_URL` in `MainActivity.java` still points at the previous hosted site; change it after this app has a public address.
+Deploy this repository to the existing Vercel project. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Use the Supabase publishable key for the browser and never put a service-role key in frontend code. The Android `QUIZY_URL` in `MainActivity.java` still points at the previous hosted site; change it after this app has a public address.
 
 Questions, the Quizy name, and the brand mark are proprietary. This build does not include third-party music.
