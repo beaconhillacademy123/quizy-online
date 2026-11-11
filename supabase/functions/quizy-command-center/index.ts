@@ -21,13 +21,14 @@ function maskEmail(email: string) {
 }
 
 function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => ({
+  const replacements: Record<string, string> = {
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
     '"': "&quot;",
     "'": "&#39;",
-  })[character] ?? character);
+  };
+  return value.replace(/[&<>"']/g, (character) => replacements[character] ?? character);
 }
 
 function startOfDay(offset = 0) {
@@ -229,11 +230,12 @@ Deno.serve(async (req) => {
       }
 
       const emailResults: boolean[] = [];
-      const pending = ids.map((userId) => {
-        const recipient = recipients.get(userId);
-        const row = rows.find((item) => item.recipient_user_id === userId)!;
-        return { userId, recipient, row };
-      });
+      const rowsByUser = new Map(rows.map((row) => [row.recipient_user_id, row]));
+      const pending = ids.map((userId) => ({
+        userId,
+        recipient: recipients.get(userId),
+        row: rowsByUser.get(userId)!,
+      }));
       let nextIndex = 0;
       const sendWorker = async () => {
         while (nextIndex < pending.length) {
