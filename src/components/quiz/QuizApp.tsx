@@ -360,7 +360,7 @@ function Stats() {
   const screen = useQuiz((s) => s.screen);
   const round = useQuiz((s) => s.round);
   const go = useQuiz((s) => s.go);
-  const useHint = useQuiz((s) => s.useHint);
+  const activateHint = useQuiz((s) => s.useHint);
 
   const pills: { label: string; value: string; icon: LucideIcon; onClick: () => void }[] = [
     { label: "Lives", value: String(lives), icon: Heart, onClick: () => go("shop") },
@@ -371,7 +371,7 @@ function Stats() {
       value: String(hints),
       icon: Lightbulb,
       onClick: () => {
-        if (screen === "play" && round && round.mode !== "battle" && round.mode !== "daily") useHint();
+        if (screen === "play" && round && round.mode !== "battle" && round.mode !== "daily") activateHint();
         else go("shop");
       },
     },
