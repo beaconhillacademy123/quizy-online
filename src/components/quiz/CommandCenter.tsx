@@ -37,12 +37,12 @@ export function CommandCenter() {
   const [reason, setReason] = useState("Command Center action");
 
   useEffect(() => {
-    if (!feedback) return;
+    if (!feedback || sending) return;
     const timer = window.setTimeout(() => {
       setFeedback((current) => (current === feedback ? null : current));
     }, 6000);
     return () => window.clearTimeout(timer);
-  }, [feedback]);
+  }, [feedback, sending]);
 
   function refresh() {
     setFeedback(null);
