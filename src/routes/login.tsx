@@ -53,12 +53,12 @@ function Login() {
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim());
         if (resetError) throw resetError;
         setResetStep("verify");
-        setNote("If that Quizy account exists, a six-digit code is on its way. Enter it here to continue.");
+        setNote("If that Quizy account exists, a eight-digit code is on its way. Enter it here to continue.");
         return;
       }
       if (mode === "reset" && resetStep === "verify") {
         const code = otp.trim();
-        if (!/^\d{6}$/.test(code)) throw new Error("Enter the six-digit code from your email.");
+        if (!/^\d{6}$/.test(code)) throw new Error("Enter the eight-digit code from your email.");
         const { error: verifyError } = await supabase.auth.verifyOtp({
           email: email.trim(),
           token: code,
@@ -123,7 +123,7 @@ function Login() {
         </h1>
         <p className="mt-2 text-muted">
           {resetRequest || resetVerify || resetPassword
-            ? "Recover your existing Quizy account securely with a six-digit email code."
+            ? "Recover your existing Quizy account securely with a eight-digit email code."
             : "Sign in with the Quizy Supabase account. Stars, coins, and an unfinished question follow that account. The owner account opens the Command Center."}
         </p>
         <form className="mt-5 space-y-3" onSubmit={submit}>
@@ -154,10 +154,10 @@ function Login() {
               required
               inputMode="numeric"
               autoComplete="one-time-code"
-              pattern="[0-9]{6}"
-              maxLength={6}
+              pattern="[0-9]{8}"
+              maxLength={8}
               value={otp}
-              onChange={(event) => setOtp(event.target.value.replace(/\D/g, "").slice(0, 6))}
+              onChange={(event) => setOtp(event.target.value.replace(/\D/g, "").slice(0, 8))}
               placeholder="Six-digit code"
               aria-label="Six-digit email code"
               className="min-h-12 w-full rounded-2xl border border-line bg-surface-2 px-4 font-bold tracking-[0.3em] text-fg"
@@ -214,7 +214,7 @@ function Login() {
             {pending
               ? "One moment"
               : resetRequest
-                ? "Send six-digit code"
+                ? "Send eight-digit code"
                 : resetVerify
                   ? "Verify code"
                   : resetPassword
