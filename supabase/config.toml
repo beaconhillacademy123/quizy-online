@@ -1,0 +1,7 @@
+project_id = "snxehcpichoskvdtuveh"
+
+[functions.quizy-online-battle]
+verify_jwt = false
+
+[functions.quizy-command-center]
+verify_jwt = false

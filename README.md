@@ -1,33 +1,20 @@
-# Quizy Online — Phase 1
+# Quizy
 
-Independent Quizy PWA foundation. No Beacon Hill / school functionality is included.
+Educational quiz for children. Copyright © 2026 Uche Promise Egbe.
 
-## Included
-- Installable PWA shell
-- Existing Quizy 2.2.1 game retained
-- Supabase cloud question bank foundation
-- Supabase account/profile foundation
-- Cloud progress/attempt foundation
-- RLS policies for Quizy tables
-- Offline-capable shell with online sync architecture
+Accounts, saved progress, messages, and online battles use the existing Supabase project. Setup, environment variables, and the safe migration are in [SETUP.md](./SETUP.md).
 
-## Intellectual property
+## Play
 
-Quizy is proprietary unless a component is expressly identified as third-party material.
+- Camp: name, age (5–7 or 8–10), and difficulty, including Advanced modes (Beast, Mastermind, Quiz Master, Dragon, Ultimate, Legend, Elite, Volcano).
+- Trail: twelve lands, daily challenge, Year 1 academy, badges, and a device board that records a name when every land is finished. Current affairs and the sports arena follow the Command Center switches.
+- An unfinished question is kept if you leave or refresh, including inside the signed-in profile.
+- Sign in with email to save the trail across devices. Password reset is on the same screen. Google or X appear only when `VITE_SUPABASE_OAUTH` lists a provider that is enabled in Supabase Auth.
+- Online battle uses a room code and the `quizy-online-battle` function. The answer key stays on the server. Bluetooth battle works only inside the Android app in `android/`, which calls `window.QuizyBluetooth`.
+- The Command Center opens for the owner account (`uchep1990@gmail.com` unless `QUIZY_OWNER_EMAIL` says otherwise).
 
-- [PROPRIETARY_LICENSE.md](./PROPRIETARY_LICENSE.md) — ownership and permission terms
-- [TERMS_OF_USE.md](./TERMS_OF_USE.md) — product-use restrictions
-- [IP_RECORD.md](./IP_RECORD.md) — creation/evidence preservation record
-- [THIRD_PARTY_ASSETS.md](./THIRD_PARTY_ASSETS.md) — third-party asset and licence register
+## Publish
 
-Do not assume that a copyright notice alone replaces copyright registration, trademark registration, licensing records, or other evidence of ownership.
+Deploy this repository to the existing Vercel project. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Do not set `DATABASE_URL` and do not put a service-role key in the frontend. The Android `QUIZY_URL` in `MainActivity.java` still points at the previous hosted site; change it after this app has a public address.
 
-## Setup
-1. Run `quizy_schema.sql` in the Quizy Supabase project.
-2. Deploy this folder to HTTPS hosting (Vercel is suitable).
-3. Open the URL on Android/Chrome and install Quizy to the home screen.
-4. The next phase adds the polished Quizy account UI and admin content dashboard.
-
-Do not put a Supabase service-role key in the browser. The browser should use only the publishable/anon key with RLS enabled.
-
-<!-- Production redeploy trigger: restore known-good Quizy build. -->
+Questions, the Quizy name, and the brand mark are proprietary. This build does not include third-party music.
