@@ -7,27 +7,15 @@ import {
   CalendarDays,
   CircleHelp,
   Coins,
-  Cpu,
   Flame,
-  FlaskConical,
-  Globe2,
-  Hash,
   Heart,
-  Landmark,
   Lightbulb,
-  Map,
-  Newspaper,
-  PawPrint,
-  Puzzle,
-  Rocket,
   Shield,
-  SpellCheck,
   Swords,
   Tent,
   Trophy,
   Volume2,
   VolumeX,
-  Waves,
   Wifi,
   type LucideIcon,
 } from "lucide-react";
@@ -55,21 +43,6 @@ import { HelpMap } from "@/components/quiz/HelpMap";
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-const LAND_ICONS: Record<string, LucideIcon> = {
-  animal: PawPrint,
-  space: Rocket,
-  ocean: Waves,
-  number: Hash,
-  world: Globe2,
-  news: Newspaper,
-  science: FlaskConical,
-  logic: Puzzle,
-  africa: Landmark,
-  tech: Cpu,
-  sports: Trophy,
-  spelling: SpellCheck,
-};
 
 const AGES: { id: Age; label: string; note: string }[] = [
   { id: "young", label: "Ages 5–7", note: "Shorter words and warmer questions." },
@@ -100,21 +73,32 @@ export function QuizApp() {
   const screen = useQuiz((s) => s.screen);
   const round = useQuiz((s) => s.round);
   const [help, setHelp] = useState(false);
+  const [gate, setGate] = useState(true);
   const [flags, setFlags] = useState<PublicFlags>(OPEN_FLAGS);
   const onFlags = useCallback((next: PublicFlags) => setFlags(next), []);
 
   useEffect(() => {
-    void useQuiz.persist.rehydrate().then(() => {
+    const ready = useQuiz.persist.rehydrate();
+    void Promise.resolve(ready).then(() => {
       if (new URLSearchParams(window.location.search).has("room")) {
         useQuiz.getState().go("battle");
       }
     });
   }, []);
 
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(() => setGate(false), reduce ? 350 : 1650);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
-    <main className="min-h-screen bg-bg text-fg">
+    <main className="expedition-app min-h-screen text-fg">
+      <div className="world-bg" aria-hidden="true">
+        <img src="/art/compass.jpg" alt="" className="world-compass" />
+      </div>
       <CloudSync onFlags={onFlags} />
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 py-4 sm:px-6">
+      <div className="app-shell mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 py-4 sm:px-6">
         <TopBar onHelp={() => setHelp(true)} />
         {flags.announcement && (
           <p className="mt-3 rounded-2xl border border-gold bg-surface px-4 py-3 text-sm font-bold">{flags.announcement}</p>
@@ -129,6 +113,11 @@ export function QuizApp() {
             The expedition asked for version {flags.minAppVersion || "the current one"}. Update the installed app when
             you can. This page still opens.
           </p>
+        )}
+        {(screen === "camp" || screen === "map") && (
+          <figure className="scenic-banner">
+            <img src={screen === "camp" ? "/art/horizon.jpg" : "/art/table.jpg"} alt="" />
+          </figure>
         )}
         <div key={`${screen}-${round?.index ?? "x"}-${round?.title ?? ""}`} className="screen-in mt-4 flex-1">
           {screen === "camp" && <Camp flags={flags} />}
@@ -147,8 +136,27 @@ export function QuizApp() {
           {screen === "command" && <CommandCenter />}
         </div>
       </div>
+      {gate && <TrailGate onEnter={() => setGate(false)} />}
       {help && <HelpMap onClose={() => setHelp(false)} />}
     </main>
+  );
+}
+
+function TrailGate({ onEnter }: { onEnter: () => void }) {
+  return (
+    <button type="button" className="trail-gate" onClick={onEnter}>
+      <span className="trail-gate-card">
+        <img src="/quizy-mark.png" alt="" className="splash-logo" />
+        <span className="font-display text-3xl font-semibold leading-none">Quizy</span>
+        <span className="text-sm font-extrabold uppercase tracking-widest text-gold">The trail is open</span>
+        <span className="splash-dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="text-sm font-bold text-muted">Setting out… tap to enter</span>
+      </span>
+    </button>
   );
 }
 
@@ -164,9 +172,11 @@ function TopBar({ onHelp }: { onHelp: () => void }) {
   const onTrail = screen !== "camp";
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+    <header className="trail-bar flex flex-wrap items-center justify-between gap-3">
       <button type="button" className="flex items-center gap-3" onClick={() => park(name ? "map" : "camp")}>
-        <img src="/quizy-mark.png" alt="" className="size-11 rounded-xl object-cover" />
+        <span className="logo-plate">
+          <img src="/quizy-mark.png" alt="" />
+        </span>
         <span className="text-left">
           <span className="block font-display text-xl font-semibold leading-none">Quizy</span>
           <span className="hidden text-sm text-muted sm:block">One question at a time</span>
@@ -374,7 +384,7 @@ function Stats() {
           key={pill.label}
           type="button"
           onClick={pill.onClick}
-          className="rounded-2xl border border-line bg-surface px-2 py-2 text-left"
+          className="stat-pill rounded-2xl border border-line px-2 py-2 text-left"
         >
           <span className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-muted">
             <pill.icon className="size-3.5 text-gold" aria-hidden />
@@ -562,7 +572,6 @@ function Trail({ flags }: { flags: PublicFlags }) {
         {lands
           .filter((land) => (land.id === "news" ? flags.featureNews : land.id === "sports" ? flags.featureSports : true))
           .map((land) => {
-          const Icon = LAND_ICONS[land.id] ?? Map;
           const best = landCorrect[land.id] ?? 0;
           const done = !!landDone[land.id];
           return (
@@ -576,8 +585,8 @@ function Trail({ flags }: { flags: PublicFlags }) {
               )}
             >
               <span className="flex items-center justify-between gap-3">
-                <span className="inline-flex size-11 items-center justify-center rounded-2xl bg-surface-2 text-gold">
-                  <Icon className="size-5" aria-hidden />
+                <span className={cn("land-emblem", done && "is-cleared")}>
+                  <img src={`/art/lands/${land.id}.jpg`} alt="" />
                 </span>
                 <span className="text-sm font-extrabold text-muted">
                   {done ? "Cleared" : "Open"} · {best}/{land.count}
@@ -875,7 +884,7 @@ function ChoiceCard({
               )}
               style={{ animationDelay: `${index * 70}ms` }}
             >
-              <span className="text-muted">{String.fromCharCode(65 + index)}</span>
+              <span className="keycap">{String.fromCharCode(65 + index)}</span>
               <span>{option}</span>
             </button>
           );

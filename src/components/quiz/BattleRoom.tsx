@@ -349,7 +349,7 @@ export function BattleRoom() {
                     view.round_resolved && mine?.correct && index === 0 ? "border-line bg-surface" : "border-line bg-surface"
                   }`}
                 >
-                  <span className="mr-2 text-muted">{String.fromCharCode(65 + index)}</span>
+                  <span className="keycap mr-2">{String.fromCharCode(65 + index)}</span>
                   {option}
                 </button>
               );
