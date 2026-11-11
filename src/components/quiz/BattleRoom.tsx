@@ -34,9 +34,18 @@ export function BattleRoom() {
   const [busy, setBusy] = useState(false);
   const [devices, setDevices] = useState<{ name: string; address: string }[]>([]);
   const [btNote, setBtNote] = useState("");
+  const [shareNote, setShareNote] = useState("");
   const native = bridge();
 
   useEffect(() => {
+    const url = new URL(window.location.href);
+    const inviteCode = url.searchParams.get("room");
+    if (inviteCode) {
+      url.searchParams.delete("room");
+      window.history.replaceState({}, "", url.toString());
+      void joinRoom(inviteCode);
+      return;
+    }
     const saved = sessionStorage.getItem(SESSION);
     if (!saved) return;
     try {
@@ -117,6 +126,48 @@ export function BattleRoom() {
     }
   }
 
+  async function joinRoom(roomCode: string) {
+    await run(async () => {
+      const result = await battleCall("join", {
+        code: roomCode.trim().toUpperCase(),
+        name: name || "Explorer",
+        avatar: "quizy",
+        player_id: battlePlayerId(),
+      });
+      if (!result.room_id || !result.player_token || !result.state) throw new Error("That room could not be joined.");
+      remember(result.room_id, result.player_token);
+      setView(result.state);
+      poke(result.room_id);
+    });
+  }
+
+  function inviteLink() {
+    const url = new URL("/", window.location.origin);
+    url.searchParams.set("room", view?.code || "");
+    return url.toString();
+  }
+
+  async function copyText(value: string, message: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setShareNote(message);
+    } catch {
+      setError("Could not copy. Please select and copy the room code.");
+    }
+  }
+
+  async function shareInvite() {
+    const url = inviteLink();
+    const text = \`Join my Quizy online game. Room code: \${view?.code}\`;
+    try {
+      if (navigator.share) await navigator.share({ title: "Join my Quizy game", text, url });
+      else await navigator.clipboard.writeText(url);
+      setShareNote("Invite ready to share.");
+    } catch (caught) {
+      if (caught instanceof Error && caught.name !== "AbortError") setError("Could not open sharing. Copy the invite link instead.");
+    }
+  }
+
   if (!view) {
     return (
       <section className="mx-auto grid max-w-3xl gap-4 md:grid-cols-2">
@@ -150,18 +201,7 @@ export function BattleRoom() {
           className="rounded-card border border-line bg-surface p-5"
           onSubmit={(event) => {
             event.preventDefault();
-            void run(async () => {
-              const result = await battleCall("join", {
-                code,
-                name: name || "Explorer",
-                avatar: "quizy",
-                player_id: battlePlayerId(),
-              });
-              if (!result.room_id || !result.player_token || !result.state) throw new Error("That room could not be joined.");
-              remember(result.room_id, result.player_token);
-              setView(result.state);
-              poke(result.room_id);
-            });
+            void joinRoom(code);
           }}
         >
           <h2 className="font-display text-3xl font-semibold">Join with a code</h2>
@@ -236,6 +276,24 @@ export function BattleRoom() {
           Leave
         </button>
       </div>
+      {view.status === "lobby" && view.me?.is_host && (
+        <div className="mt-4 rounded-2xl border border-line bg-surface p-4">
+          <p className="font-extrabold">Invite someone to play</p>
+          <p className="mt-1 text-sm text-muted">Send the room code or share a link that opens this room.</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            <button type="button" onClick={() => void copyText(view.code, "Room code copied.")} className="min-h-11 rounded-2xl border border-line font-extrabold">
+              Copy room code
+            </button>
+            <button type="button" onClick={() => void copyText(inviteLink(), "Invite link copied.")} className="min-h-11 rounded-2xl border border-line font-extrabold">
+              Copy invite link
+            </button>
+            <button type="button" onClick={() => void shareInvite()} className="min-h-11 rounded-2xl bg-primary font-extrabold text-primary-fg">
+              Share invite
+            </button>
+          </div>
+          {shareNote && <p aria-live="polite" className="mt-2 text-sm text-muted">{shareNote}</p>}
+        </div>
+      )}
       <ul className="mt-4 grid gap-2 sm:grid-cols-2">
         {view.players.map((player) => (
           <li key={player.player_id} className="rounded-2xl border border-line bg-surface px-4 py-3">
