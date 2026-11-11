@@ -150,6 +150,7 @@ function Login() {
             />
           )}
           {resetVerify && (
+            <>
             <input
               required
               inputMode="numeric"
@@ -167,6 +168,7 @@ function Login() {
             <p aria-live="polite" className="text-right text-xs font-bold text-muted">
               {otp.length}/8 digits entered
             </p>
+            </>
           )}
           {needsPassword && (
             <>
