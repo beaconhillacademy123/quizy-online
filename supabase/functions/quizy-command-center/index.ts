@@ -20,6 +20,16 @@ function maskEmail(email: string) {
   return `${name.slice(0, 1)}•••@${domain}`;
 }
 
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[character] ?? character);
+}
+
 function startOfDay(offset = 0) {
   const date = new Date();
   date.setUTCHours(0, 0, 0, 0);
@@ -164,22 +174,132 @@ Deno.serve(async (req) => {
     }
 
     if (action === "send_message") {
-      const ids = Array.isArray(body.user_ids) ? body.user_ids.map(String) : [];
+      const ids = [...new Set(Array.isArray(body.user_ids) ? body.user_ids.map(String) : [])];
       const subject = String(body.subject ?? "").trim();
       const message = String(body.message ?? "").trim();
       if (!ids.length || !subject || !message) return json({ error: "Choose explorers and write the message." }, 400);
+      if (subject.length > 200 || message.length > 10000) {
+        return json({ error: "Keep the subject under 200 characters and the message under 10,000 characters." }, 400);
+      }
+
+      const senderName = String(body.sender_name ?? "Quizy Expedition Commander").slice(0, 120);
       const rows = ids.map((id) => ({
+        id: crypto.randomUUID(),
         recipient_user_id: id,
         subject,
         message,
-        sender_name: String(body.sender_name ?? "Quizy Expedition Commander"),
+        sender_name: senderName,
       }));
       const { error } = await db.from("quizy_messages").insert(rows);
       if (error) throw new Error(error.message);
-      const emailStatus = body.email_requested
-        ? "Delivered inside Quizy. Email is not sent from this function."
-        : "";
-      return json({ sent_count: ids.length, email_status: emailStatus });
+
+      if (body.email_requested !== true) return json({ sent_count: ids.length, email_sent_count: 0, email_failed_count: 0 });
+
+      const apiKey = Deno.env.get("RESEND_API_KEY")?.trim();
+      if (!apiKey) {
+        return json({
+          sent_count: ids.length,
+          email_sent_count: 0,
+          email_failed_count: ids.length,
+          email_status: "Email was not sent because the Resend sending key is not configured in Supabase.",
+        });
+      }
+
+      const recipientsToFind = new Set(ids);
+      const recipients = new Map<string, { email: string; name: string }>();
+      for (let page = 1; page <= 10 && recipientsToFind.size > 0; page += 1) {
+        const listed = await db.auth.admin.listUsers({ page, perPage: 200 });
+        if (listed.error) {
+          return json({
+            sent_count: ids.length,
+            email_sent_count: 0,
+            email_failed_count: ids.length,
+            email_status: "The in-app message was saved, but email addresses could not be checked.",
+          });
+        }
+        for (const recipient of listed.data.users) {
+          if (!recipientsToFind.has(recipient.id) || !recipient.email) continue;
+          recipients.set(recipient.id, {
+            email: recipient.email,
+            name: String(recipient.user_metadata?.display_name ?? recipient.email.split("@")[0] ?? "Explorer"),
+          });
+          recipientsToFind.delete(recipient.id);
+        }
+        if (listed.data.users.length < 200) break;
+      }
+
+      const emailResults: boolean[] = [];
+      const pending = ids.map((userId) => {
+        const recipient = recipients.get(userId);
+        const row = rows.find((item) => item.recipient_user_id === userId)!;
+        return { userId, recipient, row };
+      });
+      let nextIndex = 0;
+      const sendWorker = async () => {
+        while (nextIndex < pending.length) {
+          const current = pending[nextIndex++];
+          if (!current.recipient) {
+            emailResults.push(false);
+            continue;
+          }
+
+          const greeting = current.recipient.name ? `Hello, ${current.recipient.name},\\n\\n` : "";
+          const textBody = `${greeting}${message}\\n\\nSent by the Quizy team.`;
+          const safeName = escapeHtml(current.recipient.name);
+          const safeMessage = escapeHtml(message).replace(/\\r?\\n/g, "<br>");
+          const htmlBody = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Message from Quizy</title></head><body style="margin:0;background:#f6f1e6;font-family:Arial,Helvetica,sans-serif;color:#302b23;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f6f1e6;padding:24px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#ffffff;border-radius:16px;"><tr><td style="padding:28px 24px;font-size:16px;line-height:24px;color:#302b23;"><h1 style="margin:0 0 16px;font-size:24px;line-height:32px;color:#2f6f4f;">A message from Quizy</h1><p style="margin:0 0 16px;font-size:16px;line-height:24px;color:#302b23;">Hello ${safeName},</p><p style="margin:0 0 20px;font-size:16px;line-height:24px;color:#302b23;">${safeMessage}</p><p style="margin:24px 0 0;font-size:13px;line-height:20px;color:#6b665e;">Sent by the Quizy team.</p></td></tr></table></td></tr></table></body></html>`;
+
+          let accepted = false;
+          for (let attempt = 0; attempt < 2 && !accepted; attempt += 1) {
+            try {
+              const response = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${apiKey}`,
+                  "Content-Type": "application/json",
+                  "Idempotency-Key": `quizy-message-${current.row.id}`,
+                },
+                body: JSON.stringify({
+                  from: "Quizy <no-reply@beaconhillacademy.com.ng>",
+                  to: [current.recipient.email],
+                  subject,
+                  text: textBody,
+                  html: htmlBody,
+                }),
+                signal: AbortSignal.timeout(15000),
+              });
+              if (response.ok) {
+                accepted = true;
+                break;
+              }
+              if (attempt === 0 && (response.status === 429 || response.status >= 500)) {
+                await new Promise((resolve) => setTimeout(resolve, 750));
+                continue;
+              }
+              break;
+            } catch {
+              if (attempt === 0) {
+                await new Promise((resolve) => setTimeout(resolve, 750));
+                continue;
+              }
+            }
+          }
+          emailResults.push(accepted);
+        }
+      };
+
+      await Promise.all(Array.from({ length: Math.min(5, pending.length) }, () => sendWorker()));
+      const emailSentCount = emailResults.filter(Boolean).length;
+      const emailFailedCount = ids.length - emailSentCount;
+      const emailStatus = emailFailedCount === 0
+        ? `Resend accepted email for ${emailSentCount} explorer(s).`
+        : `Resend accepted ${emailSentCount} email(s); ${emailFailedCount} could not be sent.`;
+      return json({
+        sent_count: ids.length,
+        email_sent_count: emailSentCount,
+        email_failed_count: emailFailedCount,
+        email_status: emailStatus,
+      });
     }
 
     if (action === "user_action") {
