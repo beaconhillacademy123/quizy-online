@@ -33,7 +33,13 @@ Set these on Vercel (Production and Preview). Copy names from `.env.example`.
 
 Do not set `DATABASE_URL` on Vercel. A value there would run the empty platform migrator against a different Postgres.
 
-In Supabase → Authentication → URL configuration, add the Vercel origin and `http://localhost:8080` to the redirect allow list.
+In Supabase → Authentication → URL configuration, set the Site URL to `https://quizy-online-rho.vercel.app` and ensure that Quizy origin is in the redirect allow list. Add `http://localhost:8080` only when using the local development build.
+
+## Password recovery email
+
+In Supabase → Authentication → Email Templates → Reset Password, set the subject to `Your Quizy password reset code` and use the Quizy-branded content in `supabase/templates/recovery.html`. Keep `{{ .Token }}` in the template. Do not use `{{ .ConfirmationURL }}` for recovery: that creates the clickable reset-link experience. The app calls `resetPasswordForEmail`, verifies the entered code with `verifyOtp({ type: "recovery" })`, then updates the password in the existing account.
+
+The app does not pass a recovery redirect URL. The user stays in Quizy, verifies the six-digit email code, enters and confirms a new password, and returns to Quizy sign-in.
 
 ## Edge Functions
 
@@ -64,8 +70,6 @@ The repository is a Vite TanStack Start app.
 3. Set the `VITE_SUPABASE_*` variables above. No service-role key.
 4. Do not set `DATABASE_URL`.
 5. Deploy. `npm run build` is `vite build` plus a migrator that exits immediately when `DATABASE_URL` is unset.
-
-Auth emails (reset links) use the Supabase mailer. Site URL in the Supabase dashboard should be the Vercel URL.
 
 ## What stays on the device
 
