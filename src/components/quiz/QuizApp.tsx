@@ -104,7 +104,11 @@ export function QuizApp() {
   const onFlags = useCallback((next: PublicFlags) => setFlags(next), []);
 
   useEffect(() => {
-    void useQuiz.persist.rehydrate();
+    void useQuiz.persist.rehydrate().then(() => {
+      if (new URLSearchParams(window.location.search).has("room")) {
+        useQuiz.getState().go("battle");
+      }
+    });
   }, []);
 
   return (
