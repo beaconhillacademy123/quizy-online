@@ -158,7 +158,7 @@ export function BattleRoom() {
 
   async function shareInvite() {
     const url = inviteLink();
-    const text = \`Join my Quizy online game. Room code: \${view?.code}\`;
+    const text = "Join my Quizy online game. Room code: " + (view?.code || "");
     try {
       if (navigator.share) await navigator.share({ title: "Join my Quizy game", text, url });
       else await navigator.clipboard.writeText(url);
