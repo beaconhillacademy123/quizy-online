@@ -74,3 +74,14 @@ Set the Supabase Site URL to https://quizy-online-rho.vercel.app and keep that o
 ## What stays on the device
 
 The question bank in `src/data/bank.json` plays with no account. Signing in syncs the trail to `quizy_profiles`. Remote questions whose ids are new are added from `quizy_questions`; local questions win when the id already exists.
+
+
+## Email messages from the Command Center
+
+In-app messages are stored in the existing `quizy_messages` table. Optional email delivery uses Resend from the Supabase Edge Function. The sender is `Quizy <no-reply@beaconhillacademy.com.ng>`; the verified domain must remain enabled for sending.
+
+1. In Resend, create a dedicated API key with **Sending access**, restricted to the verified `beaconhillacademy.com.ng` domain.
+2. In Supabase → Project Settings → Edge Functions → Secrets, add the key as `RESEND_API_KEY`.
+3. Never commit the key or put it in a browser-visible `VITE_*` variable. The Edge Function sends one private email per selected explorer and reports partial failures while preserving in-app delivery.
+
+If the secret is absent, in-app delivery still works and the Command Center reports that email was not sent.
