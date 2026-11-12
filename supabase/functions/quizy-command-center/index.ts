@@ -305,6 +305,53 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (action === "reset_progress") {
+      const userId = String(body.user_id ?? "");
+      if (!userId) return json({ error: "Explorer is required." }, 400);
+      const { error } = await db.from("quizy_profiles").update({
+        total_stars: 0, land_stars: {}, land_correct: {}, land_done: {}, coins: 0,
+        best_streak: 0, badges: [], unlocked: [], question_history: {},
+        updated_at: new Date().toISOString(),
+      }).eq("user_id", userId);
+      if (error) throw new Error(error.message);
+      return json({ ok: true });
+    }
+
+    if (action === "award_coins") {
+      const userId = String(body.user_id ?? "");
+      if (!userId) return json({ error: "Explorer is required." }, 400);
+      const amount = Math.max(1, Math.min(1000, Number(body.amount || 25)));
+      const { data: profiles, error } = await db.from("quizy_profiles").select("id,coins").eq("user_id", userId);
+      if (error) throw new Error(error.message);
+      for (const profile of profiles ?? []) {
+        const { error: updateError } = await db.from("quizy_profiles")
+          .update({ coins: Number(profile.coins || 0) + amount, updated_at: new Date().toISOString() })
+          .eq("id", profile.id);
+        if (updateError) throw new Error(updateError.message);
+      }
+      return json({ ok: true });
+    }
+
+    if (action === "user_detail") {
+      const userId = String(body.user_id ?? "");
+      const { data, error } = await db.auth.admin.getUserById(userId);
+      if (error || !data.user) return json({ error: "Explorer not found." }, 404);
+      const [{ data: profile }, { data: control }] = await Promise.all([
+        db.from("quizy_profiles").select("display_name,total_stars,badges,coins,best_streak").eq("user_id", userId).maybeSingle(),
+        db.from("quizy_user_controls").select("suspended,reason").eq("user_id", userId).maybeSingle(),
+      ]);
+      return json({ user: {
+        user_id: userId,
+        display_name: profile?.display_name || data.user.user_metadata?.display_name || "Explorer",
+        email_masked: maskEmail(data.user.email || ""),
+        suspended: control?.suspended === true,
+        total_stars: Number(profile?.total_stars ?? 0),
+        badges: Array.isArray(profile?.badges) ? profile.badges.length : 0,
+        coins: Number(profile?.coins ?? 0),
+        best_streak: Number(profile?.best_streak ?? 0),
+      } });
+    }
+
     if (action === "user_action") {
       const userId = String(body.user_id ?? "");
       const next = String(body.operation ?? body.subaction ?? "");
