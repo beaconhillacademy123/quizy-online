@@ -120,30 +120,27 @@ export function CloudSync({ onFlags }: { onFlags: (flags: PublicFlags) => void }
             if (key.startsWith("__") || !Array.isArray(value)) continue;
             history[key] = [...new Set([...(history[key] ?? []), ...value.map(String)])];
           }
+          const cloudLandCorrect = (row.land_correct as Record<string, number> | null) ?? {};
+          const landStars = { ...local.landStars };
+          for (const [key, value] of Object.entries(cloudLandStars)) {
+            landStars[key] = Math.max(Number(landStars[key] ?? 0), Number(value ?? 0));
+          }
+          const landCorrect = { ...local.landCorrect };
+          for (const [key, value] of Object.entries(cloudLandCorrect)) {
+            landCorrect[key] = Math.max(Number(landCorrect[key] ?? 0), Number(value ?? 0));
+          }
+          const landDone = { ...local.landDone };
+          for (const [key, value] of Object.entries(cloudLandDone)) {
+            landDone[key] = Boolean(landDone[key] || value);
+          }
           useQuiz.setState({
             totalStars: Math.max(local.totalStars, Number(row.total_stars ?? 0)),
             coins: Math.max(local.coins, Number(row.coins ?? 0)),
             bestStreak: Math.max(local.bestStreak, Number(row.best_streak ?? 0)),
             badges: [...new Set([...local.badges, ...cloudBadges])],
-            landStars: Object.fromEntries(
-              new Set([...Object.keys(local.landStars), ...Object.keys(cloudLandStars)]).values(),
-            ).reduce<Record<string, number>>((merged, key) => {
-              merged[key] = Math.max(Number(local.landStars[key] ?? 0), Number(cloudLandStars[key] ?? 0));
-              return merged;
-            }, {}),
-            landCorrect: Object.fromEntries(
-              new Set([...Object.keys(local.landCorrect), ...Object.keys((row.land_correct as Record<string, number> | null) ?? {})]).values(),
-            ).reduce<Record<string, number>>((merged, key) => {
-              const cloudCorrect = (row.land_correct as Record<string, number> | null) ?? {};
-              merged[key] = Math.max(Number(local.landCorrect[key] ?? 0), Number(cloudCorrect[key] ?? 0));
-              return merged;
-            }, {}),
-            landDone: Object.fromEntries(
-              new Set([...Object.keys(local.landDone), ...Object.keys(cloudLandDone)]).values(),
-            ).reduce<Record<string, boolean>>((merged, key) => {
-              merged[key] = Boolean(local.landDone[key] || cloudLandDone[key]);
-              return merged;
-            }, {}),
+            landStars,
+            landCorrect,
+            landDone,
             history,
           });
         }
