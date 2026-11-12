@@ -101,7 +101,7 @@ export function CloudSync({ onFlags }: { onFlags: (flags: PublicFlags) => void }
             cloudBadges.length > 0 ||
             Object.values(cloudLandDone).some(Boolean) ||
             Object.values(cloudLandStars).some((value) => Number(value) > 0) ||
-            Object.keys(cloudHistory).some((key) => !key.startsWith("__")),
+            Object.keys(cloudHistory).some((key) => !key.startsWith("__"))),
       );
 
       let cloudApplied = false;
