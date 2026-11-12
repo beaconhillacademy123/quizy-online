@@ -50,14 +50,15 @@ Deno.serve(async (req) => {
   const { data: userData, error: userError } = await db.auth.getUser(jwt);
   if (userError || !userData.user) return json({ error: "Invalid session" }, 403);
   const user = userData.user;
-  const ownerEmail = (Deno.env.get("QUIZY_OWNER_EMAIL") || "uchep1990@gmail.com").toLowerCase();
-  const isOwner = (user.email || "").toLowerCase() === ownerEmail;
+  const { data: admin, error: adminError } = await db.from("quizy_admins")
+    .select("user_id,role,display_name,active").eq("user_id", user.id).maybeSingle();
+  const isAdmin = !adminError && admin?.active === true;
 
   try {
     const body = (await req.json()) as Record<string, unknown>;
     const action = String(body.action ?? "");
-    if (action === "whoami") return json({ admin: isOwner, user_id: user.id });
-    if (!isOwner) return json({ error: "Command Center access denied for this account." }, 403);
+    if (action === "whoami") return json({ admin: isAdmin, role: admin?.role ?? null, display_name: admin?.display_name ?? null, user_id: user.id });
+    if (!isAdmin) return json({ error: "Command Center access denied for this account." }, 403);
 
     if (action === "settings") {
       const { data, error } = await db.from("quizy_settings").select("key,value");
@@ -306,7 +307,7 @@ Deno.serve(async (req) => {
 
     if (action === "user_action") {
       const userId = String(body.user_id ?? "");
-      const next = String(body.action ?? "");
+      const next = String(body.operation ?? body.subaction ?? "");
       if (!userId || (next !== "suspend" && next !== "restore")) return json({ error: "Unknown explorer action." }, 400);
       const { error } = await db.from("quizy_user_controls").upsert(
         {
