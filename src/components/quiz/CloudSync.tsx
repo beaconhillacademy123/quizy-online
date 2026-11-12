@@ -79,7 +79,7 @@ export function CloudSync({ onFlags }: { onFlags: (flags: PublicFlags) => void }
 
       const local = useQuiz.getState();
       const row = await pullProfile(user.id, local.name || user.email?.split("@")[0] || "Explorer");
-      const localAt = Number(localStorage.getItem("quizy-expedition-saved-at") || 0);
+      const localAt = Number(localStorage.getItem("quizy-expedition-saved-at") || 0) || 0;
       const cloudAt = row?.updated_at ? Date.parse(String(row.updated_at)) : 0;
       const localHasProgress =
         local.totalStars > 0 ||
