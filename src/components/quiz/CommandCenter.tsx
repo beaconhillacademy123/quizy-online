@@ -32,12 +32,20 @@ export function CommandCenter() {
   const [picked, setPicked] = useState<string[]>([]);
   const [subject, setSubject] = useState("Keep exploring");
   const [body, setBody] = useState("");
-  const [error, setError] = useState("");
-  const [note, setNote] = useState("");
+  const [feedback, setFeedback] = useState<{ kind: "success" | "warning" | "error"; message: string } | null>(null);
+  const [sending, setSending] = useState(false);
   const [reason, setReason] = useState("Command Center action");
 
+  useEffect(() => {
+    if (!feedback || sending) return;
+    const timer = window.setTimeout(() => {
+      setFeedback((current) => (current === feedback ? null : current));
+    }, 6000);
+    return () => window.clearTimeout(timer);
+  }, [feedback, sending]);
+
   function refresh() {
-    setError("");
+    setFeedback(null);
     Promise.all([
       commandCall<CommandSummary>("summary"),
       commandCall<{ users: CommandUser[] }>("users"),
@@ -50,7 +58,7 @@ export function CommandCenter() {
         setSettings(nextSettings.settings);
         setNotes(nextNotes);
       })
-      .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : "Command Center is closed"));
+      .catch((caught: unknown) => setFeedback({ kind: "error", message: caught instanceof Error ? caught.message : "Command Center is closed" }));
   }
 
   useEffect(() => {
@@ -62,27 +70,50 @@ export function CommandCenter() {
     return (
       <section className="mx-auto max-w-xl">
         <h2 className="font-display text-3xl font-semibold">Command Center</h2>
-        <p className="mt-2 text-muted">Sign in with the Quizy owner account. This stays inside that account.</p>
+        <p className="mt-2 text-muted">Sign in with an authorized Quizy admin account.</p>
         <Link to="/login" className="mt-4 inline-flex min-h-12 items-center rounded-2xl bg-primary px-5 font-extrabold text-primary-fg">
           Sign in
         </Link>
       </section>
     );
   }
-  if (error && !summary) return <p className="text-bad">{error}</p>;
+  if (feedback?.kind === "error" && !summary) return <p className="text-bad">{feedback.message}</p>;
   if (!summary || !settings) return <p className="text-muted">Opening the Command Center…</p>;
 
   function save(next: CommandSettings) {
     setSettings(next);
     commandCall("save_settings", { settings: next })
-      .then(() => setNote("Switches saved."))
-      .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : "Could not save"));
+      .then(() => setFeedback({ kind: "success", message: "Switches saved." }))
+      .catch((caught: unknown) => setFeedback({ kind: "error", message: caught instanceof Error ? caught.message : "Could not save" }));
   }
 
   return (
     <section className="space-y-4">
+      {feedback && (
+        <div
+          role={feedback.kind === "error" ? "alert" : "status"}
+          aria-live={feedback.kind === "error" ? "assertive" : "polite"}
+          className={`fixed left-4 right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-[100] mx-auto flex max-w-2xl items-start justify-between gap-4 rounded-2xl border px-4 py-3 shadow-xl ${
+            feedback.kind === "error"
+              ? "border-bad bg-surface text-bad"
+              : feedback.kind === "warning"
+                ? "border-gold bg-surface text-fg"
+                : "border-primary bg-surface text-fg"
+          }`}
+        >
+          <p className="font-bold">{feedback.message}</p>
+          <button
+            type="button"
+            aria-label="Dismiss notification"
+            onClick={() => setFeedback(null)}
+            className="shrink-0 rounded-lg px-2 font-bold"
+          >
+            ×
+          </button>
+        </div>
+      )}
       <div>
-        <p className="text-sm font-extrabold uppercase tracking-widest text-gold">Owner</p>
+        <p className="text-sm font-extrabold uppercase tracking-widest text-gold">Admin</p>
         <h2 className="font-display text-3xl font-semibold">Command Center</h2>
         <p className="text-muted">Explorers, messages and switches from the existing Quizy command service. Email addresses stay masked.</p>
       </div>
@@ -146,7 +177,23 @@ export function CommandCenter() {
         className="rounded-card border border-line bg-surface p-4"
         onSubmit={(event) => {
           event.preventDefault();
-          commandCall<{ sent_count?: number; email_status?: string }>("send_message", {
+          if (sending) return;
+          if (picked.length === 0) {
+            setFeedback({ kind: "error", message: "Choose at least one explorer." });
+            return;
+          }
+          if (!subject.trim() || !body.trim()) {
+            setFeedback({ kind: "error", message: "Subject and message are required." });
+            return;
+          }
+          setSending(true);
+          setFeedback({ kind: "warning", message: "Sending your message…" });
+          commandCall<{
+            sent_count?: number;
+            email_sent_count?: number;
+            email_failed_count?: number;
+            email_status?: string;
+          }>("send_message", {
             user_ids: picked,
             subject,
             message: body,
@@ -155,9 +202,17 @@ export function CommandCenter() {
           })
             .then((result) => {
               setBody("");
-              setNote(`Delivered inside Quizy to ${result.sent_count ?? picked.length} explorer(s). ${result.email_status ?? ""}`);
+              const emailFailed = (result.email_failed_count ?? 0) > 0;
+              const emailStatus = result.email_status ? ` ${result.email_status}` : "";
+              setFeedback({
+                kind: emailFailed ? "warning" : "success",
+                message: `Delivered inside Quizy to ${result.sent_count ?? picked.length} explorer(s).${emailStatus}`,
+              });
             })
-            .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : "Message failed"));
+            .catch((caught: unknown) =>
+              setFeedback({ kind: "error", message: caught instanceof Error ? caught.message : "Message failed" }),
+            )
+            .finally(() => setSending(false));
         }}
       >
         <h3 className="font-extrabold">Message explorers</h3>
@@ -208,8 +263,8 @@ export function CommandCenter() {
             </li>
           ))}
         </ul>
-        <button type="submit" className="mt-3 min-h-11 rounded-2xl bg-gold px-4 font-extrabold text-gold-fg">
-          Send
+        <button type="submit" disabled={sending} className="mt-3 min-h-11 rounded-2xl bg-gold px-4 font-extrabold text-gold-fg disabled:cursor-wait disabled:opacity-60">
+          {sending ? "Sending…" : "Send"}
         </button>
       </form>
       <div className="rounded-card border border-line bg-surface p-4">
@@ -235,11 +290,11 @@ export function CommandCenter() {
                 onClick={() =>
                   commandCall("user_action", {
                     user_id: explorer.user_id,
-                    action: explorer.suspended ? "restore" : "suspend",
+                    operation: explorer.suspended ? "restore" : "suspend",
                     reason,
                   })
                     .then(() => refresh())
-                    .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : "Could not update the explorer"))
+                    .catch((caught: unknown) => setFeedback({ kind: "error", message: caught instanceof Error ? caught.message : "Could not update the explorer" }))
                 }
                 className="min-h-11 rounded-2xl border border-line px-3 font-extrabold"
               >
@@ -260,8 +315,6 @@ export function CommandCenter() {
           ))}
         </ul>
       </div>
-      {note && <p className="text-sm">{note}</p>}
-      {error && <p className="text-bad">{error}</p>}
     </section>
   );
 }

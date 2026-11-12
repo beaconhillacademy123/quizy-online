@@ -488,8 +488,8 @@ export async function battleCall(action: string, extra: Record<string, unknown> 
 
 export async function commandCall<T>(action: string, extra: Record<string, unknown> = {}) {
   const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session) throw new Error("Sign in with the owner account.");
-  return (await invoke("quizy-command-center", { action, ...extra })) as T;
+  if (!sessionData.session) throw new Error("Sign in with an authorized Quizy admin account.");
+  return (await invoke("quizy-command-center", { ...extra, action })) as T;
 }
 
 export async function signOut() {
