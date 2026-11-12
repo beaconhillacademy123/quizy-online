@@ -70,7 +70,7 @@ export function CommandCenter() {
     return (
       <section className="mx-auto max-w-xl">
         <h2 className="font-display text-3xl font-semibold">Command Center</h2>
-        <p className="mt-2 text-muted">Sign in with the Quizy owner account. This stays inside that account.</p>
+        <p className="mt-2 text-muted">Sign in with an authorized Quizy admin account.</p>
         <Link to="/login" className="mt-4 inline-flex min-h-12 items-center rounded-2xl bg-primary px-5 font-extrabold text-primary-fg">
           Sign in
         </Link>
@@ -113,7 +113,7 @@ export function CommandCenter() {
         </div>
       )}
       <div>
-        <p className="text-sm font-extrabold uppercase tracking-widest text-gold">Owner</p>
+        <p className="text-sm font-extrabold uppercase tracking-widest text-gold">Admin</p>
         <h2 className="font-display text-3xl font-semibold">Command Center</h2>
         <p className="text-muted">Explorers, messages and switches from the existing Quizy command service. Email addresses stay masked.</p>
       </div>
@@ -290,7 +290,7 @@ export function CommandCenter() {
                 onClick={() =>
                   commandCall("user_action", {
                     user_id: explorer.user_id,
-                    action: explorer.suspended ? "restore" : "suspend",
+                    operation: explorer.suspended ? "restore" : "suspend",
                     reason,
                   })
                     .then(() => refresh())
