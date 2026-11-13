@@ -38,7 +38,10 @@ export function CloudSync({ onFlags }: { onFlags: (flags: PublicFlags) => void }
     const host = window.location.hostname;
     if (host === "localhost" || host === "127.0.0.1") return;
     if (!("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
+    navigator.serviceWorker
+      .register("/sw.js", { updateViaCache: "none" })
+      .then((registration) => registration.update().catch(() => {}))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
