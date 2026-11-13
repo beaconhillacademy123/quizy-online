@@ -1,4 +1,4 @@
-const CACHE = "quizy-shell-v1";
+const CACHE = "quizy-shell-v2";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(["/"])));
