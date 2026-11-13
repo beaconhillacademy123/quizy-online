@@ -111,11 +111,19 @@ export function QuizApp() {
     });
   }, []);
 
+  // A new question always opens from the beginning of the screen.
+  useEffect(() => {
+    if (screen === "play" || screen === "battle") window.scrollTo(0, 0);
+  }, [screen, round?.index, round?.mode]);
+
   return (
-    <main className="min-h-screen bg-bg text-fg">
+    <main className={cn("min-h-screen bg-bg text-fg", screen === "play" && "quiz-play-screen")}>
       <CloudSync onFlags={onFlags} />
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 py-4 sm:px-6">
-        <TopBar onHelp={() => setHelp(true)} />
+      <div className={cn(
+        "mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 py-4 sm:px-6",
+        screen === "play" && "quiz-play-shell",
+      )}>
+        <TopBar onHelp={() => setHelp(true)} compact={screen === "play"} />
         {flags.announcement && (
           <p className="mt-3 rounded-2xl border border-gold bg-surface px-4 py-3 text-sm font-bold">{flags.announcement}</p>
         )}
@@ -152,7 +160,7 @@ export function QuizApp() {
   );
 }
 
-function TopBar({ onHelp }: { onHelp: () => void }) {
+function TopBar({ onHelp, compact = false }: { onHelp: () => void; compact?: boolean }) {
   const screen = useQuiz((s) => s.screen);
   const name = useQuiz((s) => s.name);
   const role = useQuiz((s) => s.role);
@@ -164,7 +172,10 @@ function TopBar({ onHelp }: { onHelp: () => void }) {
   const onTrail = screen !== "camp";
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+    <header className={cn(
+      "flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3",
+      compact && "quiz-play-topbar",
+    )}>
       <button type="button" className="flex items-center gap-3" onClick={() => park(name ? "map" : "camp")}>
         <img src="/quizy-mark.png" alt="" className="size-11 rounded-xl object-cover" />
         <span className="text-left">
@@ -368,7 +379,7 @@ function Stats() {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="quiz-stats grid grid-cols-4 gap-2">
       {pills.map((pill) => (
         <button
           key={pill.label}
@@ -714,11 +725,11 @@ function Play() {
           {round.index + 1} / {round.items.length}
         </span>
       </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2" aria-hidden>
+      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
         <div className="progress-fill h-full bg-gold" style={{ width: `${progress}%` }} />
       </div>
       {round.mode !== "battle" && round.mode !== "daily" && round.mode !== "academy" && (
-        <div className="mt-4">
+        <div className="mt-2">
           <Stats />
         </div>
       )}
@@ -840,8 +851,8 @@ function ChoiceCard({
           </ul>
         </div>
       )}
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="font-display text-3xl font-semibold leading-tight">{item.q}</h2>
+      <div className="flex items-start justify-between gap-2">
+        <h2 className="quiz-question-title min-w-0 font-display text-2xl font-semibold leading-tight sm:text-3xl">{item.q}</h2>
         {voiceOn && (
           <button
             type="button"
@@ -853,7 +864,7 @@ function ChoiceCard({
           </button>
         )}
       </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+      <div className="quiz-answer-grid mt-3 grid grid-cols-2 gap-2 sm:gap-3">
         {item.opts.map((option, index) => {
           const hidden = item.hidden.includes(index);
           const isPick = picked === index;
@@ -867,7 +878,7 @@ function ChoiceCard({
               disabled={hidden || locked}
               onClick={() => onPick(index)}
               className={cn(
-                "stagger-item flex min-h-14 items-center gap-3 rounded-2xl border px-4 py-3 text-left text-lg font-extrabold",
+                "stagger-item flex min-h-12 min-w-0 items-center gap-2 rounded-2xl border px-3 py-2 text-left text-sm font-extrabold sm:min-h-14 sm:gap-3 sm:px-4 sm:text-base",
                 hidden && "invisible",
                 correct && "border-good bg-surface-2 text-good",
                 wrongPick && "border-bad text-bad",
