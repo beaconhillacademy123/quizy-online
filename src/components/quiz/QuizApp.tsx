@@ -93,7 +93,7 @@ export function QuizApp() {
   }, []);
 
   return (
-    <main className="expedition-app min-h-screen text-fg">
+    <main className={cn("expedition-app min-h-screen text-fg", screen === "camp" && "is-camp")}>
       <div className="world-bg" aria-hidden="true">
         <img src="/art/compass.jpg" alt="" className="world-compass" />
       </div>
@@ -115,8 +115,9 @@ export function QuizApp() {
           </p>
         )}
         {(screen === "camp" || screen === "map") && (
-          <figure className="scenic-banner">
+          <figure className={cn("scenic-banner", screen === "camp" && "is-alive")}>
             <img src={screen === "camp" ? "/art/horizon.jpg" : "/art/table.jpg"} alt="" />
+            {screen === "camp" && <LivingSky />}
           </figure>
         )}
         <div key={`${screen}-${round?.index ?? "x"}-${round?.title ?? ""}`} className="screen-in mt-4 flex-1">
@@ -139,6 +140,51 @@ export function QuizApp() {
       {gate && <TrailGate onEnter={() => setGate(false)} />}
       {help && <HelpMap onClose={() => setHelp(false)} />}
     </main>
+  );
+}
+
+function LivingSky() {
+  return (
+    <div className="living-sky" aria-hidden="true">
+      <span className="sky-cloud c1" />
+      <span className="sky-cloud c2" />
+      <span className="sky-cloud c3" />
+      <span className="sky-bird b1">
+        <span className="sky-bird-bob">
+          <BirdMark />
+        </span>
+      </span>
+      <span className="sky-bird b2">
+        <span className="sky-bird-bob">
+          <BirdMark />
+        </span>
+      </span>
+      <span className="sky-bird b3">
+        <span className="sky-bird-bob">
+          <BirdMark />
+        </span>
+      </span>
+      <span className="sky-butterfly">
+        <i />
+        <i />
+      </span>
+      <span className="sky-grass">
+        {GRASS.map((height, index) => (
+          <i key={index} style={{ height }} />
+        ))}
+      </span>
+    </div>
+  );
+}
+
+const GRASS = ["1.15rem", "1.55rem", "0.95rem", "1.4rem", "1.7rem", "1.05rem", "1.45rem", "0.85rem", "1.6rem", "1.2rem", "1.5rem", "1rem", "1.65rem", "1.25rem", "0.9rem", "1.4rem", "1.15rem", "1.55rem"];
+
+function BirdMark() {
+  return (
+    <svg viewBox="0 0 64 28">
+      <path className="wing" d="M4 16c8-12 20-10 28-2-8-2-18 0-28 2z" />
+      <path className="wing right" d="M60 16C52 4 40 6 32 14c8-2 18 0 28 2z" />
+    </svg>
   );
 }
 
