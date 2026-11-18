@@ -164,23 +164,95 @@ function prepareChoice(
   return { kind: "choice", id: q.id, q: q.q, opts, a: answer, exp: q.exp, hidden: [], media };
 }
 
-export function pickLandQuestions(land: Land, age: Age, difficulty: Difficulty, usedIds: string[]): PlayItem[] {
-  const count = land.count;
+function sentenceKey(q: { kind?: string; q?: string; word?: string }) {
+  if (q.kind === "spell") return `spell:${(q.word ?? "").trim().toLowerCase()}`;
+  return (q.q ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function dedupeBank(list: BankQ[]) {
+  const seen = new Set<string>();
+  const unique: BankQ[] = [];
+  for (const question of list) {
+    const key = sentenceKey(question);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    unique.push(question);
+  }
+  return unique;
+}
+
+const DIFFICULTY_LADDER: Difficulty[] = ["easy", "medium", "difficult", "advanced"];
+
+function difficultyOrder(current: Difficulty) {
+  const start = Math.max(0, DIFFICULTY_LADDER.indexOf(current));
+  return [...DIFFICULTY_LADDER.slice(start), ...DIFFICULTY_LADDER.slice(0, start).reverse()];
+}
+
+function toPlayItem(q: BankQ, rnd: () => number = Math.random): PlayItem {
+  return q.kind === "spell"
+    ? { kind: "spell", id: q.id, word: q.word, hint: q.hint }
+    : prepareChoice(q, rnd);
+}
+
+function takeFresh(groups: BankQ[][], blocked: Set<string>, count: number, rnd: () => number = Math.random) {
+  const chosen: BankQ[] = [];
+  const seen = new Set(blocked);
+  const pull = (list: BankQ[], ignoreBlocked: boolean) => {
+    for (const question of shuffle(dedupeBank(list), rnd)) {
+      const key = sentenceKey(question);
+      if (!ignoreBlocked && seen.has(key)) continue;
+      if (chosen.some((item) => sentenceKey(item) === key)) continue;
+      seen.add(key);
+      chosen.push(question);
+      if (chosen.length >= count) return true;
+    }
+    return false;
+  };
+  for (const group of groups) {
+    if (pull(group, false)) return chosen;
+  }
+  for (const group of groups) {
+    if (pull(group, true)) return chosen;
+  }
+  return chosen;
+}
+
+export function blockedSentences(history: Record<string, string[]>) {
+  const byId = new Map<string, string>();
+  for (const land of lands) {
+    for (const question of questionsFor(land)) byId.set(question.id, sentenceKey(question));
+  }
+  for (const question of academyQuestions) byId.set(question.id, sentenceKey({ kind: "choice", q: question.q }));
+  const blocked = new Set<string>();
+  for (const [key, ids] of Object.entries(history)) {
+    if (key.startsWith("break|") || !Array.isArray(ids)) continue;
+    for (const id of ids) {
+      const sentence = byId.get(id);
+      if (sentence) blocked.add(sentence);
+    }
+  }
+  return blocked;
+}
+
+export function pickLandQuestions(
+  land: Land,
+  age: Age,
+  difficulty: Difficulty,
+  usedIds: string[],
+  blocked: Set<string> = new Set(),
+): PlayItem[] {
   const bank = questionsFor(land);
-  let pool =
-    difficulty === "advanced"
-      ? bank.filter((q) => q.difficulty === "advanced")
-      : bank.filter((q) => q.difficulty === difficulty && ageOk(q, age));
-  if (pool.length < count && difficulty === "advanced") pool = bank.filter((q) => q.difficulty === "difficult");
-  if (pool.length < count) pool = bank.filter((q) => q.difficulty === difficulty);
-  if (pool.length < count) pool = bank.filter((q) => ageOk(q, age));
-  if (pool.length < count) pool = bank.slice();
   const used = new Set(usedIds);
-  let available = pool.filter((q) => !used.has(q.id));
-  if (available.length < count) available = pool.slice();
-  return shuffle(available)
-    .slice(0, count)
-    .map((q) => (q.kind === "spell" ? { kind: "spell", id: q.id, word: q.word, hint: q.hint } : prepareChoice(q, Math.random)));
+  const avoid = new Set(blocked);
+  for (const question of bank) {
+    if (used.has(question.id)) avoid.add(sentenceKey(question));
+  }
+  const groups = difficultyOrder(difficulty).map((level) => {
+    const sameAge = bank.filter((question) => question.difficulty === level && ageOk(question, age));
+    if (sameAge.length > 0) return sameAge;
+    return bank.filter((question) => question.difficulty === level);
+  });
+  return takeFresh(groups, avoid, land.count, Math.random).map((question) => toPlayItem(question));
 }
 
 function choicePool(age: Age, difficulty: Difficulty) {
@@ -196,18 +268,25 @@ function choicePool(age: Age, difficulty: Difficulty) {
   return pool;
 }
 
-export function pickMixed(age: Age, difficulty: Difficulty, count: number, rnd: () => number = Math.random) {
-  return shuffle(choicePool(age, difficulty), rnd)
-    .slice(0, count)
-    .map((q) => prepareChoice(q, rnd));
+export function pickMixed(
+  age: Age,
+  difficulty: Difficulty,
+  count: number,
+  rnd: () => number = Math.random,
+  blocked: Set<string> = new Set(),
+) {
+  const pool = choicePool(age, difficulty);
+  return takeFresh([pool], blocked, count, rnd).flatMap((question) =>
+    question.kind === "choice" ? [prepareChoice(question, rnd)] : [],
+  );
 }
 
-export function pickDaily(age: Age, difficulty: Difficulty, key: string) {
-  return pickMixed(age, difficulty, 5, mulberry32(Number(key.replaceAll("-", "")) || 1));
+export function pickDaily(age: Age, difficulty: Difficulty, key: string, blocked: Set<string> = new Set()) {
+  return pickMixed(age, difficulty, 5, mulberry32(Number(key.replaceAll("-", "")) || 1), blocked);
 }
 
-export function pickBonus(age: Age, difficulty: Difficulty) {
-  const [item] = pickMixed(age, difficulty, 1);
+export function pickBonus(age: Age, difficulty: Difficulty, blocked: Set<string> = new Set()) {
+  const [item] = pickMixed(age, difficulty, 1, Math.random, blocked);
   return item ?? null;
 }
 
@@ -217,17 +296,28 @@ export function academySubjects() {
   return [...map.entries()].map(([subject, count]) => ({ subject, count }));
 }
 
-export function pickAcademy(subject: string) {
+export function pickAcademy(subject: string, blocked: Set<string> = new Set()) {
   const pool = academyQuestions.filter((question) => question.subject === subject);
-  return shuffle(pool)
-    .slice(0, Math.min(6, pool.length))
-    .map((question) =>
-      prepareChoice(question, Math.random, question.media ? { title: question.media.title, items: question.media.items } : null),
-    );
+  const fresh = takeFresh(
+    [pool.map((question) => ({ ...question, kind: "choice" as const, word: "", hint: "", age8: true, replace: false }))],
+    blocked,
+    Math.min(6, pool.length),
+  );
+  return fresh.map((question) => {
+    const source = pool.find((item) => item.id === question.id) ?? pool[0];
+    if (!source) return null;
+    return prepareChoice(source, Math.random, source.media ? { title: source.media.title, items: source.media.items } : null);
+  }).filter((item): item is PlayItem => item !== null);
 }
 
-export function randomBreak() {
-  return shuffle(breakCards)[0] ?? breakCards[0];
+export function randomBreak(seen: string[] = []) {
+  const unseen = breakCards.filter((card) => !seen.includes(card.text));
+  const last = seen[seen.length - 1];
+  const deck = unseen.length > 0 ? unseen : breakCards.filter((card) => card.text !== last);
+  const card = shuffle(deck.length > 0 ? deck : breakCards)[0] ?? breakCards[0];
+  if (!card) return { card: null, seen };
+  const nextSeen = unseen.length > 0 ? [...seen, card.text] : [card.text];
+  return { card, seen: nextSeen };
 }
 
 let audio: AudioContext | null = null;

@@ -7,6 +7,7 @@ import {
   type BreakCard,
   landById,
   lands,
+  blockedSentences,
   pickAcademy,
   pickBonus,
   pickDaily,
@@ -217,11 +218,14 @@ export const useQuiz = create<State>()(
         if (!land) return;
         const s = get();
         const key = `${s.name}|${id}|${s.difficulty}`;
-        const items = pickLandQuestions(land, s.age, s.difficulty, s.history[key] ?? []);
+        const items = pickLandQuestions(land, s.age, s.difficulty, s.history[key] ?? [], blockedSentences(s.history));
         if (!items.length) return;
+        let history = s.history;
+        for (const item of items) history = remember(history, key, item.id);
         set({
           screen: "play",
           shopForced: false,
+          history,
           round: {
             mode: "land",
             landId: id,
@@ -357,14 +361,16 @@ export const useQuiz = create<State>()(
           const board = finishedAll
             ? pushBoard(s.board, { name: s.name, stars: s.totalStars, coins, at: Date.now() })
             : s.board;
+          const picked = randomBreak(s.history["break|facts"] ?? []);
           set({
             badges,
             landDone,
             landCorrect,
             coins,
             board,
+            history: { ...s.history, "break|facts": picked.seen },
             round: null,
-            breakCard: randomBreak() ?? null,
+            breakCard: picked.card,
             breakShown: false,
             breakAfter: finishedAll ? "certificate" : "map",
             screen: "break",
@@ -421,9 +427,15 @@ export const useQuiz = create<State>()(
         }),
       openBonus: () => {
         const s = get();
-        const bonus = pickBonus(s.age, s.difficulty);
+        const bonus = pickBonus(s.age, s.difficulty, blockedSentences(s.history));
         if (!bonus) return;
-        set({ screen: "bonus", bonus, bonusPick: null, bonusRevealed: false });
+        set({
+          history: remember(s.history, `bonus|${s.name}|${s.difficulty}`, bonus.id),
+          screen: "bonus",
+          bonus,
+          bonusPick: null,
+          bonusRevealed: false,
+        });
       },
       answerBonus: (index) => {
         const s = get();
@@ -451,7 +463,7 @@ export const useQuiz = create<State>()(
           set({ screen: "daily" });
           return;
         }
-        const items = pickDaily(s.age, s.difficulty, today);
+        const items = pickDaily(s.age, s.difficulty, today, blockedSentences(s.history));
         set({
           screen: "play",
           round: {
@@ -466,9 +478,13 @@ export const useQuiz = create<State>()(
         });
       },
       startAcademy: (subject) => {
-        const items = pickAcademy(subject);
+        const s = get();
+        const items = pickAcademy(subject, blockedSentences(s.history));
         if (!items.length) return;
+        let history = s.history;
+        for (const item of items) history = remember(history, `academy|${subject}`, item.id);
         set({
+          history,
           screen: "play",
           round: {
             mode: "academy",
@@ -483,7 +499,7 @@ export const useQuiz = create<State>()(
       },
       startBattle: (p1, p2) => {
         const s = get();
-        const items = pickMixed(s.age, s.difficulty, 6);
+        const items = pickMixed(s.age, s.difficulty, 6, undefined, blockedSentences(s.history));
         set({
           screen: "play",
           round: {
