@@ -115,8 +115,13 @@ function Login() {
   const visiblePassword = showPassword ? "text" : "password";
 
   return (
-    <main className="grid min-h-screen place-items-center bg-bg px-4 py-10 text-fg">
-      <div className="screen-in w-full max-w-md rounded-card border border-line bg-surface p-6">
+    <main className="login-stage grid min-h-screen place-items-center px-4 py-10 text-fg">
+      <div className="screen-in login-card w-full max-w-md">
+        <div className="login-hero" aria-hidden="true">
+          <img src="/art/horizon.jpg" alt="" className="login-scene" />
+        </div>
+        <img src="/quizy-mark.png" alt="Quizy" className="login-logo" />
+        <div className="login-body">
         <p className="text-sm font-extrabold uppercase tracking-widest text-gold">Quizy account</p>
         <h1 className="mt-2 font-display text-4xl font-semibold">
           {resetRequest ? "Reset your password" : resetVerify ? "Enter your code" : resetPassword ? "Choose a new password" : "Save your trail"}
@@ -277,6 +282,7 @@ function Login() {
         <Link to="/" className="mt-5 block text-center text-sm font-extrabold text-muted">
           Back to camp
         </Link>
+        </div>
       </div>
     </main>
   );
