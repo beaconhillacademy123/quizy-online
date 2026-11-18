@@ -439,6 +439,12 @@ textarea {
   box-shadow: 0 14px 0 rgba(196, 146, 48, 0.12);
 }
 
+.spell-plain {
+  -webkit-text-security: none;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+}
+
 .land-emblem {
   position: relative;
   display: block;

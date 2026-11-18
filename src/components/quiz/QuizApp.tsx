@@ -801,6 +801,7 @@ function Play() {
       ) : (
         <form
           className="mt-6"
+          autoComplete="off"
           onSubmit={(event) => {
             event.preventDefault();
             if (!round.revealed) submitSpell(draft);
@@ -819,14 +820,24 @@ function Play() {
             </button>
           </div>
           <input
+            key={item.id}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
-            autoCapitalize="none"
+            type="password"
+            name="quizy-spell-attempt"
+            lang="zxx"
+            inputMode="text"
+            enterKeyHint="done"
+            autoComplete="off"
             autoCorrect="off"
+            autoCapitalize="off"
             spellCheck={false}
             aria-label="Your spelling"
+            data-1p-ignore="true"
+            data-lpignore="true"
+            data-form-type="other"
             disabled={round.revealed}
-            className="mt-4 w-full rounded-2xl border border-line bg-surface px-4 py-3 text-2xl font-bold text-fg"
+            className="spell-plain mt-4 w-full rounded-2xl border border-line bg-surface px-4 py-3 text-2xl font-bold text-fg"
           />
           {round.revealed && (
             <p className={cn("mt-3 font-extrabold", draft.trim().toLowerCase() === item.word.toLowerCase() ? "text-good" : "text-bad")}>
