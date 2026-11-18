@@ -440,6 +440,7 @@ textarea {
 }
 
 .land-emblem {
+  position: relative;
   display: block;
   width: 4.6rem;
   height: 4.6rem;
@@ -454,6 +455,373 @@ textarea {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform-origin: center;
+  animation: emblem-float 3.4s ease-in-out infinite;
+}
+
+.land-card:nth-child(3n) .land-emblem img {
+  animation-delay: -0.8s;
+}
+
+.land-card:nth-child(3n + 1) .land-emblem img {
+  animation-delay: -1.6s;
+}
+
+.land-animal img {
+  animation-name: emblem-breathe;
+}
+
+.land-space img {
+  animation-name: emblem-rocket;
+}
+
+.land-ocean img {
+  animation-name: emblem-swim;
+}
+
+.land-number img {
+  animation-name: emblem-rock;
+}
+
+.land-world img {
+  animation-name: emblem-spin;
+  animation-duration: 18s;
+  animation-timing-function: linear;
+}
+
+.land-news img {
+  animation-name: emblem-announce;
+  animation-duration: 2.8s;
+}
+
+.land-science img {
+  animation-name: emblem-bubble;
+}
+
+.land-logic img {
+  animation-name: emblem-wiggle;
+  animation-duration: 2.4s;
+}
+
+.land-africa img {
+  transform-origin: 50% 85%;
+  animation-name: emblem-sway;
+  animation-duration: 3.6s;
+}
+
+.land-tech img {
+  animation-name: emblem-hop;
+  animation-duration: 2.2s;
+}
+
+.land-sports img {
+  animation-name: emblem-trophy;
+  animation-duration: 2.6s;
+}
+
+.land-spelling img {
+  animation-name: emblem-bee;
+  animation-duration: 2.2s;
+}
+
+.land-science::before,
+.land-science::after,
+.land-space::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 999px;
+}
+
+.land-science::before,
+.land-science::after {
+  width: 0.38rem;
+  height: 0.38rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  background: rgba(186, 240, 190, 0.35);
+  animation: bubble-up 2.6s ease-in infinite;
+}
+
+.land-science::before {
+  left: 32%;
+  bottom: 28%;
+}
+
+.land-science::after {
+  left: 58%;
+  bottom: 34%;
+  animation-delay: -1.2s;
+}
+
+.land-space::after {
+  top: 18%;
+  right: 16%;
+  width: 0.28rem;
+  height: 0.28rem;
+  background: #fff6c8;
+  box-shadow:
+    -0.7rem 0.45rem 0 -0.05rem rgba(255, 246, 200, 0.9),
+    0.15rem 0.7rem 0 -0.08rem #fff;
+  animation: star-twinkle 1.6s ease-in-out infinite;
+}
+
+.trail-drift {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lantern-glow {
+  position: absolute;
+  top: 8%;
+  left: 6%;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 186, 72, 0.55), rgba(255, 160, 40, 0) 70%);
+  animation: lantern-flicker 1.8s ease-in-out infinite;
+}
+
+.leaf {
+  position: absolute;
+  top: -12%;
+  width: 0.7rem;
+  height: 0.45rem;
+  border-radius: 0 80% 0 80%;
+  background: linear-gradient(#e07a32, #b64028);
+  animation: leaf-fall 7.5s linear infinite;
+}
+
+.leaf.l1 {
+  left: 12%;
+}
+
+.leaf.l2 {
+  left: 38%;
+  animation-delay: -2.4s;
+  animation-duration: 9s;
+  background: linear-gradient(#d6a13a, #a85a22);
+}
+
+.leaf.l3 {
+  left: 64%;
+  animation-delay: -4.5s;
+  animation-duration: 8s;
+}
+
+.leaf.l4 {
+  left: 82%;
+  width: 0.55rem;
+  animation-delay: -1.2s;
+  animation-duration: 6.5s;
+  background: linear-gradient(#c4513a, #7d341c);
+}
+
+@keyframes emblem-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.05);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.1);
+  }
+}
+
+@keyframes emblem-breathe {
+  0%,
+  100% {
+    transform: scale(1.02);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes emblem-rocket {
+  0%,
+  100% {
+    transform: translateY(3px) rotate(-3deg) scale(1.06);
+  }
+  50% {
+    transform: translateY(-8px) rotate(4deg) scale(1.1);
+  }
+}
+
+@keyframes emblem-swim {
+  0%,
+  100% {
+    transform: translateX(-4px) rotate(-6deg) scale(1.08);
+  }
+  50% {
+    transform: translateX(5px) rotate(6deg) scale(1.08);
+  }
+}
+
+@keyframes emblem-rock {
+  0%,
+  100% {
+    transform: rotate(-6deg) scale(1.06);
+  }
+  50% {
+    transform: rotate(6deg) scale(1.06);
+  }
+}
+
+@keyframes emblem-spin {
+  from {
+    transform: rotate(0deg) scale(1.18);
+  }
+  to {
+    transform: rotate(360deg) scale(1.18);
+  }
+}
+
+@keyframes emblem-announce {
+  0%,
+  70%,
+  100% {
+    transform: scale(1.04);
+  }
+  76% {
+    transform: scale(1.1) rotate(-4deg);
+  }
+  84% {
+    transform: scale(1.1) rotate(4deg);
+  }
+}
+
+@keyframes emblem-bubble {
+  0%,
+  100% {
+    transform: translateY(2px) scale(1.04);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.1);
+  }
+}
+
+@keyframes emblem-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1.06);
+  }
+  30% {
+    transform: rotate(-7deg) scale(1.06);
+  }
+  70% {
+    transform: rotate(7deg) scale(1.06);
+  }
+}
+
+@keyframes emblem-sway {
+  0%,
+  100% {
+    transform: rotate(-4deg) scale(1.08);
+  }
+  50% {
+    transform: rotate(4deg) scale(1.08);
+  }
+}
+
+@keyframes emblem-hop {
+  0%,
+  62%,
+  100% {
+    transform: translateY(0) scale(1.05);
+  }
+  78% {
+    transform: translateY(-7px) scale(1.1);
+  }
+  90% {
+    transform: translateY(1px) scale(1.02);
+  }
+}
+
+@keyframes emblem-trophy {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1.05);
+  }
+  35% {
+    transform: translateY(-6px) rotate(-6deg) scale(1.1);
+  }
+  65% {
+    transform: translateY(-6px) rotate(6deg) scale(1.1);
+  }
+}
+
+@keyframes emblem-bee {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-6deg) scale(1.06);
+  }
+  25% {
+    transform: translate(3px, -5px) rotate(5deg) scale(1.1);
+  }
+  50% {
+    transform: translate(-1px, -1px) rotate(-3deg) scale(1.05);
+  }
+  75% {
+    transform: translate(-4px, -6px) rotate(6deg) scale(1.1);
+  }
+}
+
+@keyframes bubble-up {
+  0% {
+    transform: translateY(8px) scale(0.7);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-22px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes lantern-flicker {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  40% {
+    opacity: 0.9;
+    transform: scale(1.08);
+  }
+  70% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes leaf-fall {
+  0% {
+    transform: translateY(-10%) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(12rem) rotate(220deg);
+    opacity: 0.2;
+  }
 }
 
 .land-emblem.is-cleared {

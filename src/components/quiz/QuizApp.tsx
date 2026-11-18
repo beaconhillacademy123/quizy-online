@@ -115,9 +115,10 @@ export function QuizApp() {
           </p>
         )}
         {(screen === "camp" || screen === "map") && (
-          <figure className={cn("scenic-banner", screen === "camp" && "is-alive")}>
+          <figure className={cn("scenic-banner", screen === "camp" && "is-alive", screen === "map" && "is-trail")}>
             <img src={screen === "camp" ? "/art/horizon.jpg" : "/art/table.jpg"} alt="" />
             {screen === "camp" && <LivingSky />}
+            {screen === "map" && <TrailDrift />}
           </figure>
         )}
         <div key={`${screen}-${round?.index ?? "x"}-${round?.title ?? ""}`} className="screen-in mt-4 flex-1">
@@ -140,6 +141,18 @@ export function QuizApp() {
       {gate && <TrailGate onEnter={() => setGate(false)} />}
       {help && <HelpMap onClose={() => setHelp(false)} />}
     </main>
+  );
+}
+
+function TrailDrift() {
+  return (
+    <div className="trail-drift" aria-hidden="true">
+      <span className="lantern-glow" />
+      <i className="leaf l1" />
+      <i className="leaf l2" />
+      <i className="leaf l3" />
+      <i className="leaf l4" />
+    </div>
   );
 }
 
@@ -631,7 +644,7 @@ function Trail({ flags }: { flags: PublicFlags }) {
               )}
             >
               <span className="flex items-center justify-between gap-3">
-                <span className={cn("land-emblem", done && "is-cleared")}>
+                <span className={cn("land-emblem", `land-${land.id}`, done && "is-cleared")}>
                   <img src={`/art/lands/${land.id}.jpg`} alt="" />
                 </span>
                 <span className="text-sm font-extrabold text-muted">
