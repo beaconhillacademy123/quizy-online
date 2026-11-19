@@ -207,3 +207,24 @@ export function JungleLife() {
     </div>
   );
 }
+
+/** Opening act: a night-time jungle that presents PROMISEVISUALS before the Quizy card. */
+export function JungleIntro() {
+  return (
+    <span className="jl-intro" aria-hidden="true">
+      <span className="jl-intro-moon" />
+      <span className="jl-vine-swing jl-i1"><span className="jl-vine" /><Monkey /></span>
+      <span className="jl-vine-swing jl-i2"><span className="jl-vine" /><Monkey /></span>
+      <span className="jl-intro-owl"><Owl /></span>
+      <span className="jl-fireflies jl-intro-flies"><i /><i /><i /><i /><i /><i /></span>
+      <span className="jl-intro-bush l"><EyesBush /></span>
+      <span className="jl-intro-bush r"><EyesBush /></span>
+      <span className="jl-intro-ferns"><Fern /><Fern flip /><Fern /><Fern flip /></span>
+      <span className="jl-intro-title">
+        <small>a product of</small>
+        <strong>PROMISEVISUALS</strong>
+        <em><span className="pv-flag"><i /><i /><i /></span> Made in Nigeria</em>
+      </span>
+    </span>
+  );
+}

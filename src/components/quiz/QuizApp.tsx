@@ -39,7 +39,7 @@ import { BattleRoom } from "@/components/quiz/BattleRoom";
 import { CloudSync } from "@/components/quiz/CloudSync";
 import { CommandCenter } from "@/components/quiz/CommandCenter";
 import { HelpMap } from "@/components/quiz/HelpMap";
-import { BannerCreatures, JungleLife } from "@/components/quiz/JungleLife";
+import { BannerCreatures, JungleIntro, JungleLife } from "@/components/quiz/JungleLife";
 
 /** Screens where a child is answering: no moving creatures there, so nothing competes with the question. */
 const QUIET_SCREENS = new Set(["play", "battle", "command", "certificate"]);
@@ -77,7 +77,8 @@ export function QuizApp() {
   const screen = useQuiz((s) => s.screen);
   const round = useQuiz((s) => s.round);
   const [help, setHelp] = useState(false);
-  const [gate, setGate] = useState(true);
+  // Opening: first the PROMISEVISUALS jungle, then the Quizy card, then the app.
+  const [gate, setGate] = useState<"intro" | "card" | null>("intro");
   const [flags, setFlags] = useState<PublicFlags>(OPEN_FLAGS);
   const onFlags = useCallback((next: PublicFlags) => setFlags(next), []);
 
@@ -92,8 +93,13 @@ export function QuizApp() {
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timer = window.setTimeout(() => setGate(false), reduce ? 1200 : 3400);
-    return () => window.clearTimeout(timer);
+    const step = reduce ? 1600 : 3600;
+    const toCard = window.setTimeout(() => setGate((g) => (g === "intro" ? "card" : g)), step);
+    const done = window.setTimeout(() => setGate(null), step * 2);
+    return () => {
+      window.clearTimeout(toCard);
+      window.clearTimeout(done);
+    };
   }, []);
 
   return (
@@ -145,7 +151,7 @@ export function QuizApp() {
         <PvCredit className="app-footer-credit" />
       </div>
       {!QUIET_SCREENS.has(screen) && <JungleLife />}
-      {gate && <TrailGate onEnter={() => setGate(false)} />}
+      {gate && <TrailGate stage={gate} onEnter={() => setGate((g) => (g === "intro" ? "card" : null))} />}
       {help && <HelpMap onClose={() => setHelp(false)} />}
     </main>
   );
@@ -208,7 +214,14 @@ function BirdMark() {
   );
 }
 
-function TrailGate({ onEnter }: { onEnter: () => void }) {
+function TrailGate({ stage, onEnter }: { stage: "intro" | "card"; onEnter: () => void }) {
+  if (stage === "intro") {
+    return (
+      <button type="button" className="trail-gate is-intro" onClick={onEnter} aria-label="Quizy, a product of PROMISEVISUALS. Tap to continue.">
+        <JungleIntro />
+      </button>
+    );
+  }
   return (
     <button type="button" className="trail-gate" onClick={onEnter}>
       <span className="trail-gate-card">
