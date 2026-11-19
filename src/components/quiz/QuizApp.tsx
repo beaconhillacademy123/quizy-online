@@ -39,6 +39,10 @@ import { BattleRoom } from "@/components/quiz/BattleRoom";
 import { CloudSync } from "@/components/quiz/CloudSync";
 import { CommandCenter } from "@/components/quiz/CommandCenter";
 import { HelpMap } from "@/components/quiz/HelpMap";
+import { BannerCreatures, JungleLife } from "@/components/quiz/JungleLife";
+
+/** Screens where a child is answering: no moving creatures there, so nothing competes with the question. */
+const QUIET_SCREENS = new Set(["play", "battle", "command", "certificate"]);
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -88,12 +92,12 @@ export function QuizApp() {
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timer = window.setTimeout(() => setGate(false), reduce ? 350 : 1650);
+    const timer = window.setTimeout(() => setGate(false), reduce ? 1200 : 3400);
     return () => window.clearTimeout(timer);
   }, []);
 
   return (
-    <main className={cn("expedition-app min-h-screen text-fg", screen === "camp" && "is-camp")}>
+    <main className={cn("expedition-app min-h-screen text-fg", screen === "camp" && "is-camp", !QUIET_SCREENS.has(screen) && "has-jungle")}>
       <div className="world-bg" aria-hidden="true">
         <img src="/art/compass.jpg" alt="" className="world-compass" />
       </div>
@@ -119,6 +123,7 @@ export function QuizApp() {
             <img src={screen === "camp" ? "/art/horizon.jpg" : "/art/table.jpg"} alt="" />
             {screen === "camp" && <LivingSky />}
             {screen === "map" && <TrailDrift />}
+            <BannerCreatures scene={screen === "camp" ? "camp" : "trail"} />
           </figure>
         )}
         <div key={`${screen}-${round?.index ?? "x"}-${round?.title ?? ""}`} className="screen-in mt-4 flex-1">
@@ -137,7 +142,9 @@ export function QuizApp() {
           {screen === "battle" && <BattleRoom />}
           {screen === "command" && <CommandCenter />}
         </div>
+        <PvCredit className="app-footer-credit" />
       </div>
+      {!QUIET_SCREENS.has(screen) && <JungleLife />}
       {gate && <TrailGate onEnter={() => setGate(false)} />}
       {help && <HelpMap onClose={() => setHelp(false)} />}
     </main>
@@ -214,8 +221,21 @@ function TrailGate({ onEnter }: { onEnter: () => void }) {
           <i />
         </span>
         <span className="text-sm font-bold text-muted">Setting out… tap to enter</span>
+        <PvCredit />
       </span>
     </button>
+  );
+}
+
+function PvCredit({ className = "" }: { className?: string }) {
+  return (
+    <span className={cn("pv-credit", className)}>
+      <span>A product of</span>
+      <strong>PROMISEVISUALS</strong>
+      <span aria-hidden="true">·</span>
+      <span className="pv-flag" aria-label="Nigeria"><i /><i /><i /></span>
+      <span>Made in Nigeria</span>
+    </span>
   );
 }
 

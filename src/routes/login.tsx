@@ -282,6 +282,13 @@ function Login() {
         <Link to="/" className="mt-5 block text-center text-sm font-extrabold text-muted">
           Back to camp
         </Link>
+        <p className="pv-credit mt-4">
+          <span>A product of</span>
+          <strong>PROMISEVISUALS</strong>
+          <span aria-hidden="true">·</span>
+          <span className="pv-flag" aria-label="Nigeria"><i /><i /><i /></span>
+          <span>Made in Nigeria</span>
+        </p>
         </div>
       </div>
     </main>
